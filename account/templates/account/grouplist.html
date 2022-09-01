@@ -1,0 +1,20 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+    <form>{% csrf_token %}
+        <input type="text" name="search" placeholder="Group name">
+        <input type="submit" value="submit">
+    </form>
+    <br><hr>
+    <h2>Group List</h2>
+    <ul>
+        {% for group in object_list %}
+           <div><li style="display: flex; gap:10px"><strong><a href="{% url 'member-list' group.id %}">{{ group }}</a></strong> <i>{% if group.is_closed %}closed{% else %}open{% endif %}</i>
+                <form method="post" action="{% url 'join-group' request.user.id group.id %}">
+                    {% csrf_token %}{% if not group.is_closed %}<input type="submit"
+                                                                       value="{% if request.user in group.user.all %}Unjoined{% else %}Join{% endif %}">{% endif %}
+                </form>
+            </li></div>
+        {% endfor %}
+    </ul>
+{% endblock %}
