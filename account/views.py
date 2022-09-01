@@ -70,7 +70,6 @@ class UpdateProfileView(View):
         return render(request, 'account/updateprofile.html')
 
 
-
 class CreatGroupView(LoginRequiredMixin, FormView):
     form_class = GroupForm
     template_name = 'account/creategroup.html'
@@ -152,6 +151,7 @@ class GroupListView(LoginRequiredMixin, ListView):
             queryset = UserGroup.objects.all()
         return queryset
 
+
 class MemberJoinGroupView(View):
     def post(self, request, pk, grouppk):
         group = UserGroup.objects.get(pk=grouppk)
@@ -164,7 +164,6 @@ class MemberJoinGroupView(View):
             group.user.remove(user)
             messages.success(self.request, "You're successfully exit the group.")
             return HttpResponseRedirect(reverse('group-list'))
-
 
 
 class MemberListView(LoginRequiredMixin, DetailView):
