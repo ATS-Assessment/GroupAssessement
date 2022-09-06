@@ -14,23 +14,6 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class UserGroup(models.Model):
-    user = models.ManyToManyField(User)
-    name = models.CharField(max_length=200)
-    is_closed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-
-class Admin(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.user.username
-
-
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
