@@ -2,12 +2,12 @@
 
 from .models import Group, Member, Post, Member, Like, Replies, GroupRequest
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Q
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -20,7 +20,24 @@ from .forms import GroupForm
 
 class GroupList(LoginRequiredMixin, ListView):
     model = Group
-    template_name = "groups/groups_list.html"
+    template_name = "groups/group_list.html"
+    context_object_name = "group_list"
+
+
+# class GroupDetail(LoginRequiredMixin, DetailView):
+#     model = Group
+#     template_name = "groups/group_detail.html"
+#     context_object_name = "group"
+
+def group_detail(request, group_pk):
+    group = Group.objects.get(pk=group_pk)
+
+    return render(request, "groups/group_detail.html", {
+        "group": group,
+        "members": group.group_member.all(),
+        "count": group.group_member.all().count(),
+        "member": Member.objects.all(),
+    })
 
 
 @login_required(login_url='login')
@@ -36,6 +53,7 @@ def create_group(request):
                 name=name, description=description, privacy_status=privacy_status, creator=request.user, group_image=group_image)
             new_member = Member.objects.create(
                 group=group, member=group.creator, is_admin=True)
+            print(new_member.member)
             group.save()
             new_member.save()
             messages.success(
@@ -85,6 +103,7 @@ def remove_group_member(request, group_name, admin_pk, user_pk):
     return redirect(request.META["HTTP_REFERER"])
 
 
+@login_required(login_url='login')
 def request_to_join_group(request, group_name, user_pk):
     pass
 
@@ -102,11 +121,23 @@ def exit_group(request, group_name, user_pk):
     return redirect("group-list")
 
 
-# Create your views here.
-
 def suspend_member(request, group_name, admin_pk, user_pk):
     group = Group.objects.get(name=group_name, user__pk=admin_pk).first()
     member = group.group_member.filter(user__pk=user_pk)
     member.is_suspended = True
     member.save()
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
+@login_required(login_url='login')
+def create_post(request, group_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.all().filter(member=request.user)
+    if group_member.is_suspended is False:
+        post = Post.objects.create(
+            title="", content="", group=group, member=request.user)
+        post.save()
+        return JsonResponse({"data": post})
+    else:
+        return JsonResponse({"message": "Permission Denied",
+                             })
