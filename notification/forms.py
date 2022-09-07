@@ -13,4 +13,4 @@ class EventForm(forms.ModelForm):
 class PollForm(forms.ModelForm):
     class Meta:
         model = Poll
-        fields = ["title", "poll_option"]
+        fields = ["title", ]

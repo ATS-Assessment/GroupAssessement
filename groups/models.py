@@ -64,9 +64,9 @@ class Group(models.Model):
         return self.name
 
 
-class GroupRequest(models.Manager):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+class GroupRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     request_messgae = models.CharField(max_length=100)
     date_sent = models.DateTimeField(auto_now_add=True)
 

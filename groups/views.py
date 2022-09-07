@@ -155,6 +155,19 @@ def create_post(request, group_pk):
                              })
 
 
+def search_groups(request):
+    if request.method == 'POST':
+        group_name = request.POST.get('search')
+        print(group_name)
+        results = Group.objects.filter(
+            Q(name__icontains=group_name) | Q
+            (description__icontains=group_name))
+        context = {
+            'results': results
+        }
+        return render(request, 'users/search_result.html', context)
+
+
 def like_post(request, group_pk, post_pk):
     group = Group.objects.get(pk=group_pk)
     group_member = group.group_member.all().filter(member=request.user)

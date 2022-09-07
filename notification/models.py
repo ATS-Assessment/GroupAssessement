@@ -27,16 +27,19 @@ class Notification(models.Model):
     )
     receiver = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name="to_user", null=True)
-    # admin_receiver = models.ForeignKey(
-    #     User, on_delete=models.SET_NULL, related_name="to_user", null=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="noti_creator", null=True)
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
     content_preview = models.CharField(max_length=100, null=True)
-    notification_type = models.IntegerField(
-        choices=NOTIFICATION_TYPE, null=True)
+    notification_type = models.CharField(max_length=50,
+                                         choices=NOTIFICATION_TYPE, null=True)
     time_created = models.DateTimeField(auto_now_add=True)
     is_seen = models.BooleanField(default=False)
     is_admin_notification = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-time_created"]
 
 
 class Event(models.Model):
@@ -77,7 +80,7 @@ class Poll(models.Model):
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=90, null=True)
-    polls_option = models.JSONField(default=_json())
+    # polls_option = models.JSONField(default=_json())
 
     def has_started(self):
         return self.start_date > datetime.datetime.now()
