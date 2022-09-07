@@ -72,37 +72,9 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
         return super(ChangePasswordView, self).form_valid(form)
 
 
-<<<<<<< HEAD
-class UpdateProfileView(View):
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
-        user_form = UserForm(instance=user)
-        profile_form = UserProfileForm(instance=user.userprofile)
-
-        context = {
-            'user_form': user_form,
-            'profile_form': profile_form,
-        }
-        return render(request, 'account/updateprofile.html', context)
-
-    def post(self, request, pk):
-        user = User.objects.get(pk=pk)
-        user_form = UserForm(request.POST, instance=user)
-        profile_form = UserProfileForm(
-            request.POST, request.FILES, instance=user.userprofile)
-
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(
-                self.request, f"{user.username} profile updated successfully...")
-            return HttpResponseRedirect(reverse('index'))
-        return render(request, 'account/updateprofile.html')
-=======
 class UpdateProfileView(UpdateView):
     model = User
     form_class = UserForm
->>>>>>> 0fe0238b8794e51017c6cfd8d4d399fd14734d9e
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})

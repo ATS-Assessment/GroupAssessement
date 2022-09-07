@@ -39,8 +39,8 @@ class Event(models.Model):
     description = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    start_time = models.TimeField(null=True)
-    end_time = models.TimeField(null=True)
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
     # yes = models.JSONField(default=__json())
     # no = models.JSONField(default=__json())
     # maybe = models.JSONField(default=__json())
@@ -54,4 +54,4 @@ class Poll(models.Model):
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=90, null=True)
-    polls_option = models.JSONField(default=_json())
+
