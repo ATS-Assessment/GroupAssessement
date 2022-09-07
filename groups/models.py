@@ -1,6 +1,10 @@
-from django.contrib.auth.models import User
+from account.models import User
 from django.db import models
-from django.contrib.auth.models import User
+
+from django.db import models
+from django.db.models.signals import post_save, post_delete, post_init
+
+from notification.models import Notification
 
 
 # Create your models here.
@@ -63,8 +67,11 @@ class Group(models.Model):
 class GroupRequest(models.Manager):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    request_message = models.TextField()
-    time_stamp = models.DateTimeField(auto_now_add=True)
+    request_message = models.CharField(max_length=100)
+    date_sent = models.DateTimeField(auto_now_add=True)
+
+    def member_requested(self):
+        pass
 
 
 class Member(models.Model):
@@ -87,7 +94,7 @@ class Post(models.Model):
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=50, blank=True, null=True)
-    body = models.TextField()
+    content = models.TextField()
     post_image = models.ImageField(
         upload_to="posts/images", blank=True, null=True)
     post_files = models.FileField(
@@ -98,6 +105,9 @@ class Post(models.Model):
     objects = models.Manager()
     active_objects = ActiveManager()
     inactive_objects = InactiveManager()
+
+    def member_post(self):
+        pass
 
 
 class Comment(models.Model):
@@ -111,6 +121,9 @@ class Comment(models.Model):
     active_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
+    def member_commented(self):
+        pass
+
 
 class Replies(models.Model):
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
@@ -123,16 +136,29 @@ class Replies(models.Model):
     active_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
+    def member_replied(self):
+        pass
+
 
 class Like(models.Model):
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
     comment = models.ForeignKey(
-        Comment, blank=True, null=True, on_delete=models.SET_NULL)
+        Comment, blank=True, null=True, on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, blank=True, null=True)
     reply = models.ForeignKey(
-        Replies, blank=True, null=True, on_delete=models.SET_NULL)
+        Replies, blank=True, null=True, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
     objects = models.Manager()
     active_objects = ActiveManager()
     inactive_objects = InactiveManager()
+
+    def member_like_post(sender, instance, *args, **kwargs):
+        like = instance
+        sender = like.member
+        receiver = like.post
+
+        notify = Notification.objects.create(sender=sender,
+                                             receiver=receiver, notification_type=1)

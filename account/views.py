@@ -1,19 +1,22 @@
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Permission
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordChangeView
 from django.http import HttpResponseRedirect
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
 from django.urls import reverse, reverse_lazy
+from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
-from account.forms import RegisterForm, AddMemberToAdminForm, UserForm, UserProfileForm
-from account.models import UserProfile
+from account.forms import RegisterForm, UserForm
+from account.models import User
+from account.utils import send_email_verification
 
 
 def index(request):
@@ -27,11 +30,36 @@ class UserRegisterView(CreateView):
 
     def form_valid(self, form):
         if form.is_valid():
-            messages.success(self.request, "Registration Successful...")
-        return super(UserRegisterView, self).form_valid(form)
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
+            user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email,
+                                            password=password)
+            send_email_verification(self.request, user)
+            messages.success(self.request, "Registration Successful... Check your mail to activate the account. ")
+            return redirect('login')
 
-    def get_success_url(self):
-        return reverse('login')
+
+def activate(request, uidb64, token):
+    try:
+        user_pk = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=user_pk)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        messages.success(
+            request, "Congratulations! Your account is activated.")
+        return redirect('index')
+
+    else:
+        messages.error(request, "Invalid Activation Link!")
+        return redirect('login')
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
@@ -44,6 +72,7 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
         return super(ChangePasswordView, self).form_valid(form)
 
 
+<<<<<<< HEAD
 class UpdateProfileView(View):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
@@ -69,7 +98,14 @@ class UpdateProfileView(View):
                 self.request, f"{user.username} profile updated successfully...")
             return HttpResponseRedirect(reverse('index'))
         return render(request, 'account/updateprofile.html')
+=======
+class UpdateProfileView(UpdateView):
+    model = User
+    form_class = UserForm
+>>>>>>> 0fe0238b8794e51017c6cfd8d4d399fd14734d9e
 
+    def get_success_url(self):
+        return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})
 
 # class CreatGroupView(LoginRequiredMixin, FormView):
 #     form_class = GroupForm
