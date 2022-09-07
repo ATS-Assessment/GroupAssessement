@@ -4,8 +4,7 @@
     <h2>Update Profile Form</h2><hr>
     <form method="post" action="{% url 'update-profile' request.user.id %}" enctype="multipart/form-data">
     {% csrf_token %}
-        {{ user_form.as_p }}
-        {{ profile_form.as_p }}
+        {{ form.as_p }}
     <input type="submit" value="submit">
     </form>
 {% endblock %}

@@ -138,10 +138,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = "oyedeleyusuff@gmail.com"
-EMAIL_HOST_PASSWORD = "khfosmvtiyozsagc"
+EMAIL_HOST_USER = "yaoyedele@student.lautech.edu.ng"
+EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
+DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
 
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
+
+AUTH_USER_MODEL = 'account.User'
