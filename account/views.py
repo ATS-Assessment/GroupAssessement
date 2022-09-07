@@ -20,7 +20,7 @@ from account.utils import send_email_verification
 
 
 def index(request):
-    return render(request, 'account/index.html')
+    return render(request, 'index.html')
 
 
 class UserRegisterView(CreateView):
@@ -38,7 +38,8 @@ class UserRegisterView(CreateView):
             user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email,
                                             password=password)
             send_email_verification(self.request, user)
-            messages.success(self.request, "Registration Successful... Check your mail to activate the account. ")
+            messages.success(
+                self.request, "Registration Successful... Check your mail to activate the account. ")
             return redirect('login')
 
 
