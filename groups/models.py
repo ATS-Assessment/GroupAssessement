@@ -1,14 +1,10 @@
 from account.models import User
 from django.db import models
 
-
-
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, post_delete, post_init
 
 from notification.models import Notification
-
 
 
 # Create your models here.
