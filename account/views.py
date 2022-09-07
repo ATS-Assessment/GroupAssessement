@@ -17,7 +17,7 @@ from account.models import UserProfile
 
 
 def index(request):
-    return render(request, 'account/index.html')
+    return render(request, 'index.html')
 
 
 class UserRegisterView(CreateView):
@@ -45,7 +45,6 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
 
 
 class UpdateProfileView(View):
-
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user_form = UserForm(instance=user)
