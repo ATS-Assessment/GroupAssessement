@@ -50,7 +50,11 @@ def create_group(request):
             privacy_status = group_form.cleaned_data.get("privacy_status")
             group_image = group_form.cleaned_data.get("group_image")
             group = Group.objects.create(
-                name=name, description=description, privacy_status=privacy_status, creator=request.user, group_image=group_image)
+                name=name,
+                description=description,
+                privacy_status=privacy_status,
+                creator=request.user,
+                group_image=group_image)
             new_member = Member.objects.create(
                 group=group, member=group.creator, is_admin=True)
             print(new_member.member)
@@ -101,6 +105,20 @@ def remove_group_member(request, group_name, admin_pk, user_pk):
     messages.success(
         request, f"{member.user.first_name} has successfully been removed from the Group!")
     return redirect(request.META["HTTP_REFERER"])
+
+
+# @require_POST
+# @login_required(login_url='login')
+# def join_group(request, pk):
+#     group = Group.objects.get(id=pk)
+#     members = group.group_member.all()
+#     if request.user not in members:
+#         new_member = Member.objects.create(group=group, member=request.user, is_admin=False)
+#     else:
+#         group.group_member.objects.remove(group=group, member=request.user)
+#     group.save()
+#     new_member.save()
+#     return render(request, 'groups/group_list.html', {'new_member': new_member, 'members': members})
 
 
 @login_required(login_url='login')

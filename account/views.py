@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.tokens import default_token_generator
@@ -14,11 +15,12 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
-from account.forms import RegisterForm, UserForm
-from account.models import User
+from account.forms import RegisterForm, UserProfileForm
+from account.models import User, UserProfile
 from account.utils import send_email_verification
 
 
+@login_required(login_url='login')
 def index(request):
     return render(request, 'index.html')
 
@@ -72,41 +74,39 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
         return super(ChangePasswordView, self).form_valid(form)
 
 
-<<<<<<< HEAD
-class UpdateProfileView(View):
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
-        user_form = UserForm(instance=user)
-        profile_form = UserProfileForm(instance=user.userprofile)
-
-        context = {
-            'user_form': user_form,
-            'profile_form': profile_form,
-        }
-        return render(request, 'account/updateprofile.html', context)
-
-    def post(self, request, pk):
-        user = User.objects.get(pk=pk)
-        user_form = UserForm(request.POST, instance=user)
-        profile_form = UserProfileForm(
-            request.POST, request.FILES, instance=user.userprofile)
-
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(
-                self.request, f"{user.username} profile updated successfully...")
-            return HttpResponseRedirect(reverse('index'))
-        return render(request, 'account/updateprofile.html')
-=======
 class UpdateProfileView(UpdateView):
     model = User
-    form_class = UserForm
->>>>>>> 0fe0238b8794e51017c6cfd8d4d399fd14734d9e
+    form_class = UserProfileForm
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})
 
+# @login_required(login_url='login')
+def edit_profile(request, profile_pk):
+    # user_profile = UserProfile.objects.get(pk=profile_pk)
+    if request.method == "POST":
+        user_form = RegisterForm(request.POST)
+        profile_form = UserProfileForm(
+            request.POST, request.FILES)
+        print(user_form.errors)
+        print(profile_form.errors)
+        if user_form.is_valid() and profile_form.is_valid():
+            print("Did it")
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Your Update was saved successfully")
+            print("Here")
+            return redirect(reverse('update-profile', args=[profile_pk]))
+
+    else:
+        user_form = RegisterForm(instance=request.user)
+        profile_form = UserProfileForm()
+    context = {
+        "user_form": user_form,
+        "profile_form": profile_form
+    }
+
+    return render(request, 'account/user_form.html', context)
 # class CreatGroupView(LoginRequiredMixin, FormView):
 #     form_class = GroupForm
 #     template_name = 'account/creategroup.html'
