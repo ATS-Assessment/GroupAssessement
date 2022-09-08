@@ -48,7 +48,7 @@ def edit_poll(request, group_pk, poll_pk):
         }
         return render(request, 'notification/poll-detail.html', context)
     else:
-        messages.error(request, 'You can only edit before start date.')
+        messages.error(request, 'You can only edit before the start date.')
 
 
 def vote(request, pk):

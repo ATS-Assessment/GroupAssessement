@@ -10,7 +10,7 @@ class Poll(models.Model):
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=90, null=True)
-    start_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True)
 
     # # polls_option = models.JSONField(default=_json())
     #
