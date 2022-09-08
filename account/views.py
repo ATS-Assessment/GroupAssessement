@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.auth import logout, login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.tokens import default_token_generator
@@ -15,12 +14,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
-from account.forms import RegisterForm, UserProfileForm
-from account.models import User, UserProfile
+from account.forms import RegisterForm, UserForm
+from account.models import User
 from account.utils import send_email_verification
 
 
-@login_required(login_url='login')
 def index(request):
     return render(request, 'index.html')
 
@@ -77,38 +75,11 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
 
 class UpdateProfileView(UpdateView):
     model = User
-    form_class = UserProfileForm
+    form_class = UserForm
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})
 
-
-# @login_required(login_url='login')
-def edit_profile(request, profile_pk):
-    # user_profile = UserProfile.objects.get(pk=profile_pk)
-    if request.method == "POST":
-        user_form = RegisterForm(request.POST)
-        profile_form = UserProfileForm(
-            request.POST, request.FILES)
-        print(user_form.errors)
-        print(profile_form.errors)
-        if user_form.is_valid() and profile_form.is_valid():
-            print("Did it")
-            user_form.save()
-            profile_form.save()
-            messages.success(request, "Your Update was saved successfully")
-            print("Here")
-            return redirect(reverse('update-profile', args=[profile_pk]))
-
-    else:
-        user_form = RegisterForm(instance=request.user)
-        profile_form = UserProfileForm()
-    context = {
-        "user_form": user_form,
-        "profile_form": profile_form
-    }
-
-    return render(request, 'account/user_form.html', context)
 # class CreatGroupView(LoginRequiredMixin, FormView):
 #     form_class = GroupForm
 #     template_name = 'account/creategroup.html'
