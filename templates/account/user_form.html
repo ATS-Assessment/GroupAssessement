@@ -1,23 +1,12 @@
-<<<<<<<< HEAD:templates/account/updateprofile.html
 {% extends 'base.html' %}
 
 {% block content %}
     <h2>Update Profile Form</h2><hr>
     <form method="post" action="{% url 'update-profile' request.user.id %}" enctype="multipart/form-data">
     {% csrf_token %}
-        {{ user_form.as_p }}
+        {{ user_form }}
         {{ profile_form.as_p }}
-    <input type="submit" value="submit">
-    </form>
-========
-{% extends 'account/base.html' %}
 
-{% block content %}
-    <h2>Update Profile Form</h2><hr>
-    <form method="post" action="{% url 'update-profile' request.user.id %}" enctype="multipart/form-data">
-    {% csrf_token %}
-        {{ form.as_p }}
     <input type="submit" value="submit">
     </form>
->>>>>>>> 0fe0238b8794e51017c6cfd8d4d399fd14734d9e:templates/account/user_form.html
 {% endblock %}

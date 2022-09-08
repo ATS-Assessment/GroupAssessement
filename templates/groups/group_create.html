@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        input, textarea{
+            width: 100%;
+        }
+    </style>
+    <form action="" method="post">
+        {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" placeholder="Enter name of the group">
+            </div>
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="description">Description:</label>
+                <textarea name="description" id="description" placeholder="Enter description of the group"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="privacy_status">Privacy Status:</label>
+                <select id="privacy_status" name="privacy_status">
+                    <option value>----------------------</option>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="group_image">Group Image:</label>
+                <input type="file" name="group_image" id="group_image" placeholder="Select Group Image">
+            </div>
+        <button type="submit">Create</button>
+    </form>
+{% endblock %}
+
+</body>
+</html>

@@ -1,4 +1,6 @@
+{% extends 'account/base.html' %}
 {% load static %}
+<<<<<<< HEAD:templates/account/login.html
 <!doctype html>
 <html lang="en">
    <head>
@@ -99,40 +101,54 @@
                         </div>
                     </div>
                 </div>
+=======
+
+{% block content %}
+<div class="col-md-6 bg-white pt-5">
+    <div class="sign-in-from">
+        <h1 class="mb-0">Sign in</h1>
+        <p>Enter your email address and password.</p>
+        <form action="" method="post" class="mt-4">
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <div class="form-group">
+                <label for="email">Email address:</label>
+                <input type="email"
+                       class="form-control mb-0"
+                       id="email"
+                       name="username"
+                       placeholder="Enter email">
+>>>>>>> fdaf3228c1b869069a9e63f8a5665f6ce35104dc:templates/registration/login.html
             </div>
-        </section>
-        <!-- Sign in END -->
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-      <script src="{% static 'js/jquery.min.js' %}"></script>
-      <script src="{% static 'js/popper.min.js' %}"></script>
-      <script src="{% static 'js/bootstrap.min.js' %}"></script>
-      <!-- Appear JavaScript -->
-      <script src="{% static 'js/jquery.appear.js' %}"></script>
-      <!-- Countdown JavaScript -->
-      <script src="{% static 'js/countdown.min.js' %}"></script>
-      <!-- Counterup JavaScript -->
-      <script src="{% static 'js/waypoints.min.js' %}"></script>
-      <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
-      <!-- Wow JavaScript -->
-      <script src="{% static 'js/wow.min.js' %}"></script>
-      <!-- lottie JavaScript -->
-      <script src="{% static 'js/lottie.js' %}"></script>
-      <!-- Apexcharts JavaScript -->
-      <script src="{% static 'js/apexcharts.js' %}"></script>
-      <!-- Slick JavaScript -->
-      <script src="{% static 'js/slick.min.js' %}"></script>
-      <!-- Select2 JavaScript -->
-      <script src="{% static 'js/select2.min.js' %}"></script>
-      <!-- Owl Carousel JavaScript -->
-      <script src="{% static 'js/owl.carousel.min.js' %}"></script>
-      <!-- Magnific Popup JavaScript -->
-      <script src="{%  static 'js/jquery.magnific-popup.min.js' %}"></script>
-      <!-- Smooth Scrollbar JavaScript -->
-      <script src="{% static 'js/smooth-scrollbar.js' %}"></script>
-      <!-- Chart Custom JavaScript -->
-      <script src="{% static 'js/chart-custom.js' %}"></script>
-      <!-- Custom JavaScript -->
-      <script src="{% static 'js/custom.js' %}"></script>
-   </body>
-</html>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <a href="#" class="float-right">Forgot password?</a>
+                <input type="password"
+                       class="form-control mb-0"
+                       id="password"
+                       name="password"
+                       placeholder="Password">
+            </div>
+            <div class="d-inline-block w-100">
+                <div class="custom-control custom-checkbox d-inline-block mt-2 pt-1">
+                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                    <label class="custom-control-label" for="customCheck1">Remember Me</label>
+                </div>
+                <button type="submit" class="btn btn-primary float-right">Sign in</button>
+            </div>
+            <div class="sign-info">
+                <span class="dark-color d-inline-block line-height-2">Don't have an account? <a href="{% url 'register' %}">Sign up</a></span>
+                <ul class="iq-social-media">
+                    <li><a href="https://www.facebook.com/"><i class="ri-facebook-box-line"></i></a></li>
+                    <li><a href="https://www.twitter.com/"><i class="ri-twitter-line"></i></a></li>
+                    <li><a href="https://www.instagram.com/"><i class="ri-instagram-line"></i></a></li>
+                </ul>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

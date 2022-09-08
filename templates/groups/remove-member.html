@@ -1,0 +1,10 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+    <form method="post" action="{% url 'remove-member' %}">
+    {% csrf_token %}
+        <h1> Are you sure you want to remove this member?</h1>
+    <input type="submit" value="Yes" class="btn btn-danger">
+    </form>
+    <a href="" class="btn-primary">Go Back</a>
+{% endblock %}

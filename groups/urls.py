@@ -8,5 +8,6 @@ urlpatterns = [
     path('groups/<int:group_pk>/', views.group_detail, name="group-detail"),
     path('make-admin/<int:admin_pk>/<int:user_pk>/',
          views.make_admin, name="make-admin"),
+    path('groups/<int:group_pk>/<int:user_pk>/create-post', views.create_post, name="create-post"),
 
 ]
