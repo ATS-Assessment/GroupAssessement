@@ -1,6 +1,6 @@
 
 
-from .models import Group, Member, Post, Member, Like, Replies, GroupRequest
+from .models import Group, Member, Post, Member, Like, Replies, GroupRequest, Comment
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Q
@@ -28,19 +28,31 @@ class GroupList(LoginRequiredMixin, ListView):
 #     model = Group
 #     template_name = "groups/group_detail.html"
 #     context_object_name = "group"
-
+@login_required(login_url='login')
 def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
-
-    return render(request, "groups/group_detail.html", {
+    group_posts = Post.visible_objects.filter(
+        group__pk=group_pk).order_by('-date_created')
+    context = {
         "group": group,
         "members": group.group_member.all(),
         "count": group.group_member.all().count(),
         "member": Member.objects.all(),
-    })
+    }
+    for post in group_posts:
+        post_comments = Comment.objects.complex_filter(
+            post__pk=post.pk).order_by('-date_created')
+        for comment in post_comments:
+            comment_replies = Replies.objects.filter(
+                comment__pk=comment.pk).order_by('-date_created')
+            context["post_comments"] = post_comments
+            context["comment_replies"] = comment_replies
+            context["group_post"] = group_posts
+
+    return render(request, "groups/group_detail.html", context)
 
 
-@login_required(login_url='login')
+@ login_required(login_url='login')
 def create_group(request):
     if request.method == "POST":
         group_form = GroupForm(request.POST, request.FILES)
@@ -76,8 +88,8 @@ def create_group(request):
         })
 
 
-@require_POST
-@login_required(login_url="login")
+@ require_POST
+@ login_required(login_url="login")
 def make_admin(request, group_name, admin_pk, user_pk):
     group = Group.objects.filter(
         name=group_name, creator__pk=admin_pk).first()
@@ -94,8 +106,8 @@ def make_admin(request, group_name, admin_pk, user_pk):
         return redirect(request.META["HTTP_REFERER"])
 
 
-@require_POST
-@login_required(login_url='login')
+@ require_POST
+@ login_required(login_url='login')
 def remove_group_member(request, group_name, admin_pk, user_pk):
     group = Group.objects.filter(
         name=group_name, creator__pk=admin_pk)
@@ -126,8 +138,8 @@ def request_to_join_group(request, group_name, user_pk):
     pass
 
 
-@require_POST
-@login_required(login_url='login')
+@ require_POST
+@ login_required(login_url='login')
 def exit_group(request, group_name, user_pk):
     group = Group.objects.get(name=group_name)
     member = group.group_member.filter(user__pk=user_pk)
@@ -147,7 +159,7 @@ def suspend_member(request, group_name, admin_pk, user_pk):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
-@login_required(login_url='login')
+@ login_required(login_url='login')  # join with group_detail
 def create_post(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_member = group.group_member.all().filter(member=request.user)
@@ -156,6 +168,64 @@ def create_post(request, group_pk):
             title="", content="", group=group, member=request.user)
         post.save()
         return JsonResponse({"data": post})
+    else:
+        return JsonResponse({"message": "Permission Denied",
+                             })
+
+
+def search_groups(request):
+    if request.method == 'POST':
+        group_name = request.POST.get('search')
+        print(group_name)
+        results = Group.objects.filter(
+            Q(name__icontains=group_name) | Q
+            (description__icontains=group_name))
+        context = {
+            'results': results
+        }
+        return render(request, 'users/search_result.html', context)
+
+
+def like_post(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.all().filter(member=request.user)
+    if group_member.is_suspended is False:
+        post = Post.objects.filter(pk=post_pk)
+        comment = Comment.objects.filter(post__pk=post_pk)
+        reply = Replies.objects.filter(comment__pk=comment.pk)
+        liked = Like.objects.filter(member=request.user, post=post)
+        if not liked:
+            pass
+    else:
+        return JsonResponse({"message": "Permission Denied",
+                             })
+
+
+def like_comment(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.all().filter(member=request.user)
+    if group_member.is_suspended is False:
+        post = Post.objects.filter(pk=post_pk)
+        comment = Comment.objects.filter(post__pk=post_pk)
+        reply = Replies.objects.filter(comment__pk=comment.pk)
+        liked = Like.objects.filter(member=request.user, post=post)
+        if not liked:
+            pass
+    else:
+        return JsonResponse({"message": "Permission Denied",
+                             })
+
+
+def like_reply(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.all().filter(member=request.user)
+    if group_member.is_suspended is False:
+        post = Post.objects.filter(pk=post_pk)
+        comment = Comment.objects.filter(post__pk=post_pk)
+        reply = Replies.objects.filter(comment__pk=comment.pk)
+        liked = Like.objects.filter(member=request.user, post=post)
+        if not liked:
+            pass
     else:
         return JsonResponse({"message": "Permission Denied",
                              })

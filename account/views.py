@@ -40,7 +40,8 @@ class UserRegisterView(CreateView):
             user = User.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email,
                                             password=password)
             send_email_verification(self.request, user)
-            messages.success(self.request, "Registration Successful... Check your mail to activate the account. ")
+            messages.success(
+                self.request, "Registration Successful... Check your mail to activate the account. ")
             return redirect('login')
 
 
@@ -80,6 +81,7 @@ class UpdateProfileView(UpdateView):
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})
+
 
 # @login_required(login_url='login')
 def edit_profile(request, profile_pk):

@@ -13,7 +13,7 @@ from notification.models import Notification
 class ActiveManager(models.Manager):
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_active=True)
+        return super().get_queryset().filter(is_hidden=False)
 
 
 class InactiveManager(models.Manager):
@@ -64,14 +64,25 @@ class Group(models.Model):
         return self.name
 
 
-class GroupRequest(models.Manager):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    request_message = models.CharField(max_length=100)
+class GroupRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    request_messgae = models.CharField(max_length=100)
     date_sent = models.DateTimeField(auto_now_add=True)
 
-    def member_requested(self):
-        pass
+    def member_join_request(sender, instance, *args, **kwargs):
+        member_request = instance
+        requester = member_request.user
+        content_preview = member_request.message[:50]
+        notify = Notification.objects.create(is_admin_notification=True)
+        notify.save()
+
+    def member_withdraw_request(sender, instance, *args, **kwargs):
+        member_request = instance
+        requester = member_request.user
+        content_preview = member_request.message[:50]
+        notify = Notification.objects.filter(is_admin_notification=True)
+        notify.save()
 
 
 class Member(models.Model):
@@ -91,8 +102,8 @@ class Member(models.Model):
 
 
 class Post(models.Model):
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
-    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=50, blank=True, null=True)
     content = models.TextField()
     post_image = models.ImageField(
@@ -101,9 +112,10 @@ class Post(models.Model):
         blank=True, upload_to="posts/files", null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_hidden = models.BooleanField(default=False)
 
     objects = models.Manager()
-    active_objects = ActiveManager()
+    visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
     def member_post(self):
@@ -113,16 +125,39 @@ class Post(models.Model):
 class Comment(models.Model):
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
-    content = models.TextField()
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    content = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_hidden = models.BooleanField(default=False)
 
     objects = models.Manager()
-    active_objects = ActiveManager()
+    visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
-    def member_commented(self):
-        pass
+    def member_commented(sender, instance, *args, **kwargs):
+        comment = instance
+        post = comment.post
+        receiver = comment.group
+        text_preview = comment.body[:50]
+
+        notify = Notification.objects.create(post=post, sender=sender, user=post.user,
+                                             text_preview=text_preview, notification_type=2)
+        notify.save()
+
+    def member_del_comment(sender, instance, *args, **kwargs):
+        comment = instance
+        post = comment.post
+        receiver = comment.group
+        notify = Notification.objects.filter(
+            receiver=receiver, sender=sender, notification_type=2)
+        notify.delete()
+
+
+# Comments signals stuff:
+post_save.connect(Comment.member_commented, sender=Comment)
+post_delete.connect(Comment.member_del_comment, sender=Comment)
+pass
 
 
 class Replies(models.Model):
@@ -131,9 +166,10 @@ class Replies(models.Model):
     content = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_hidden = models.BooleanField(default=False)
 
     objects = models.Manager()
-    active_objects = ActiveManager()
+    visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
     def member_replied(self):
@@ -141,13 +177,14 @@ class Replies(models.Model):
 
 
 class Like(models.Model):
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
+    member = models.ForeignKey(
+        Member, related_name="liked_by", on_delete=models.CASCADE, null=True)
     comment = models.ForeignKey(
-        Comment, blank=True, null=True, on_delete=models.CASCADE)
+        Comment, related_name="comment_like", blank=True, null=True, on_delete=models.CASCADE)
     post = models.ForeignKey(
-        Post, on_delete=models.CASCADE, blank=True, null=True)
+        Post, on_delete=models.CASCADE, related_name="post_like", blank=True, null=True)
     reply = models.ForeignKey(
-        Replies, blank=True, null=True, on_delete=models.CASCADE)
+        Replies, related_name="reply_like", blank=True, null=True, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
@@ -155,10 +192,23 @@ class Like(models.Model):
     active_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
-    def member_like_post(sender, instance, *args, **kwargs):
+    def member_like(sender, instance, *args, **kwargs):
         like = instance
-        sender = like.member
-        receiver = like.post
+        receiver = like.member
+        object = like.post if like.post else like.comment
 
-        notify = Notification.objects.create(sender=sender,
-                                             receiver=receiver, notification_type=1)
+        notify = Notification.objects.create(
+            receiver=receiver, notification_type="like")
+        notify.save()
+
+    def member_unlike(sender, instance, *args, **kwargs):
+        unlike = instance
+        receiver = unlike.member
+        object = unlike.post if unlike.post else unlike.comment
+        notify = Notification.objects.filter(
+            receiver=receiver, notification_type="like")
+        notify.delete()
+
+
+post_save.connect(Like.member_like, sender=Like)
+post_delete.connect(Like.member_unlike, sender=Like)
