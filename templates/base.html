@@ -24,6 +24,7 @@
       <!-- Wrapper Start -->
       <div class="wrapper">
          <!-- Sidebar  -->
+      {% if user.is_authenticated %}
          <div class="iq-sidebar">
             <div id="sidebar-scrollbar">
                <nav class="iq-sidebar-menu">
@@ -38,10 +39,10 @@
                         <a href="friend-list.html" class="iq-waves-effect"><i class="las la-user-friends"></i><span>Friend Lists</span></a>
                      </li>
                      <li>
-                        <a href="group.html" class="iq-waves-effect"><i class="las la-users"></i><span>Group</span></a>
+                        <a href="{% url 'group-list' %}" class="iq-waves-effect"><i class="las la-users"></i><span>Groups</span></a>
                      </li>
                      <li>
-                        <a href="profile-images.html" class="iq-waves-effect"><i class="las la-image"></i><span>Profile Image</span></a>
+                        <a href="{% url 'create-group' %}" class="iq-waves-effect"><i class="las la-image"></i><span>Create Group</span></a>
                      </li>
                      <li>
                         <a href="profile-video.html" class="iq-waves-effect"><i class="las la-video"></i><span>Profile Video</span></a>
@@ -185,6 +186,7 @@
                <div class="p-3"></div>
             </div>
          </div>
+      {% endif %}
          <!-- TOP Nav Bar -->
          <div class="iq-top-navbar">
             <div class="iq-navbar-custom">
@@ -206,6 +208,7 @@
                         <a class="search-link" href="#"><i class="ri-search-line"></i></a>
                      </form>
                   </div>
+                   {% if user.is_authenticated %}
                   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"  aria-label="Toggle navigation">
                   <i class="ri-menu-3-line"></i>
                   </button>
@@ -319,6 +322,7 @@
                            </div>
                         </li>
                      </ul>
+                    {% if user.is_authenticated %}
                       <ul class="navbar-list">
                         <li>
                            <a href="#" class="search-toggle iq-waves-effect d-flex align-items-center">
@@ -327,11 +331,11 @@
                            <div class="iq-sub-dropdown iq-user-dropdown">
                               <div class="iq-card shadow-none m-0">
                                  <div class="iq-card-body p-0 ">
-                                    <div class="bg-primary p-3 line-height">
+                                    <div class ="bg-primary p-3 line-height">
                                        <h5 class="mb-0 text-white line-height">Hello @{{ request.user.username }}</h5>
                                        <span class="text-white font-size-12">Available</span>
                                     </div>
-                                    <a href="profile.html" class="iq-sub-card iq-bg-primary-hover">
+                                    <a href="#" class="iq-sub-card iq-bg-primary-hover">
                                        <div class="media align-items-center">
                                           <div class="rounded iq-card-icon iq-bg-primary">
                                              <i class="ri-file-user-line"></i>
@@ -342,7 +346,7 @@
                                           </div>
                                        </div>
                                     </a>
-                                    <a href="" class="iq-sub-card iq-bg-warning-hover">
+                                    <a href="{% url 'update-profile' request.user.id %}" class="iq-sub-card iq-bg-warning-hover">
                                        <div class="media align-items-center">
                                           <div class="rounded iq-card-icon iq-bg-warning">
                                              <i class="ri-profile-line"></i>
@@ -350,28 +354,6 @@
                                           <div class="media-body ml-3">
                                              <h6 class="mb-0 ">Edit Profile</h6>
                                              <p class="mb-0 font-size-12">Modify your personal details.</p>
-                                          </div>
-                                       </div>
-                                    </a>
-                                    <a href="account-setting.html" class="iq-sub-card iq-bg-info-hover">
-                                       <div class="media align-items-center">
-                                          <div class="rounded iq-card-icon iq-bg-info">
-                                             <i class="ri-account-box-line"></i>
-                                          </div>
-                                          <div class="media-body ml-3">
-                                             <h6 class="mb-0 ">Account settings</h6>
-                                             <p class="mb-0 font-size-12">Manage your account parameters.</p>
-                                          </div>
-                                       </div>
-                                    </a>
-                                    <a href="privacy-setting.html" class="iq-sub-card iq-bg-danger-hover">
-                                       <div class="media align-items-center">
-                                          <div class="rounded iq-card-icon iq-bg-danger">
-                                             <i class="ri-lock-line"></i>
-                                          </div>
-                                          <div class="media-body ml-3">
-                                             <h6 class="mb-0 ">Privacy Settings</h6>
-                                             <p class="mb-0 font-size-12">Control your privacy parameters.</p>
                                           </div>
                                        </div>
                                     </a>
@@ -383,128 +365,18 @@
                            </div>
                         </li>
                      </ul>
+                    {% endif %}
                   </div>
+               {% endif %}
                </nav>
             </div>
          </div>
          <!-- TOP Nav Bar END -->
-         <!-- Right Sidebar Panel Start-->
-{#         <div class="right-sidebar-mini right-sidebar">#}
-{#            <div class="right-sidebar-panel p-0">#}
-{#               <div class="iq-card shadow-none">#}
-{#                  <div class="iq-card-body p-0">#}
-{#                     <div class="media-height p-3">#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/01.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Anna Sthesia</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/02.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Paul Molive</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/03.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Anna Mull</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/04.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Paige Turner</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/01.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Bob Frapples</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/02.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Barb Ackue</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-online">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/03.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Greta Life</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-away">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/04.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Ira Membrit</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center mb-4">#}
-{#                           <div class="iq-profile-avatar status-away">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/01.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Pete Sariya</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                        <div class="media align-items-center">#}
-{#                           <div class="iq-profile-avatar">#}
-{#                              <img class="rounded-circle avatar-50" src="images/user/02.jpg" alt="">#}
-{#                           </div>#}
-{#                           <div class="media-body ml-3">#}
-{#                              <h6 class="mb-0"><a href="#">Monty Carlo</a></h6>#}
-{#                              <p class="mb-0">Admin</p>#}
-{#                           </div>#}
-{#                        </div>#}
-{#                     </div>#}
-{#                     <div class="right-sidebar-toggle bg-primary mt-3">#}
-{#                        <i class="ri-arrow-left-line side-left-icon"></i>#}
-{#                        <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i> #}
-{#                     </div>#}
-{#                  </div>#}
-{#               </div>#}
-{#            </div>#}
-{#         </div>#}
-         <!-- Right Sidebar Panel End-->
          <!-- Page Content  -->
          <div id="content-page" class="content-page">
             <div class="container">
-               <div class="row">
-                   {% block content %}
-                       <div class="col-lg-12">
-                         Here Add Your HTML Content.....
-                       </div>
-                   {% endblock %}
-
-               </div>
+                {% block content %}
+                {% endblock %}
             </div>
          </div>
       </div>
@@ -515,8 +387,8 @@
             <div class="row">
                <div class="col-lg-6">
                   <ul class="list-inline mb-0">
-                     <li class="list-inline-item"><a href="privacy-policy.html">Privacy Policy</a></li>
-                     <li class="list-inline-item"><a href="terms-of-service.html">Terms of Use</a></li>
+                     <li class="list-inline-item"><a href="">Privacy Policy</a></li>
+                     <li class="list-inline-item"><a href="">Terms of Use</a></li>
                   </ul>
                </div>
                <div class="col-lg-6 text-right">
@@ -529,6 +401,10 @@
       <!-- Optional JavaScript -->
       <!-- jQuery first, then Popper.js, then Bootstrap JS -->
       <script src="{% static 'js/jquery.min.js' %}"></script>
+      <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+              integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+              crossorigin="anonymous"></script>
       <script src="{% static 'js/popper.min.js' %}"></script>
       <script src="{% static 'js/bootstrap.min.js' %}"></script>
       <!-- Appear JavaScript -->

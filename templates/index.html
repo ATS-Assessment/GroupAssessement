@@ -1,6 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Basic Social Media App</h1>
-    <p>Welcome to SocialApp, an app developed by <em>ATS Group</em>!</p>
-    <h2>Dynamic content</h2>
+    <ul class="sidebar-nav">
+        <li><a href="{% url 'index' %}">Home</a></li>
+
+        {% if user.is_authenticated %}
+            <li>User: {{ user.get_username }}</li>
+            {% comment %} <li><a href="{% url 'group-list' %}">Group List</a></li> {% endcomment %}
+            {% comment %} <li><a href="{% url 'group' %}">Create Group</a></li>
+            <li><a href="{% url 'addtoadmin' %}">Add Admin</a></li>
+            <li><a href="{% url 'remove-member' %}">Remove Member</a></li> {% endcomment %}
+            <li><a href="{% url 'change-password' %}">Change Password</a></li>
+            <li><a href="{% url 'update-profile' user.pk %}">Update Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+            <li><a href="{% url 'password_reset' %}">Reset Password</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+        {% endif %}<br><br>
+
+    </ul>
+    <div class="container">
+        <h1>This is the home page!</h1>
+    </div>
 {% endblock %}

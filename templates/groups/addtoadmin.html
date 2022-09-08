@@ -1,9 +1,9 @@
-{% extends 'account/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     <form method="post" action="{% url 'addtoadmin' %}">
     {% csrf_token %}
         {{ form.as_p }}
-    <input type="submit" value="submit">
+    <input type="submit" value="Add as Admin">
     </form>
 {% endblock %}
