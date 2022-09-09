@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.tokens import default_token_generator
@@ -14,7 +14,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
+
 from account.forms import RegisterForm
+
+from account.forms import RegisterForm, UserForm, LoginForm
+
 from account.models import User
 from account.utils import send_email_verification
 
@@ -53,14 +57,36 @@ def activate(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
         messages.success(
             request, "Congratulations! Your account is activated.")
-        return redirect('index')
+        return redirect('login')
 
     else:
         messages.error(request, "Invalid Activation Link!")
         return redirect('login')
+
+
+class LoginView(FormView):
+    form_class = LoginForm
+    template_name = 'account/login.html'
+    success_url = reverse_lazy('index')
+
+    def form_valid(self, form):
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+
+            user = authenticate(email=email, password=password)
+
+            if user is not None:
+                login(self.request, user)
+                return redirect('index')
+            else:
+                messages.error(self.request, 'Email or password is not correct.')
+        form = LoginForm
+        return render(self.request, 'account/login.html', {'form': form})
+
+
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):

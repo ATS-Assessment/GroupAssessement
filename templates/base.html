@@ -220,7 +220,7 @@
                               <img src="{% static 'images/user/1.jpg' %}" class="img-fluid rounded-circle mr-3" alt="user">
                               <div class="caption">
                                   {% if request.user.first_name or request.user.last_name %}
-                                      <h6 class="mb-0 line-height">{{ request.user.first_name }} {{ request.user.last_name }}</h6>
+                                      <h6 class="mb-0 line-height">{{ request.user.first_name|capfirst }} {{ request.user.last_name|capfirst }}</h6>
                                   {% else %}
                                       <h6 class="mb-0 line-height">{{ request.user.username }}</h6>
                                   {% endif %}

@@ -18,6 +18,104 @@ class Migration(migrations.Migration):
             name='Comment',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content', models.TextField()),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('is_active', models.BooleanField(default=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Group',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('name', models.CharField(max_length=100)),
+                ('description', models.CharField(max_length=200)),
+                ('privacy_status', models.CharField(choices=[('open', 'Open'), ('closed', 'Closed')], max_length=50)),
+                ('group_image', models.ImageField(default='group.jpg', upload_to='groups/images')),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('last_updated', models.DateTimeField(auto_now=True)),
+                ('creator', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='group_admin', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Member',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('is_admin', models.BooleanField(default=True)),
+                ('is_suspended', models.BooleanField(default=False)),
+                ('has_exited', models.BooleanField(default=False)),
+                ('is_active', models.BooleanField(default=True)),
+                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_member', to='groups.group')),
+                ('member', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Replies',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content', models.TextField()),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('comment', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.comment')),
+                ('member', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.member')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Post',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(blank=True, max_length=50, null=True)),
+                ('content', models.TextField()),
+                ('post_image', models.ImageField(blank=True, null=True, upload_to='posts/images')),
+                ('post_files', models.FileField(blank=True, null=True, upload_to='posts/files')),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('group', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.group')),
+                ('member', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.member')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Like',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('comment', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='groups.comment')),
+                ('member', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='groups.member')),
+                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='groups.post')),
+                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='groups.replies')),
+            ],
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='member',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.member'),
+        ),
+        migrations.AddField(
+            model_name='comment',
+            name='post',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.post'),
+        ),
+    ]
+# Generated by Django 4.1.1 on 2022-09-07 11:04
+
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Comment',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('content', models.CharField(max_length=100)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('is_active', models.BooleanField(default=True)),
@@ -104,3 +202,4 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='groups.post'),
         ),
     ]
+

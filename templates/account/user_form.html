@@ -4,8 +4,51 @@
     <h2>Update Profile Form</h2><hr>
     <form method="post" action="{% url 'update-profile' request.user.id %}" enctype="multipart/form-data">
     {% csrf_token %}
-        {{ user_form }}
-        {{ profile_form.as_p }}
+        {{ form.errors }}
+        <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text"
+                       class="form-control mb-0"
+                       id="first_name"
+                       name="first_name"
+                       value="{{ form.first_name.value }}" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text"
+                       class="form-control mb-0"
+                       id="last_name"
+                       name="last_name"
+                       value="{{ form.last_name.value }}">
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text"
+                       class="form-control mb-0"
+                       id="username"
+                       name="username"
+                       value="{{ form.username.value }}">
+            </div>
+            <div class="form-group">
+                <label for="email">Email address:</label>
+                <input type="email"
+                       class="form-control mb-0"
+                       id="email"
+                       name="email"
+                       value="{{ form.email.value }}">
+            </div>
+            <div class="form-group">
+                <label for="image">Image:</label>
+                " Currently: "
+                <a href="{{ form.image.url }}">media/default.png</a><br>
+                " Change: "
+                <input type="file"
+                       class="form-control mb-0"
+                       id="image"
+                       name="image"
+                       accept="image/*">
+            </div><br>
+
 
     <input type="submit" value="submit">
     </form>

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models .signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete
 
 from account.models import User
 
@@ -22,8 +22,7 @@ def __json():
 class Notification(models.Model):
     NOTIFICATION_TYPE = (
         ("like", "like"),
-        # ("comment", "comment"),
-        # ("post", "post"),
+
         ("group_request", "group_request"),
         ("invite", "invite")
     )
@@ -65,6 +64,11 @@ class Event(models.Model):
     description = models.TextField(max_length=200)
     date_created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
+
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
+    # yes = models.JSONField(default=__json())
+    # no = models.JSONField(default=__json())
     has_started = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
@@ -79,19 +83,20 @@ class Event(models.Model):
         event = instance
         sender = event.creator
         receiver = event.group
-        notify = Notification.objects.create(receiver=receiver,)
+        notify = Notification.objects.create(group=receiver, created_by=sender)
         notify.save()
 
 
 post_save.connect(Event.admin_create_event, sender=Event)
 
 
-class Poll(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    group = models.ForeignKey(
-        "groups.Group", on_delete=models.SET_NULL, null=True)
-    title = models.CharField(max_length=90, null=True)
-    # polls_option = models.JSONField(default=_json())
-
-    def has_started(self):
-        return self.start_date > datetime.datetime.now()
+# class Poll(models.Model):
+#     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+#     group = models.ForeignKey(
+#         "groups.Group", on_delete=models.SET_NULL, null=True)
+#     title = models.CharField(max_length=90, null=True)
+#
+#     # polls_option = models.JSONField(default=_json())
+#
+#     def has_started(self):
+#         return self.start_date > datetime.datetime.now()
