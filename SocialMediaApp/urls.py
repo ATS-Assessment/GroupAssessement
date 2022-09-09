@@ -23,4 +23,5 @@ urlpatterns = [
     path('', include('account.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('group/', include('groups.urls')),
+    path('notification/', include('notification.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
