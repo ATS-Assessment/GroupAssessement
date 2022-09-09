@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'account',
     'groups',
-    'notification'
+    'notification',
+    'poll',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notification.context_processors.count_notification',
+                # 'groups.context_processors.create_post',
             ],
         },
     },
@@ -131,6 +133,9 @@ MEDIA_URL = 'media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -147,6 +152,7 @@ EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
 DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'

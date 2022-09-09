@@ -69,7 +69,20 @@
 {#                                         </a>#}
 {#                                      </div>#}
 {#                                   </div>#}
-                                <a href="#" class="btn btn-primary d-block w-100">Join</a>
+{% if group.privacy_status == "open" %}
+  <a href="#" class="join btn btn-primary d-block w-100">
+   {% if user in group.group_member.all %}
+   View 
+   {% else %}
+   Join
+  {% endif %}</a>
+  {% else %}
+  
+
+   
+<a href="{% url "request-to-join" group.pk %}" class="req-join btn btn-primary d-block w-100" data-size="Requested">Request To Join</a>
+{% endif %}
+                                
                             </div>
                          </div>
                       </div>
@@ -91,4 +104,15 @@
 {#        <a href="">{{group.privacy_status}}</a>#}
 {#        {% endfor %}#}
 {#    </div>#}
+<script>
+   console.log("welcome");
+   console.log("welcome");
+    $('.req-join').on('click',function(e) {
+        e.preventDefault();
+        var size = $(this).attr('data-size');
+        $('.req-join').text(size);
+        $('.req-join').css('background-color', 'transparent');
+        $(this).css('background-color', '#ff6600');
+    });
+</script>
 {% endblock %}
