@@ -9,21 +9,21 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('notification', '0002_remove_poll_polls_option'),
+        ('poll', '0002_remove_poll_polls_option'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='notification',
+            name='poll',
             options={'ordering': ['-time_created']},
         ),
         migrations.AddField(
-            model_name='notification',
+            model_name='poll',
             name='created_by',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='noti_creator', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
-            model_name='notification',
+            model_name='poll',
             name='notification_type',
             field=models.CharField(choices=[('like', 'like'), ('comment', 'comment'), ('post', 'post'), ('group_request', 'group_request'), ('invite', 'invite')], max_length=50, null=True),
         ),

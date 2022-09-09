@@ -22,3 +22,8 @@ class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
     vote = models.IntegerField(default=0)
+
+
+class Voter(models.Model):
+    poll = models.ManyToManyField(Poll)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)

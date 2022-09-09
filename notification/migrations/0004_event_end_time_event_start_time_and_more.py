@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0003_alter_notification_options_notification_created_by_and_more'),
+        ('poll', '0003_alter_notification_options_notification_created_by_and_more'),
     ]
 
     operations = [
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name='notification',
+            model_name='poll',
             name='notification_type',
             field=models.CharField(choices=[('like', 'like'), ('group_request', 'group_request'), ('invite', 'invite')], max_length=50, null=True),
         ),

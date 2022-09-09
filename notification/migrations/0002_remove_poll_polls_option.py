@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0001_initial'),
+        ('poll', '0001_initial'),
     ]
 
     operations = [

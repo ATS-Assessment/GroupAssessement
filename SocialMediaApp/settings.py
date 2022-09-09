@@ -150,8 +150,6 @@ EMAIL_HOST_USER = "yaoyedele@student.lautech.edu.ng"
 EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
 DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'

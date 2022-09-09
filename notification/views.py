@@ -23,7 +23,7 @@ def show_notification(request):
     notify = Notification.objects.filter(
         receiver=request.user, is_viewed=False).order_by("-date_created")
     return render(request, "groups/group_detail.html", {
-        "notification": notify
+        "poll": notify
     })
 
 
@@ -69,7 +69,7 @@ def edit_event(request, pk):
     context = {
         'event_form': event_form
     }
-    return render(request, 'notification/edit-poll.html', context)
+    return render(request, 'poll/edit-poll.html', context)
 
 
 def event_list(request):
@@ -77,7 +77,7 @@ def event_list(request):
     context = {
         'events': events
     }
-    return render(request, 'notification/event-list.html', context)
+    return render(request, 'poll/event-list.html', context)
 
 
 def event_on_calender_view(request):
@@ -107,7 +107,7 @@ def edit_poll(request, pk):
         'poll': poll,
         'pol_form': pol_form
     }
-    return render(request, 'notification/poll-detail.html', context)
+    return render(request, 'poll/poll-detail.html', context)
 
 
 def vote(request, pk):
@@ -118,7 +118,7 @@ def vote(request, pk):
         try:
             selected_choice = poll.choice_set.get(pk=request.POST)
         except (KeyError, poll.DoesNotExist):
-            return render(request, 'notification/detail.html', {
+            return render(request, 'poll/detail.html', {
                 "poll": poll,
                 "error_message": "You didn't select a choice."
             })

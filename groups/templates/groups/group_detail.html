@@ -27,7 +27,7 @@
     $(document).ready(function(){
             console.log("welcome");
             $.ajax({
-                url:"{% url "notification" %}",
+                url:"{% url "poll" %}",
                 dataType:"json",
                 beforeSend: function(){
                     $('.ajaxResponse').text('Loading')

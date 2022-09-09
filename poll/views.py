@@ -25,6 +25,8 @@ def create_poll(request, pk):
                 poll_form.save()
                 return redirect('poll-list')
             messages.error(request, 'Invalid form')
+        form = PollForm()
+        return render(request, 'poll/create-poll.html', {'form': form})
     else:
         messages.error(request, 'You are not an admin of the group')
 
@@ -46,7 +48,7 @@ def edit_poll(request, group_pk, poll_pk):
             'poll': poll,
             'pol_form': pol_form,
         }
-        return render(request, 'notification/poll-detail.html', context)
+        return render(request, 'poll/poll-detail.html', context)
     else:
         messages.error(request, 'You can only edit before the start date.')
 
@@ -59,7 +61,7 @@ def vote(request, pk):
         try:
             selected_choice = poll.choice_set.get(pk=request.POST)
         except (KeyError, poll.DoesNotExist):
-            return render(request, 'notification/detail.html', {
+            return render(request, 'poll/poll-detail.html', {
                 "poll": poll,
                 "error_message": "You didn't select a choice."
             })

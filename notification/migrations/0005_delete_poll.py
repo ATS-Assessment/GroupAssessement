@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0004_event_end_time_event_start_time_and_more'),
+        ('poll', '0004_event_end_time_event_start_time_and_more'),
     ]
 
     operations = [
