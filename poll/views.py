@@ -26,7 +26,8 @@ def create_poll(request, pk):
                 return redirect('poll-list')
             messages.error(request, 'Invalid form')
     else:
-        messages.error(request, 'You are not an admin of the group')
+        form = PollForm
+        return render(request, 'groups/group_detail.html', {'form': form})
 
 
 def edit_poll(request, group_pk, poll_pk):
@@ -46,7 +47,7 @@ def edit_poll(request, group_pk, poll_pk):
             'poll': poll,
             'pol_form': pol_form,
         }
-        return render(request, 'notification/poll-detail.html', context)
+        return render(request, 'groups/poll-detail.html', context)
     else:
         messages.error(request, 'You can only edit before the start date.')
 
