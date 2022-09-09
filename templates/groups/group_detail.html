@@ -52,7 +52,7 @@
                      <div class="user-img">
                         <img src="#" alt="userimg" class="avatar-60 rounded-circle">
                      </div>
-                     <form class="post-text ml-3 w-100" action="#">
+                     <form class="post-text ml-3 w-100" action="{% url "group-detail" group.pk %}">
                         <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
                      </form>
                   </div>
@@ -93,9 +93,17 @@
                               </div>
                               <form class="post-text ml-3 w-100" action="#">
                                  <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
-                              </form>
-                           </div>
-                           <hr>
+                                 
+                                 {{ post_form.title }}
+                                 <label for="Content">Content</label>
+                                 {{ post_form.content }}
+                                 <label for="Content">Add Image</label>
+                                 {{ post_form.post_image }}
+                                  <label for="Content">Other Files</label>
+                                 {{ post_form.post_image }}
+                                
+
+                                 <hr>
                            <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
                               <li class="col-md-6 mb-3">
                                  <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
@@ -136,12 +144,20 @@
                            </div>
                            <button type="submit" class="btn btn-primary d-block w-100 mt-3">Post</button>
                         </div>
+                              </form>
+                           </div>
+                           
                      </div>
                   </div>
                </div>
             </div>
          </div>
           <!-- for loop for posts -->
+          
+          
+          {% if group_post %}
+          
+          {% for post in group_post %}
          <div class="col-sm-12">
             <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
                <div class="iq-card-body">
@@ -151,9 +167,9 @@
                            <img class="rounded-circle img-fluid" src="images/user/01.jpg" alt="">
                         </div>
                         <div class="media-support-info mt-2">
-                           <h5 class="mb-0 d-inline-block"><a href="#" class="">Username</a></h5>
+                           <h5 class="mb-0 d-inline-block"><a href="#" class="">{{post.member.member.first_name}} {{post.member.member.last_name}}</a></h5>
                            <p class="mb-0 d-inline-block">Add New Post</p>
-                           <p class="mb-0 text-primary">Just now</p>
+                           <p class="mb-0 text-primary">{{post.date_created}}</p>
                         </div>
                         <div class="iq-card-post-toolbar">
                            <div class="dropdown">
@@ -179,6 +195,8 @@
                                        </div>
                                     </div>
                                  </a>
+
+                
                                  <a class="dropdown-item p-3" href="#">
                                     <div class="d-flex align-items-top">
                                        <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
@@ -194,7 +212,7 @@
                      </div>
                   </div>
                   <div class="mt-3">
-                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nulla dolor, ornare at commodo non, feugiat non nisi. Phasellus faucibus mollis pharetra. Proin blandit ac massa sed rhoncus</p>
+                     <p>{{post.content}}</p>
                   </div>
                   <div class="user-post">
                      <div class="d-flex">
@@ -218,7 +236,13 @@
                               <div class="like-data">
                                  <div class="dropdown">
                                     <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                    <img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt="">
+                                    {% if  post.post_image.url %}
+                                    <img src="{{ post.post_image.url }}" class="img-fluid" alt="">
+                                    {% else %}
+                                      <img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt="">
+                                    {% endif %}
+                     
+                              
                                     </span>
                                     <div class="dropdown-menu">
                                        <a class="ml-2 mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Like"><img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt=""></a>
@@ -234,7 +258,7 @@
                               <div class="total-like-block ml-2 mr-3">
                                  <div class="dropdown">
                                     <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                    140 Likes
+                                    {{post.like.all.count}}Likes
                                     </span>
                                     <div class="dropdown-menu">
                                        <a class="dropdown-item" href="#">Max Emum</a>
@@ -245,7 +269,7 @@
                            <div class="total-comment-block">
                               <div class="dropdown">
                                  <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                 20 Comment
+                                  Comment
                                  </span>
                                  <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#">Max Emum</a>
@@ -286,6 +310,10 @@
                </div>
             </div>
          </div>
+          {% endfor %}
+         {% else %}
+         <p>No Posts yet</p>
+         {% endif %}
           <!-- end for loop for posts -->
       </div>
         <div class="col-lg-4">
@@ -355,13 +383,4 @@
 
          </div>
       </div>
-{#    {{group.creator}}#}
-{#    {{group.name}}#}
-{#    {% comment %} {{group.group_member.all}}| {% endcomment %}#}
-{#    {{members}}#}
-{#    {{count}}#}
-{#    {% for mem in members %}#}
-{#        {{mem.first_name}}#}
-{#        {{mem.member}}#}
-{#    {% endfor %}#}
 {% endblock %}

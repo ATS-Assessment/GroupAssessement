@@ -122,6 +122,9 @@ class Post(models.Model):
     visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
+    def __str__(self) -> str:
+        return self.content[:50]
+
     def member_post(self):
         pass
 

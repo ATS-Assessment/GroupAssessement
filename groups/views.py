@@ -40,21 +40,40 @@ def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_posts = Post.visible_objects.filter(
         group__pk=group_pk).order_by('-date_created')
+
+    if request.method == "POST":
+        post_form = PostForm(request.POST, request.FILES)
+        if post_form.is_valid():
+            title = post_form.cleaned_data.get("title")
+            content = post_form.cleaned_data.get("content")
+            post_image = post_form.cleaned_data.get("post_image")
+            post_files = post_form.cleaned_data.get("post_files")
+            post = Post.objects.create(
+                title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
+            post.save()
+            return redirect(reverse('group-detail', args=[group_pk]))
+    else:
+        post_form = PostForm()
+
     context = {
         "group": group,
         "members": group.group_member.all(),
         "count": group.group_member.all().count(),
         "member": Member.objects.all(),
+        "post_form": post_form,
+        "group_post": group_posts,
+
     }
+    # print(group_posts)
     for post in group_posts:
-        post_comments = Comment.objects.complex_filter(
+        post_comments = Comment.objects.filter(
             post__pk=post.pk).order_by('-date_created')
         for comment in post_comments:
             comment_replies = Replies.objects.filter(
                 comment__pk=comment.pk).order_by('-date_created')
             context["post_comments"] = post_comments
             context["comment_replies"] = comment_replies
-            context["group_post"] = group_posts
+            context["post"] = post
 
     return render(request, "groups/group_detail.html", context)
 
@@ -175,39 +194,40 @@ def suspend_member(request, group_name, admin_pk, user_pk):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
-@is_member_of_group
-@ login_required(login_url='login')  # join with group_detail
-def create_post(request, group_pk):
-    group = Group.objects.get(pk=group_pk)
-    group_member = group.group_member.all().filter(member=request.user)
-    if group_member.is_suspended is False:
-        if request.method == "POST":
-            post_form = PostForm(request.POST, request.FILES)
-            if post_form.is_valid():
-                title = post_form.cleaned_data.get("title")
-                content = post_form.cleaned_data.get("content")
-                post_image = post_form.cleaned_data.get("post_image")
-                post_files = post_form.cleaned_data.get("post_files")
-                post = Post.objects.create(
-                    title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
-                post.save()
-                messages.success(request, "Post was created Successfully!")
-                return JsonResponse({"data": post})
-            else:
-                context = {
-                    "post_form": post_form
-                }
-                messages.error(
-                    request, "Post Creation failed,Please try again!")
-                return render(request, "post_create.html", context)
-        else:
-            context = {
-                "post_form": post_form
-            }
-            return render(request, "post_create.html", context)
-    else:
-        return JsonResponse({"message": "Permission Denied",
-                             })
+# @is_member_of_group
+# @ login_required(login_url='login')  # join with group_detail
+# def create_post(request, group_pk):
+#     group = Group.objects.get(pk=group_pk)
+#     group_member = group.group_member.all().filter(member=request.user)
+#     if group_member.is_suspended is False:
+#         if request.method == "POST":
+#             post_form = PostForm(request.POST, request.FILES)
+#             if post_form.is_valid():
+#                 title = post_form.cleaned_data.get("title")
+#                 content = post_form.cleaned_data.get("content")
+#                 post_image = post_form.cleaned_data.get("post_image")
+#                 post_files = post_form.cleaned_data.get("post_files")
+#                 post = Post.objects.create(
+#                     title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
+#                 post.save()
+#                 messages.success(request, "Post was created Successfully!")
+#                 return JsonResponse({"data": post})
+#             else:
+#                 context = {
+#                     "post_form": post_form
+#                 }
+#                 messages.error(
+#                     request, "Post Creation failed,Please try again!")
+#                 return render(request, "groups/group_detail.html", context)
+#         else:
+#             post_form = PostForm()
+#             context = {
+#                 "post_form": post_form
+#             }
+#             return render(request, "groups/group_detail.html", context)
+#     else:
+#         return JsonResponse({"message": "Permission Denied",
+#                              })
 
 
 @login_required(login_url="login")

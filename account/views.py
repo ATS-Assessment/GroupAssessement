@@ -82,11 +82,10 @@ class LoginView(FormView):
                 login(self.request, user)
                 return redirect('index')
             else:
-                messages.error(self.request, 'Email or password is not correct.')
+                messages.error(
+                    self.request, 'Email or password is not correct.')
         form = LoginForm
         return render(self.request, 'account/login.html', {'form': form})
-
-
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):

@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from groups.models import Group, Member
-from notification.forms import EventForm, PollForm
-from notification.models import Notification, Event, Poll
+from notification.forms import EventForm
+from notification.models import Notification, Event
 
 from django.shortcuts import render, redirect
 from django.urls import reverse

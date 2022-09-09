@@ -18,6 +18,6 @@ urlpatterns = [
     path('reply/<int:comment_pk>/', views.reply_comment, name="reply-comment"),
     path('like-post/', views.like_post, name="like-post"),
     path('like-comment/', views.like_comment, name="like-comment"),
-    path('groups/<int:group_pk>/<int:user_pk>/create-post',
-         views.create_post, name="create-post"),
+    #     path('groups/<int:group_pk>/',
+    #          views.create_post, name="create-post"),
 ]

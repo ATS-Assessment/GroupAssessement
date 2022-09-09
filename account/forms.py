@@ -21,10 +21,10 @@ class LoginForm(forms.Form):
 
 
 class UserProfileForm(forms.ModelForm):
+    pass
 
 
 class UserForm(ModelForm):
-
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", 'email', 'image']
