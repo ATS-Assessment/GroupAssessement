@@ -14,7 +14,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
-from account.forms import RegisterForm, UserForm
+from account.forms import RegisterForm
 from account.models import User
 from account.utils import send_email_verification
 
@@ -75,7 +75,6 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
 
 class UpdateProfileView(UpdateView):
     model = User
-    form_class = UserForm
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})

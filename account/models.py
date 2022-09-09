@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.urls import reverse
 
 
 # Create your models here.
@@ -43,7 +44,6 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=200)
     email = models.EmailField(max_length=200, unique=True)
     username = models.CharField(max_length=200, unique=True)
-    image = models.ImageField(upload_to='media', default='default.png')
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now_add=True)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -68,3 +68,18 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_active
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile", blank=True, null=True)
+    location = models.CharField(max_length=50, null=True, blank=True)
+    profile_pix = models.ImageField(
+        upload_to="profile/profile_photo", default=None,null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+
+    def get_absolute_url(self):
+        return reverse("profile", kwargs={"pk": self.pk})
+
+    def __str__(self) -> str:
+        return self.user.first_name

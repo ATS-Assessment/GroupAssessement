@@ -50,6 +50,9 @@ class Notification(models.Model):
         self.is_seen = True
         self.save()
 
+    def __str__(self) -> str:
+        return self.notification_type
+
     class Meta:
         ordering = ["-time_created"]
 
@@ -65,6 +68,9 @@ class Event(models.Model):
     has_started = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
+
+    def __str__(self) -> str:
+        return self.title
 
     def has_started(self):
         return self.start_date > datetime.datetime.now()

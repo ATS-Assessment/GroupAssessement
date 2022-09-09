@@ -4,8 +4,8 @@ from groups.decorators import is_member_of_group, not_suspended_member
 from .models import Group, Member, Post, Member, Like, Replies, GroupRequest, Comment
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
+from django.urls import reverse
 from django.db.models import Q
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView
@@ -26,10 +26,15 @@ class GroupList(LoginRequiredMixin, ListView):
     context_object_name = "group_list"
 
 
+def group_list(request):
+    groups = Group.objects.all()
+
 # class GroupDetail(LoginRequiredMixin, DetailView):
 #     model = Group
 #     template_name = "groups/group_detail.html"
 #     context_object_name = "group"
+
+
 @login_required(login_url='login')
 def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
@@ -118,10 +123,10 @@ def remove_group_member(request, group_pk, admin_pk, user_pk):
 
 
 @ login_required(login_url='login')
-def request_to_join_group(request, group_pk, user_pk):
-    group_request = GroupRequest.objects.create(
-        user__pk=user_pk, group__pk=group_pk)
+def request_to_join_group(request, group_pk):
     group = Group.objects.get(pk=group_pk)
+    group_request = GroupRequest.objects.create(
+        user=request.user, group=group)
     # admins = group.group_member.all().filter(member__is_admin=True)
     # for admin in admins:
     Notification.objects.create(group=group,
@@ -135,7 +140,7 @@ def request_add(request, group_pk, user_pk):
     user = User.objects.get(pk=user_pk)
     new_member = Member.objects.create(
         group=group, member=user)
-    return redirect(reverse())
+    return redirect(reverse('group-detail', args=[group_pk]))
 
 
 def request_reject_():

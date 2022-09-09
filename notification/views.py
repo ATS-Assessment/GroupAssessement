@@ -37,8 +37,9 @@ def show_notification(request):
 @login_required
 def notification_list(request):
     logger.debug("notification_list called by user %s" % request.user)
-    notifications_qs = Notification.objects.filter(
-        receiver=request.user).order_by("-time_created")
+    notifications_qs = Notification.objects.all()
+    # filter(
+    #     receiver=request.user).order_by("-time_created")
     new_notifs = notifications_qs.filter(is_seen=False)
     old_notifs = notifications_qs.filter(is_seen=True)
     logger.debug(
@@ -48,10 +49,11 @@ def notification_list(request):
         len(old_notifs)
     )
     context = {
+        "notifications_qs": notifications_qs,
         'read': old_notifs,
         'unread': new_notifs,
     }
-    return render(request, 'notifications/list.html', context)
+    return render(request, 'notification.html', context)
 
 
 @login_required
@@ -65,7 +67,7 @@ def notification_view(request, notif_pk):
     if notif.receiver == request.user:
         logger.debug("Providing notification for user %s", request.user)
         context = {'notif': notif}
-        notif.mark_viewed()
+        notif.mark_as_seen()
         return render(request, 'notifications/view.html', context)
     else:
         logger.warn(
@@ -75,7 +77,7 @@ def notification_view(request, notif_pk):
         )
         messages.error(request, _(
             'You are not authorized to view that notification.'))
-        return redirect('notifications:list')
+        return redirect('notification-list')
 
 
 @login_required
