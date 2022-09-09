@@ -6,12 +6,11 @@ from django.contrib.auth.forms import UserCreationForm
 
 from account.models import User
 
+
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
-
-
 
 
 class LoginForm(forms.Form):
@@ -19,12 +18,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter your password'}))
 
 
-# class UserForm(ModelForm):
-
-
-
-# class UserProfileForm(forms.ModelForm):
-#
-#     class Meta:
-#         model = UserProfile
-#         fields = ["profile_pix", "location", "phone_number"]
+class UserForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username", 'email', 'image']

@@ -72,7 +72,7 @@ class LoginView(FormView):
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
 
-            user = authenticate(username=email, password=password)
+            user = authenticate(email=email, password=password)
 
             if user is not None:
                 login(self.request, user)

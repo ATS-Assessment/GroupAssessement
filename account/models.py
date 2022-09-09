@@ -44,10 +44,9 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=200)
     email = models.EmailField(max_length=200, unique=True)
     username = models.CharField(max_length=200, unique=True)
+    image = models.ImageField(default='media/default.png', upload_to='media/')
     date_joined = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(auto_now_add=True)
-    created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
+    last_login = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
