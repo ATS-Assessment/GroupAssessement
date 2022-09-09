@@ -20,6 +20,7 @@ from groups.models import Group
 
 from .models import Event, Notification
 from .forms import EventForm
+from poll.models import Poll
 
 
 logger = logging.getLogger(__name__)
