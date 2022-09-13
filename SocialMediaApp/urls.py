@@ -17,6 +17,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import (handler400, handler404, handler403, handler500)
+
+handler500 = "groups.views.page_500"
+handler403 = "groups.views.page_403"
+handler404 = "groups.views.page_404"
+handler400 = "groups.views.page_400"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +33,6 @@ urlpatterns = [
     path('notification/', include('notification.urls')),
 
     path('poll/', include('poll.urls')),
+    path('event/', include('event.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

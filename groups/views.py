@@ -2,6 +2,8 @@
 
 from groups.decorators import is_member_of_group, not_suspended_member
 from .models import Group, Member, Post, Member, Like, Replies, GroupRequest, Comment
+import json
+from django.core.serializers import serialize
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -36,12 +38,15 @@ def group_list(request):
 
 
 @login_required(login_url='login')
+@is_member_of_group
 def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_posts = Post.visible_objects.filter(
         group__pk=group_pk).order_by('-date_created')
 
     if request.method == "POST":
+        member = Member.objects.get(pk=request.user.pk)
+        member = group.group_member.get(user__pk=request.user.pk)
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
             title = post_form.cleaned_data.get("title")
@@ -49,9 +54,11 @@ def group_detail(request, group_pk):
             post_image = post_form.cleaned_data.get("post_image")
             post_files = post_form.cleaned_data.get("post_files")
             post = Post.objects.create(
-                title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
+                title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=member)
             post.save()
             return redirect(reverse('group-detail', args=[group_pk]))
+        else:
+            post_form = PostForm()
     else:
         post_form = PostForm()
 
@@ -65,9 +72,11 @@ def group_detail(request, group_pk):
 
     }
     # print(group_posts)
+    # print(group.group_member.all())
     for post in group_posts:
         post_comments = Comment.objects.filter(
-            post__pk=post.pk).order_by('-date_created')
+            post__pk=post.pk, is_hidden=True).order_by('-date_created')
+
         for comment in post_comments:
             comment_replies = Replies.objects.filter(
                 comment__pk=comment.pk).order_by('-date_created')
@@ -149,7 +158,7 @@ def request_to_join_group(request, group_pk):
     # admins = group.group_member.all().filter(member__is_admin=True)
     # for admin in admins:
     Notification.objects.create(group=group,
-                                notification_type="group_request", is_admin_notification=True)
+                                notification_type="group_request", content_preview="A Potential Member wants to join your Group", is_admin_notification=True)
     return redirect(request.META["HTTP_REFERER"])
 
 
@@ -232,8 +241,8 @@ def suspend_member(request, group_name, admin_pk, user_pk):
 
 @login_required(login_url="login")
 def search_groups(request):
-    if request.method == 'POST':
-        group_name = request.POST.get('search')
+    if request.method == "GET" and "keyword" in request.GET:
+        group_name = request.GET.get('keyword')
         print(group_name)
         results = Group.objects.filter(
             Q(name__icontains=group_name) | Q
@@ -241,7 +250,7 @@ def search_groups(request):
         context = {
             'results': results
         }
-        return render(request, 'search_result.html', context)
+        return render(request, 'search.html', context)
 
 
 @is_member_of_group
@@ -261,65 +270,101 @@ def comment_on_post(request, group_pk, post_pk):
             return render(request, 'comment.html', {
                 "comment_form": comment_form,
             })
+    else:
+        comment_form = CommentForm()
+        return render(request, 'comment.html', {
+            "comment_form": comment_form,
+        })
 
 
-@is_member_of_group
-@not_suspended_member
+# @is_member_of_group
+# @not_suspended_member
 @login_required(login_url="login")
 def reply_comment(request, group_pk, post_pk, comment_pk):
+    group = Group.objects.get(pk=group_pk)
+
+    member = group.group_member.get(member__pk=request.user.pk)
+    print(member)
     comment = Comment.objects.get(
         group__pk=group_pk, post__pk=post_pk, pk=comment_pk)
     if request.method == "POST":
         reply_form = ReplyForm(request.POST)
         if reply_form.is_valid():
             content = reply_form.cleaned_data.get("content")
-            Replies.objects.create(member=request.user,
-                                   content=content, group=Group.objects.get(pk=group_pk), comment=comment)
+            if member:
+                new_reply = Replies.objects.create(member=member,
+                                                   content=content, comment=comment)
+
+                # s = serialize('json', [new_reply])
+                # o = s.strip("[]")
+                # print(new_reply)
+                # print(s)
+                # print(o)
+                print(new_reply.member.member.first_name)
+                print(new_reply.member.member.last_name)
+                resp = {
+                    "content": new_reply.content,
+                    "first_name": new_reply.member.member.first_name,
+                    "last_name": new_reply.member.member.last_name,
+
+                }
+                return JsonResponse(resp, content_type="application/json")
+        else:
+            print(reply_form.errors)
+            return JsonResponse({"Error": reply_form.errors}, content_type="application/json")
+    else:
+        return JsonResponse({
+            "message": "Not Allowed"
+        })
 
 
-@login_required(login_url="login")
+# @login_required(login_url="login")
 # @is_member_of_group
 # @not_suspended_member
 def like_post(request, group_pk, post_pk):
+    if request.method == "POST":
+        content_id = request.POST.get("content_id", None)
+        group = Group.objects.get(pk=group_pk)
+        group_member = group.group_member.get(member=request.user)
+
+        if group_member.is_suspended is False:
+
+            post = Post.objects.get(pk=content_id)
+
+            if request.user not in post.like.all():
+                post.like.add(group_member)
+                liked = True
+                notification = Notification.objects.create(
+                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
+                return JsonResponse({
+                    "liked": liked,
+                    "content_id": content_id,
+                })
+            else:
+                post.like.remove(request.user)
+                liked = False
+                notification = Notification.object.create(
+                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
+                return JsonResponse({
+                    "liked": liked,
+                    "content_id": content_id,
+                })
+
+
+def like_comment(request, group_pk, post_pk, comment_pk):
     group = Group.objects.get(pk=group_pk)
     group_member = group.group_member.all().filter(member=request.user)
+    group_member = group.group_member.get(member=request.user)
+    print(group_member)
     if group_member.is_suspended is False:
-        post = Post.objects.filter(pk=post_pk)
-        if request.user not in post.like.all():
-            post.like.add(request.user)
-            liked = True
-            notification = Notification.object.create(notification_type="like")
-        else:
-            post.like.add(request.user)
-            liked = Falsecomment = Comment.objects.filter(post__pk=post_pk)
-    #     reply = Replies.objects.filter(comment__pk=comment.pk)
-    #     liked = Like.objects.filter(member=request.user, post=post)
-    #     if not liked:
-    #         pass
-    # else:
-    #     return JsonResponse({"message": "Permission Denied",
-    #                          })
-
-    #     comment = Comment.objects.filter(post__pk=post_pk)
-    #     reply = Replies.objects.filter(comment__pk=comment.pk)
-    #     liked = Like.objects.filter(member=request.user, post=post)
-    #     if not liked:
-    #         pass
-    # else:
-    #     return JsonResponse({"message": "Permission Denied",
-    #                          })
-
-
-def like_comment(request, group_pk, post_pk):
-    group = Group.objects.get(pk=group_pk)
-    group_member = group.group_member.all().filter(member=request.user)
-    if group_member.is_suspended is False:
-        post = Post.objects.filter(pk=post_pk)
-        comment = Comment.objects.filter(post__pk=post_pk)
-        reply = Replies.objects.filter(comment__pk=comment.pk)
-        liked = Like.objects.filter(member=request.user, post=post)
-        if not liked:
-            pass
+        comment = Comment.objects.get(pk=comment_pk, post__pk=post_pk)
+        # reply = Replies.objects.filter(comment__pk=comment.pk)
+        liked = Like.objects.filter(
+            member=request.user, post__pk=post_pk, comment__pk=comment_pk)
+        print(liked)
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+        # if not liked:
+        #     pass
     else:
         return JsonResponse({"message": "Permission Denied",
                              })
@@ -338,3 +383,38 @@ def like_reply(request, group_pk, post_pk):
     else:
         return JsonResponse({"message": "Permission Denied",
                              })
+
+
+def hide_post(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    print("HidePost")
+    group_member = group.group_member.all().filter(member=request.user)
+    if group_member.is_admin:
+        post = Post.objects.filter(pk=post_pk)
+        post.is_hidden = True
+
+        return JsonResponse({
+            "hidden": post.is_hidden,
+            "post_pk": post.pk,
+        })
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, "groups/dashboard.html")
+
+
+def page_404(request, exception=None):
+    return render(request, "groups/404.html")
+
+
+def page_403(request, exception=None):
+    return render(request, "groups/403.html")
+
+
+def page_400(request, exception=None):
+    return render(request, "groups/404.html")
+
+
+def page_500(request, exception=None):
+    return render(request, "groups/404.html")
