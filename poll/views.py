@@ -50,6 +50,7 @@ def poll_detail(request, pk, poll_pk):
     return render(request, 'poll/poll-detail.html', {'poll': poll})
 
 
+
 def edit_poll(request, group_pk, poll_pk):
     group = Group.objects.get(pk=group_pk)
     poll = group.poll_set.get(pk=poll_pk)
@@ -81,6 +82,7 @@ def edit_poll(request, group_pk, poll_pk):
             'pol_form': pol_form,
         }
         return render(request, 'poll/edit-poll.html', context)
+
     else:
         messages.error(request, 'You can only edit before the start date.')
         return redirect('group-detail', group.id)
