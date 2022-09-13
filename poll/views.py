@@ -14,7 +14,8 @@ from poll.models import Poll, Choice, Voter
 
 def create_poll(request, pk):
     group = Group.objects.get(pk=pk)
-    PollFormSet = inlineformset_factory(Poll, Choice, form=ChoiceForm, extra=3, can_delete=False)
+    PollFormSet = inlineformset_factory(
+        Poll, Choice, form=ChoiceForm, extra=3, can_delete=False)
 
     if group.group_member.filter(member=request.user).exists():
         if group.group_member.get(member=request.user).is_admin:
@@ -37,7 +38,6 @@ def create_poll(request, pk):
             form = PollForm()
             choice_form = PollFormSet()
             return render(request, 'poll/create-poll.html', {'form': form, 'choice_form': choice_form, 'group': group})
-
 
         else:
             messages.error(request, 'You are not an admin of the group')
@@ -105,7 +105,8 @@ def vote(request, pk):
 
         if not member.is_suspended and not voter.exists():
             try:
-                selected_choice = poll.choice_set.get(pk=request.POST['poll.choice_set'])
+                selected_choice = poll.choice_set.get(
+                    pk=request.POST['poll.choice_set'])
             except (KeyError, poll.DoesNotExist):
                 return render(request, 'poll/poll-detail.html', {
                     "poll": poll,

@@ -5,7 +5,22 @@
       <!-- Required meta tags -->
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js" ></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.print.min.css" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/gcal.min.js" ></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css"/>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.11.3/main.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.11.3/main.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
       <title>
           {% block title %}
           {% endblock %}
@@ -204,8 +219,8 @@
                   </div>
                   </div>
                   <div class="iq-search-bar">
-                     <form action="#" class="searchbox">
-                        <input type="text" class="text search-input" placeholder="Type here to search...">
+                     <form action="{% url "search-groups" %}" class="searchbox">
+                        <input type="text" class="text search-input" name="keyword" placeholder="Type here to search...">
                         <a class="search-link" href="#"><i class="ri-search-line"></i></a>
                      </form>
                   </div>
@@ -276,19 +291,22 @@
                               <div class="iq-card shadow-none m-0">
                                  <div class="iq-card-body p-0 ">
                                     <div class="bg-primary p-3">
-                                       <h5 class="mb-0 text-white">All Notifications<small class="badge  badge-light float-right pt-1">4</small></h5>
+                                       <h5 class="mb-0 text-white">All Notifications<small class="badge  badge-light float-right pt-1">{{noti.count}}</small></h5>
                                     </div>
                                     <a href="#" class="iq-sub-card" >
-                                       <div class="media align-items-center">
+                                       {% for nots in noti %}
+                                          <div class="media align-items-center">
                                           <div class="">
                                              <img class="avatar-40 rounded" src="{% static 'images/user/01.jpg' %}" alt="">
                                           </div>
                                           <div class="media-body ml-3">
-                                             <h6 class="mb-0 ">Emma Watson Bni</h6>
-                                             <small class="float-right font-size-12">Just Now</small>
-                                             <p class="mb-0">95 MB</p>
+                                             <h6 class="mb-0 "><strong>{{nots.group.name}}</strong></h6>
+                                             <h6 class="mb-0 ">{{nots.notification_type}}</h6>
+                                             <small class="float-right font-size-12">{{nots.time_created}}</small>
+                                             <p class="mb-0">{{nots.receiver.first_name}}</p>
                                           </div>
                                        </div>
+                                       {% endfor %}
                                     </a>
                                  </div>
                               </div>

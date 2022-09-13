@@ -1,10 +1,11 @@
-from account.models import User
-from django.db import models
 
+from django.db import models
+from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save, post_delete, post_init
 
 from notification.models import Notification
+from account.models import User
 
 
 # Create your models here.
@@ -38,6 +39,15 @@ class NotSuspendedMember(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(is_suspended=False)
+
+
+class GroupManager(models.Manager):
+    def suspended_members(self):
+        return Group.objects.filter(is_suspended=True)
+
+    def group_members(self):
+        group = Group.objects.filter(is_suspended=False)
+        return group.group_members.all()
 
 
 class Group(models.Model):
@@ -91,7 +101,7 @@ class Member(models.Model):
         Group, on_delete=models.CASCADE, related_name="group_member")
     member = models.ForeignKey(
         User, related_name="user_member", on_delete=models.CASCADE)
-    is_admin = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
     is_suspended = models.BooleanField(default=False)
     has_exited = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -101,6 +111,9 @@ class Member(models.Model):
     inactive_members = InactiveManager()
     suspended_members = SuspendedMember()
     not_suspended_members = NotSuspendedMember()
+
+    def __str__(self):
+        return self.member.first_name + ' ' + self.member.last_name
 
 
 
@@ -126,13 +139,17 @@ class Post(models.Model):
     def __str__(self) -> str:
         return self.content[:50]
 
+    def get_absolute_url(self):
+        return reverse("like-post", kwargs={"group_pk": self.group.pk, "post_pk": self.pk})
+
     def member_post(self):
         pass
 
 
 class Comment(models.Model):
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
-    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
+    post = models.ForeignKey(
+        Post, on_delete=models.SET_NULL, related_name="post_comment", null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     content = models.CharField(max_length=100)
     like = models.ManyToManyField(
@@ -145,14 +162,17 @@ class Comment(models.Model):
     visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
 
+    def __str__(self) -> str:
+        return self.content[:20]
+
     def member_commented(sender, instance, *args, **kwargs):
         comment = instance
         post = comment.post
         receiver = comment.group
-        text_preview = comment.body[:50]
+        text_preview = comment.content[:50]
 
-        notify = Notification.objects.create(post=post, sender=sender, user=post.user,
-                                             text_preview=text_preview, notification_type=2)
+        notify = Notification.objects.create(receiver=post.member.member,
+                                             content_preview=text_preview, notification_type="like")
         notify.save()
 
     def member_del_comment(sender, instance, *args, **kwargs):
@@ -172,7 +192,8 @@ pass
 
 class Replies(models.Model):
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
-    comment = models.ForeignKey(Comment, on_delete=models.SET_NULL, null=True)
+    comment = models.ForeignKey(
+        Comment, on_delete=models.SET_NULL, related_name="comment_replies", null=True)
     content = models.TextField(max_length=80)
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
@@ -181,6 +202,9 @@ class Replies(models.Model):
     objects = models.Manager()
     visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
+
+    def __str__(self) -> str:
+        return self.content[:20]
 
     def member_replied(self):
         pass

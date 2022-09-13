@@ -11,14 +11,6 @@ from account.models import User
 logger = logging.getLogger(__name__)
 
 
-def _json():
-    return dict
-
-
-def __json():
-    return list
-
-
 class Notification(models.Model):
     NOTIFICATION_TYPE = (
         ("like", "like"),
@@ -38,10 +30,23 @@ class Notification(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     is_seen = models.BooleanField(default=False)
     is_admin_notification = models.BooleanField(default=False)
-    yes = models.ManyToManyField("groups.Member", related_name="yes_members")
-    no = models.ManyToManyField("groups.Member", related_name="no_members")
-    maybe = models.ManyToManyField(
-        "groups.Member", related_name="maybe_members")
+    # yes = models.ManyToManyField("groups.Member", related_name="yes_members")
+    # no = models.ManyToManyField("groups.Member", related_name="no_members")
+    # maybe = models.ManyToManyField(
+    #     "groups.Member", related_name="maybe_members")
+
+
+# not notpk userpk
+# Notification.objects.get(pk=notpk)
+# notif.yes.add(member.pk)
+
+
+# Yes.
+
+# get evnt summary
+# Notification.objects.get(pk=notpk)
+# not
+
 
     def mark_as_seen(self) -> None:
         """Mark notification as viewed."""
@@ -56,38 +61,58 @@ class Notification(models.Model):
         ordering = ["-time_created"]
 
 
-class Event(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    group = models.ForeignKey(
-        "groups.Group", on_delete=models.SET_NULL, null=True)
-    title = models.CharField(max_length=100)
-    description = models.TextField(max_length=200)
-    date_created = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    start_time = models.DateTimeField(null=True)
-    end_time = models.DateTimeField(null=True)
-    # yes = models.JSONField(default=__json())
-    # no = models.JSONField(default=__json())
-    has_started = models.BooleanField(default=False)
-    start_date = models.DateTimeField(null=True)
-    end_date = models.DateTimeField(null=True)
-
-    def __str__(self) -> str:
-        return self.title
-
-    def has_started(self):
-        return self.start_date > datetime.datetime.now()
-
-    def admin_create_event(sender, instance, *args, **kwargs):
-        event = instance
-        sender = event.creator
-        receiver = event.group
-        notify = Notification.objects.create(group=receiver, created_by=sender)
-        notify.save()
+class EventInvite(models.Model):
+    yes = models.ManyToManyField("groups.Member", related_name="yes_members")
+    no = models.ManyToManyField("groups.Member", related_name="no_members")
+    maybe = models.ManyToManyField(
+        "groups.Member", related_name="maybe_members")
 
 
-post_save.connect(Event.admin_create_event, sender=Event)
+class Yes(models.Model):
+    member = models.ForeignKey(
+        "groups.Member", on_delete=models.CASCADE, null=True)
+
+
+class No(models.Model):
+    member = models.ForeignKey(
+        "groups.Member", on_delete=models.CASCADE, null=True)
+
+
+class Maybe(models.Model):
+    member = models.ForeignKey(
+        "groups.Member", on_delete=models.CASCADE, null=True)
+# class Event(models.Model):
+#     creator = models.ForeignKey("groups.Member", on_delete=models.SET_NULL, null=True)
+#     group = models.ForeignKey(
+#         "groups.Group", on_delete=models.SET_NULL, null=True)
+#     title = models.CharField(max_length=100)
+#     description = models.TextField(max_length=200)
+#     date_created = models.DateTimeField(auto_now_add=True)
+#     last_modified = models.DateTimeField(auto_now=True)
+
+#    if notification_type == 'invite'
+#        form
+#     start_time = models.DateTimeField(null=True)
+#     end_time = models.DateTimeField(null=True)
+#     has_started = models.BooleanField(default=False)
+#     start_date = models.DateTimeField(null=True)
+#     end_date = models.DateTimeField(null=True)
+
+#     def __str__(self) -> str:
+#         return self.title
+
+#     def has_started(self):
+#         return self.start_date > datetime.datetime.now()
+
+#     def admin_create_event(sender, instance, *args, **kwargs):
+#         event = instance
+#         sender = event.creator
+#         receiver = event.group
+#         notify = Notification.objects.create(group=receiver, created_by=sender)
+#         notify.save()
+
+
+# post_save.connect(Event.admin_create_event, sender=Event)
 
 
 # class Poll(models.Model):

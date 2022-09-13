@@ -13,14 +13,24 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ["is_admin", "is_suspended"]
 
 
+class RepliesInline(admin.StackedInline):
+    model = Replies
+
+
+class CommentInline(admin.StackedInline):
+    model = Comment
+    inlines = [RepliesInline]
+
+
 class PostAdmin(admin.ModelAdmin):
     list_display = ["title", "content", "is_hidden", "date_created"]
+    inlines = [CommentInline, ]
 
 
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Comment)
 admin.site.register(Like)
 admin.site.register(Replies)
-admin.site.register(Post)
+admin.site.register(Post, PostAdmin)
 admin.site.register(GroupRequest)
 admin.site.register(Member, MemberAdmin)

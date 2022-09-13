@@ -4,25 +4,25 @@
       <div class="col-sm-12">
          <div class="iq-card-header d-flex justify-content-between">
             <div class="iq-header-title">
-               <h4 class="card-title">Notifications</h4>
+               <h4 class="card-title">Search Results</h4>
             </div>
          </div>
       </div>
       <div class="col-sm-12">
+        {% if results %}
           <!--for loop for each notification -->
-         {% for notifi in unread %}
-            <div class="iq-card">
+         {% for group in results %}
+           <a href="{% url "group-detail" group.pk %}">
+             <div class="iq-card">
             <div class="iq-card-body">
                <ul class="notification-list m-0 p-0">
                   <li class="d-flex align-items-center">
                      <div class="user-img img-fluid"><img src="#" alt="story-img" class="rounded-circle avatar-40"></div>
                      <div class="media-support-info ml-3">
-                        <h6>Paige Turner Posted in Community <strong>{{notifi.group}}</strong></h6>
-                        <small class="mb-0">{{notifi.time_created}}</small>
-                         <p class="mb-0">*<b>{{notifi.notification_type}}</b></p>
+                        <h6><strong>{{group.name}}</strong>  Paige Turner Posted in Community   <b> [ Currently has {{group.group_member.count}} Members]</b></h6>
+                        <p class="mb-0"> Created on {{group.date_created}} by </p>
                      </div>
-                      {% if notifi.notification_type != 'like' %}
-                      <div class="d-flex align-items-center">
+                     <div class="d-flex align-items-center">
                         <a href="javascript:void();" class="mr-3 iq-notify iq-bg-primary rounded"><i class="ri-award-line"></i></a>
                         <div class="iq-card-header-toolbar d-flex align-items-center">
                            <div class="dropdown">
@@ -30,25 +30,24 @@
                               <i class="ri-more-fill"></i>
                               </span>
                               <div class="dropdown-menu dropdown-menu-right">
-                                  {% if notifi.notification_type == 'group_request' %}
-                                  <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Add</a>
-                                  <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Ignore</a>
-                                  {% endif %}
-                                  {% if notifi.notification_type == 'invite' %}
-                                  <a class="btn btn-success" href="#">Yes</a>
-                                  <a class="btn btn-danger" href="#">No</a>
-                                  <a class="btn btn-primary" href="#">Maybe</a>
-                                  {% endif %}
+                                 <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>View</a>
+                                 <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>
+                                 <a class="dropdown-item" href="#"><i class="ri-pencil-fill mr-2"></i>Edit</a>
+                                 <a class="dropdown-item" href="#"><i class="ri-printer-fill mr-2"></i>Print</a>
+                                 <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Download</a>
                               </div>
                            </div>
                         </div>
-                      </div>
-                      {% endif %}
+                     </div>
                   </li>
                </ul>
             </div>
          </div>
+           </a>
          {% endfor %}
+        {% else %}
+        No results were found for your query. Search with another Keyword.
+        {% endif %}
            <!-- end for loop for each notification -->
       </div>
     </div>
