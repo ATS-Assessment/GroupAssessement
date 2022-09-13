@@ -17,8 +17,9 @@
                   <li class="d-flex align-items-center">
                      <div class="user-img img-fluid"><img src="#" alt="story-img" class="rounded-circle avatar-40"></div>
                      <div class="media-support-info ml-3">
-                        <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
-                        <p class="mb-0">{{notifi.time_created}}</p>
+                        <h6>Paige Turner Posted in Community <strong>{{notifi.group}}</strong></h6>
+                        <small class="mb-0">{{notifi.time_created}}</small>
+                         <p class="mb-0">*<b>{{notifi.notification_type}}</b></p>
                      </div>
                       {% if notifi.notification_type != 'like' %}
                       <div class="d-flex align-items-center">

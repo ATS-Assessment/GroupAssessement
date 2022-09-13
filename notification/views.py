@@ -30,7 +30,7 @@ def show_notification(request):
     notify = Notification.objects.filter(
         receiver=request.user, is_seen=False).order_by("-time_created")
     return render(request, "groups/group_detail.html", {
-        "notification": notify
+        "poll": notify
     })
 
 

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {#    <div class="modal fade" id="post-modal1" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none; margin-top: 75px; overflow: scroll;">#}
+    {#                     <div class="modal-dialog" role="document">#}
+    {#                         <div class="modal-content">#}
+    <div class="modal-header">
+        <h5 class="modal-title" id="post-modalLabel">Create your polls</h5>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
+    </div>
+
+    <div class="modal-body">
+        <div class="d-flex align-items-center">
+            <form class="post-text ml-3 w-100" action="{% url 'poll:create-poll' group.id %}" method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="title">Title:</label>
+                    <input type="text" class="form-control rounded" required name="title" id="title"
+                           placeholder="Write your poll title..." style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+
+{#                {{ choice_form.as_p }}#}
+
+                {{ choice_form.non_form_errors }}
+                {{ choice_form.management_form }}
+
+                {% for choice in choice_form %}
+                    <div>
+                        <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>
+                        <input type="text" class="form-control rounded"
+                               name="choice_set-{{ forloop.counter0 }}-{{ choice.choice_text.name }}"
+                               id="choice_{{ forloop.counter }}" placeholder="Choice {{ forloop.counter }}"
+                               {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}
+                               style="border:none; margin-bottom: 10px;">
+                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id"
+                               id="id_choice_set-{{ forloop.counter0 }}-id">
+                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll"
+                               id="id_choice_set-{{ forloop.counter0 }}-poll">
+
+                    </div>
+                {% endfor %}
+                {#                                        <div>#}
+                {#                                        <label for="choice_two">Choice 2</label>#}
+                {#                                        <input type="text" class="form-control rounded" name="choice_two" id="choice_two" placeholder="Second choice" style="border:none; margin-bottom: 10px;">#}
+                {#                                        </div>#}
+                {#                                        <div>#}
+                {#                                        <label for="choice_three">Choice 3</label>#}
+                {#                                        <input type="text" class="form-control rounded" name="choice_three" id="choice_three" placeholder="Three choice" style="border:none; margin-bottom: 10px;">#}
+                {#                                        </div>#}
+                <div>
+                    <label for="start_date">Start Date</label>
+                    <input type="date" class="form-control rounded" required name="start_date" id="start_date"
+                           placeholder="Pick Start Date..." style="border:none; margin-bottom: 10px;">
+                </div>
+                <div>
+                    <label for="end_date">End Date</label>
+                    <input type="date" class="form-control rounded" required name="end_date" id="end_date"
+                           placeholder="Pick End Date..." style="border:none; margin-bottom: 10px;">
+                </div>
+                <hr>
+                {#                                        <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">#}
+                {#                                            <li class="col-md-6 mb-3">#}
+                {#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>#}
+                {#                                            </li>#}
+                {#                                            <li class="col-md-6 mb-3">#}
+                {#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>#}
+                {#                                            </li>#}
+                {#                                        </ul>#}
+                {#                                        <hr>#}
+                <div class="other-option">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="user-img mr-3">
+                                <img src="{{ request.user.image.url }}" alt="userimg"
+                                     class="avatar-60 rounded-circle img-fluid">
+                            </div>
+                            <h6>Your Poll</h6>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary d-block w-100 mt-3">Add Poll</button>
+            </form>
+        </div>
+    </div>
+    {#                         </div>#}
+    {#                     </div>#}
+    {#                 </div>#}
+{% endblock %}

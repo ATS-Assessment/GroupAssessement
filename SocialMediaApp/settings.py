@@ -150,12 +150,10 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = "yaoyedele@student.lautech.edu.ng"
-EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
-DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
+EMAIL_HOST_USER = "yusufoyedele43@gmail.com"
+EMAIL_HOST_PASSWORD = "amrzangbnrbbyljg"
+DEFAULT_FROM_EMAIL = "GroupAssessment <yusufoyedele@gmail.com>"
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'

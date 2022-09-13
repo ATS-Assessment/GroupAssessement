@@ -43,10 +43,11 @@ def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_posts = Post.visible_objects.filter(
         group__pk=group_pk).order_by('-date_created')
-
     if request.method == "POST":
         member = Member.objects.get(pk=request.user.pk)
+
         member = group.group_member.get(user__pk=request.user.pk)
+
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
             title = post_form.cleaned_data.get("title")
@@ -61,7 +62,6 @@ def group_detail(request, group_pk):
             post_form = PostForm()
     else:
         post_form = PostForm()
-
     context = {
         "group": group,
         "members": group.group_member.all(),
@@ -69,10 +69,13 @@ def group_detail(request, group_pk):
         "member": Member.objects.all(),
         "post_form": post_form,
         "group_post": group_posts,
-
     }
+
     # print(group_posts)
     # print(group.group_member.all())
+    (group_posts)
+    print(group.group_member.all())
+
     for post in group_posts:
         post_comments = Comment.objects.filter(
             post__pk=post.pk, is_hidden=True).order_by('-date_created')
@@ -83,7 +86,6 @@ def group_detail(request, group_pk):
             context["post_comments"] = post_comments
             context["comment_replies"] = comment_replies
             context["post"] = post
-
     return render(request, "groups/group_detail.html", context)
 
 

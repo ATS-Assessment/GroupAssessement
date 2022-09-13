@@ -10,7 +10,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ["is_admin", "is_suspended", ]
+    list_display = ["is_admin", "is_suspended"]
 
 
 class RepliesInline(admin.StackedInline):
