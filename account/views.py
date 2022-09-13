@@ -14,7 +14,11 @@ from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from django.views.generic import CreateView, FormView, DeleteView, UpdateView, ListView, DetailView
 
+
+from account.forms import RegisterForm
+
 from account.forms import RegisterForm, UserForm, LoginForm
+
 from account.models import User
 from account.utils import send_email_verification
 
@@ -78,11 +82,10 @@ class LoginView(FormView):
                 login(self.request, user)
                 return redirect('index')
             else:
-                messages.error(self.request, 'Email or password is not correct.')
+                messages.error(
+                    self.request, 'Email or password is not correct.')
         form = LoginForm
         return render(self.request, 'account/login.html', {'form': form})
-
-
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):

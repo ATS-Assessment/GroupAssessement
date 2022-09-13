@@ -1,7 +1,7 @@
 from dataclasses import field
 from pyexpat import model
 from django import forms
-from .models import Event, Poll
+from .models import Event,  Notification
 
 
 class EventForm(forms.ModelForm):
@@ -10,7 +10,7 @@ class EventForm(forms.ModelForm):
         fields = ["title", "description", "start_date", "end_date"]
 
 
-class PollForm(forms.ModelForm):
+class NotificationForm(forms.ModelForm):
     class Meta:
-        model = Poll
-        fields = ["title", ]
+        model = Notification
+        fields = ["yes", "no", "maybe"]

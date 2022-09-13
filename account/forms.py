@@ -10,12 +10,18 @@ from account.models import User
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+        fields = ['first_name', 'last_name', 'username',
+                  'email', 'password1', 'password2']
 
 
 class LoginForm(forms.Form):
     email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Enter your password'}))
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={'placeholder': 'Enter your password'}))
+
+
+class UserProfileForm(forms.ModelForm):
+    pass
 
 
 class UserForm(ModelForm):

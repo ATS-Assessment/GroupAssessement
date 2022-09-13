@@ -3,327 +3,535 @@
 {% block content %}
     <div class="right-sidebar-mini right-sidebar">
         <div class="right-sidebar-panel p-0">
-           <div class="iq-card shadow-none">
-              <div class="iq-card-body p-0">
-                 <div class="media-height p-3">
-{#                    {% for member in members %}#}
-                    <div class="media align-items-center mb-4">
-                       <div class="iq-profile-avatar status-away">
-                          <img class="rounded-circle avatar-50" src="{## {{ member.member.profile.profile_pix.url }} #}" alt="">
-                       </div>
-                       <div class="media-body ml-3">
-                          <h6 class="mb-0"><a href="#">Member Username</a></h6>
-                          <p class="mb-0">Admin</p>
-                       </div>
+            <div class="iq-card shadow-none">
+                 <div class="iq-card-body p-0">
+                    <div class="media-height p-3">
+                        {% for member in members %}
+                            <div class="media align-items-center mb-4">
+                                <div class="iq-profile-avatar status-away">
+                                    <img class="rounded-circle avatar-50" src="{{ member.member.profile.profile_pix.url }}" alt="">
+                                </div>
+                                <div class="media-body ml-3">
+                                  <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>
+                                  <p class="mb-0">
+                                       {{member.is_admin}}
+                                      {% if member.is_admin %}
+                                          Group Admin
+                                      {% else %}
+                                          Group Member
+                                      {% endif %}
+                                  </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                         <div class="right-sidebar-toggle bg-primary mt-3">
+                            <i class="ri-arrow-left-line side-left-icon"></i>
+                            <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>
+                         </div>
                     </div>
-{#                    {% endfor %}#}
-                     <div class="right-sidebar-toggle bg-primary mt-3">
-                        <i class="ri-arrow-left-line side-left-icon"></i>
-                        <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>
-                     </div>
-                </div>
-              </div>
-           </div>
+                 </div>
+            </div>
         </div>
     </div>
+
     <!---header--->
      <div class="header-for-bg">
         <div class="background-header position-relative">
-           <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
-           <div class="title-on-header">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
+            <div class="title-on-header">
               <div class="data-block">
                  <h2>{{ group.name }}</h2>
               </div>
            </div>
         </div>
-     </div>
+    </div>
     <!---end header--->
-   <div class="row" style="margin-top: 100px;">
-      <div class="col-lg-8 row m-0 p-0">
-         <div class="col-sm-12">
-            <div id="post-modal-data" class="iq-card iq-card-block iq-card-stretch iq-card-height">
-               <div class="iq-card-header d-flex justify-content-between">
-                  <div class="iq-header-title">
-                     <h4 class="card-title">Create Post</h4>
-                  </div>
-               </div>
-               <div class="iq-card-body" data-toggle="modal" data-target="#post-modal">
-                  <div class="d-flex align-items-center">
-                     <div class="user-img">
-                        <img src="#" alt="userimg" class="avatar-60 rounded-circle">
-                     </div>
-                     <form class="post-text ml-3 w-100" action="#">
-                        <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
-                     </form>
-                  </div>
-                  <hr>
-                  <ul class="post-opt-block d-flex align-items-center list-inline m-0 p-0">
-                      <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</a></li>
-                      <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</a></li>
-                      <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</a></li>
-                     <li class="iq-bg-primary rounded p-2 pointer">
-                        <div class="iq-card-header-toolbar d-flex align-items-center">
-                           <div class="dropdown">
-                              <span class="dropdown-toggle" id="post-option" data-toggle="dropdown" >
-                              <i class="ri-more-fill"></i>
-                              </span>
-                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="post-option" style="">
-                                 <a class="dropdown-item" href="#">Check in</a>
-                                 <a class="dropdown-item" href="#">Live Video</a>
-                                 <a class="dropdown-item" href="#">Gif</a>
-                                 <a class="dropdown-item" href="#">Watch Party</a>
-                                 <a class="dropdown-item" href="#">Play with Friend</a>
-                              </div>
-                           </div>
-                        </div>
-                     </li>
-                  </ul>
-               </div>
-               <div class="modal fade" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none;">
-                  <div class="modal-dialog" role="document">
-                     <div class="modal-content">
-                        <div class="modal-header">
-                           <h5 class="modal-title" id="post-modalLabel">Create Post</h5>
-                           <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
-                        </div>
-                        <div class="modal-body">
-                           <div class="d-flex align-items-center">
-                              <div class="user-img">
-                                 <img src="#" alt="userimg" class="avatar-60 rounded-circle img-fluid">
-                              </div>
-                              <form class="post-text ml-3 w-100" action="#">
-                                 <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
-                              </form>
-                           </div>
-                           <hr>
-                           <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
-                              </li>
-                           </ul>
-                           <hr>
-                           <div class="other-option">
-                              <div class="d-flex align-items-center justify-content-between">
-                                 <div class="d-flex align-items-center">
-                                    <div class="user-img mr-3">
-                                       <img src="{% static 'images/user/1.jpg' %}" alt="userimg" class="avatar-60 rounded-circle img-fluid">
-                                    </div>
-                                    <h6>Your Post</h6>
-                                 </div>
-
-                              </div>
-                           </div>
-                           <button type="submit" class="btn btn-primary d-block w-100 mt-3">Post</button>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+    <div class="row" style="margin-top: 100px;">
+        <div class="col-lg-8 row m-0 p-0">
+            <div class="col-sm-12">
+                <div id="post-modal-data" class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                    <div class="iq-card-header d-flex justify-content-between">
+                      <div class="iq-header-title">
+                         <h4 class="card-title">Create Post</h4>
+                      </div>
+                   </div>
+                   <div class="iq-card-body" data-toggle="modal" data-target="#post-modal">
+                      <div class="d-flex align-items-center">
+                         <div class="user-img">
+                            <img src="#" alt="userimg" class="avatar-60 rounded-circle">
+                         </div>
+                         <form class="post-text ml-3 w-100" action="#">
+                            <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
+                         </form>
+                      </div>
+                       <hr>
+                       <ul class="post-opt-block d-flex align-items-center list-inline m-0 p-0">
+                            <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</a></li>
+                            <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</a></li>
+                            <li class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</a></li>
+                            <li class="iq-bg-primary rounded p-2 pointer">
+                            <div class="iq-card-header-toolbar d-flex align-items-center">
+                                <div class="dropdown">
+                                  <span class="dropdown-toggle" id="post-option" data-toggle="dropdown" >
+                                    <i class="ri-more-fill"></i>
+                                  </span>
+                                  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="post-option" style="">
+                                     <a class="dropdown-item" href="#">Check in</a>
+                                     <a class="dropdown-item" href="#">Live Video</a>
+                                     <a class="dropdown-item" href="#">Gif</a>
+                                     <a class="dropdown-item" href="#">Watch Party</a>
+                                     <a class="dropdown-item" href="#">Play with Friend</a>
+                                  </div>
+                               </div>
+                            </div>
+                         </li>
+                      </ul>
+                   </div>
+                    <div class="modal fade" id="post-modal" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none;">
+                      <div class="modal-dialog" role="document">
+                         <div class="modal-content">
+                            <div class="modal-header">
+                               <h5 class="modal-title" id="post-modalLabel">Create Post</h5>
+                               <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
+                            </div>
+                            <div class="modal-body">
+                               <div class="d-flex align-items-center">
+                                  <form class="post-text ml-3 w-100" method="POST" enctype="multipart/form-data"  action="{% url "group-detail" group.pk %}">
+                                     {% csrf_token %}
+                                      <label for="title">Post Title:</label>
+                                      <input type="text" class="form-control rounded" name="title" id="title" placeholder="Write your post title..." style="border:1px solid #ccc; margin-bottom: 10px;">
+                                      <label for="content">Post Content:</label>
+                                      <textarea type="text" class="form-control rounded" name="content" id="content" placeholder="Write your post content..." style="border:1px solid #ccc; margin-bottom: 10px;"></textarea>
+                                      <label for="post_image">Add Post Image:</label>
+                                      <input type="file" class="form-control rounded" name="post_image" id="post_image" placeholder="Add a post image..." style="border:none; margin-bottom: 10px;">
+                                      <label for="post_files">Add Other Files:</label>
+                                      <input type="file" class="form-control rounded" name="post_files" id="post_files" placeholder="Add more files..." style="border:none; margin-bottom: 10px;">
+                                       <hr>
+                                       <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
+                                          </li>
+                                          <li class="col-md-6 mb-3">
+                                             <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
+                                          </li>
+                                       </ul>
+                                       <hr>
+                                       <div class="other-option">
+                                          <div class="d-flex align-items-center justify-content-between">
+                                             <div class="d-flex align-items-center">
+                                                <div class="user-img mr-3">
+                                                   <img src="{% static 'images/user/1.jpg' %}" alt="userimg" class="avatar-60 rounded-circle img-fluid">
+                                                </div>
+                                                <h6>Your Post</h6>
+                                            </div>
+                                          </div>
+                                       </div>
+                                        <button type="submit" class="btn btn-primary d-block w-100 mt-3">Post</button>
+                                  </form>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    </div>
+                </div>
             </div>
-         </div>
-          <!-- for loop for posts -->
-         <div class="col-sm-12">
-            <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-               <div class="iq-card-body">
-                  <div class="user-post-data">
-                     <div class="d-flex flex-wrap">
-                        <div class="media-support-user-img mr-3">
-                           <img class="rounded-circle img-fluid" src="images/user/01.jpg" alt="">
-                        </div>
-                        <div class="media-support-info mt-2">
-                           <h5 class="mb-0 d-inline-block"><a href="#" class="">Username</a></h5>
-                           <p class="mb-0 d-inline-block">Add New Post</p>
-                           <p class="mb-0 text-primary">Just now</p>
-                        </div>
-                        <div class="iq-card-post-toolbar">
-                           <div class="dropdown">
-                              <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                              <i class="ri-more-fill"></i>
-                              </span>
-                              <div class="dropdown-menu m-0 p-0">
-                                 <a class="dropdown-item p-3" href="#">
-                                    <div class="d-flex align-items-top">
-                                       <div class="icon font-size-20"><i class="ri-save-line"></i></div>
-                                       <div class="data ml-2">
-                                          <h6>Save Post</h6>
-                                          <p class="mb-0">Add this to your saved items</p>
-                                       </div>
+      <!-- for loop for posts -->
+            {% if group_post %}
+            {% for post in group_post %}
+                <div class="col-sm-12">
+                    <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+                        <div class="iq-card-body">
+                            <div class="user-post-data">
+                                <div class="d-flex flex-wrap">
+                                    <div class="media-support-user-img mr-3">
+                                        <img class="rounded-circle img-fluid" src="images/user/01.jpg" alt="">
                                     </div>
-                                 </a>
-                                 <a class="dropdown-item p-3" href="#">
-                                    <div class="d-flex align-items-top">
-                                       <div class="icon font-size-20"><i class="ri-close-circle-line"></i></div>
-                                       <div class="data ml-2">
-                                          <h6>Hide Post</h6>
-                                          <p class="mb-0">See fewer posts like this.</p>
-                                       </div>
+                                    <div class="media-support-info mt-2">
+                                        <h5 class="mb-0 d-inline-block"><a href="#" class="">{{post.member.member.first_name}} {{post.member.member.last_name}}</a></h5>
+                                        <p class="mb-0 d-inline-block">Add New Post</p>
+                                        <p class="mb-0 text-primary">{{post.date_created}}</p>
                                     </div>
-                                 </a>
-                                 <a class="dropdown-item p-3" href="#">
-                                    <div class="d-flex align-items-top">
-                                       <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
-                                       <div class="data ml-2">
-                                          <h6>Suspend User</h6>
-                                          <p class="mb-0">Stop user from accessing the group.</p>
-                                       </div>
+                                    <div class="iq-card-post-toolbar">
+                                        <div class="dropdown">
+                                            <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                <i class="ri-more-fill"></i>
+                                            </span>
+                                            <div class="dropdown-menu m-0 p-0">
+                                                <a class="dropdown-item p-3" href="#">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-save-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Save Post</h6>
+                                                            <p class="mb-0">Add this to your saved items</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a class="dropdown-item p-3" href="#">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-close-circle-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Hide Post</h6>
+                                                            <p class="mb-0">See fewer posts like this.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a class="dropdown-item p-3" href="#">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Suspend User</h6>
+                                                            <p class="mb-0">Stop user from accessing the group.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
-                                 </a>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="mt-3">
-                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nulla dolor, ornare at commodo non, feugiat non nisi. Phasellus faucibus mollis pharetra. Proin blandit ac massa sed rhoncus</p>
-                  </div>
-                  <div class="user-post">
-                     <div class="d-flex">
-                        <div class="col-md-6">
-                           <a href="#"><img src="{% static 'images/page-img/p2.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
-                        </div>
-                        <div class="col-md-6 row m-0 p-0">
-                           <div class="col-sm-12">
-                              <a href="#"><img src="{% static 'images/page-img/p1.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
-                           </div>
-                           <div class="col-sm-12 mt-3">
-                              <a href="#"><img src="{% static 'images/page-img/p3.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="comment-area mt-3">
-                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="like-block position-relative d-flex align-items-center">
-                           <div class="d-flex align-items-center">
-                              <div class="like-data">
-                                 <div class="dropdown">
-                                    <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                    <img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt="">
-                                    </span>
-                                    <div class="dropdown-menu">
-                                       <a class="ml-2 mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Like"><img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Love"><img src="{% static 'images/icon/02.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Happy"><img src="{% static 'images/icon/03.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="HaHa"><img src="{% static 'images/icon/04.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Think"><img src="{% static 'images/icon/05.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Sade"><img src="{% static 'images/icon/06.png' %}" class="img-fluid" alt=""></a>
-                                       <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Lovely"><img src="{% static 'images/icon/07.png' %}" class="img-fluid" alt=""></a>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p>{{post.content}}</p>
+                            </div>
+                            <div class="user-post">
+                                <div class="d-flex">
+                                    <div class="col-md-6">
+                                        <a href="#"><img src="{% static 'images/page-img/p2.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
                                     </div>
-                                 </div>
-                              </div>
-                              <div class="total-like-block ml-2 mr-3">
-                                 <div class="dropdown">
-                                    <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                    140 Likes
-                                    </span>
-                                    <div class="dropdown-menu">
-                                       <a class="dropdown-item" href="#">Max Emum</a>
+                                    <div class="col-md-6 row m-0 p-0">
+                                        <div class="col-sm-12">
+                                            <a href="#"><img src="{% static 'images/page-img/p1.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
+                                        </div>
+                                        <div class="col-sm-12 mt-3">
+                                            <a href="#"><img src="{% static 'images/page-img/p3.jpg' %}" alt="post-image" class="img-fluid rounded w-100"></a>
+                                        </div>
                                     </div>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="total-comment-block">
-                              <div class="dropdown">
-                                 <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                 20 Comment
-                                 </span>
-                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#">Max Emum</a>
-                                 </div>
-                              </div>
-                           </div>
+                                </div>
+                            </div>
+                            <div class="comment-area mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="like-block position-relative d-flex align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div class="like-data">
+                                                <div class="dropdown">
+                                                    <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                        {% if  post.post_image %}
+                                                            <img src="{{ post.post_image.url }}" class="img-fluid" alt="">
+                                                        {% else %}
+                                                            <img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt="">
+                                                        {% endif %}
+                                                    </span>
+                                                    <div class="dropdown-menu">
+                                                        <a class="ml-2 mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Like"><img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Love"><img src="{% static 'images/icon/02.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Happy"><img src="{% static 'images/icon/03.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="HaHa"><img src="{% static 'images/icon/04.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Think"><img src="{% static 'images/icon/05.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Sade"><img src="{% static 'images/icon/06.png' %}" class="img-fluid" alt=""></a>
+                                                        <a class="mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Lovely"><img src="{% static 'images/icon/07.png' %}" class="img-fluid" alt=""></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="total-like-block ml-2 mr-3">
+                                                <div class="dropdown">
+                                                    <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                        {{post.like.all.count}}Likes
+                                                    </span>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="#">Max Emum</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="total-comment-block">
+                                            <div class="dropdown">
+                                                <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                    Comment
+                                                </span>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#">Max Emum</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <ul class="post-comments p-0 m-0">
+                                    <li class="mb-2">
+                                        <div class="d-flex flex-wrap">
+                                            <div class="user-img">
+                                                <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
+                                            </div>
+                                            <div class="comment-data-block ml-3">
+                                                <h6>Username</h6>
+                                                <p class="mb-0">Lorem ipsum dolor sit amet</p>
+                                                <div class="d-flex flex-wrap align-items-center comment-activity">
+                                                    <a href="#">like</a>
+                                                    <a href="#">reply</a>
+                                                    <a href="#">translate</a>
+                                                    <span> 5 min ago</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <form class="comment-text d-flex align-items-center mt-3" action="#">
+                                    <input type="text" class="form-control rounded">
+                                    <div class="comment-attagement d-flex">
+                                        <a href="#"><i class="ri-link mr-3"></i></a>
+                                        <a href="#"><i class="ri-user-smile-line mr-3"></i></a>
+                                        <a href="#"><i class="ri-camera-line mr-3"></i></a>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                     </div>
-                     <hr>
-                     <ul class="post-comments p-0 m-0">
-                        <li class="mb-2">
-                           <div class="d-flex flex-wrap">
-                              <div class="user-img">
-                                 <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
-                              </div>
-                              <div class="comment-data-block ml-3">
-                                 <h6>Username</h6>
-                                 <p class="mb-0">Lorem ipsum dolor sit amet</p>
-                                 <div class="d-flex flex-wrap align-items-center comment-activity">
-                                    <a href="#">like</a>
-                                    <a href="#">reply</a>
-                                    <a href="#">translate</a>
-                                    <span> 5 min ago</span>
-                                 </div>
-                              </div>
-                           </div>
-                        </li>
-                     </ul>
-                     <form class="comment-text d-flex align-items-center mt-3" action="#">
-                        <input type="text" class="form-control rounded">
-                        <div class="comment-attagement d-flex">
-                           <a href="#"><i class="ri-link mr-3"></i></a>
-                           <a href="#"><i class="ri-user-smile-line mr-3"></i></a>
-                           <a href="#"><i class="ri-camera-line mr-3"></i></a>
-                        </div>
-                     </form>
-                  </div>
-               </div>
-            </div>
-         </div>
-          <!-- end for loop for posts -->
-      </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% else %}
+                <p>No Posts yet</p>
+            {% endif %}
+            <!-- end for loop for posts -->
+        </div>
         <div class="col-lg-4">
              <div class="iq-card">
                 <div class="iq-card-header d-flex justify-content-between">
                    <div class="iq-header-title">
-                      <h4 class="card-title">Polls</h4>
+                      <h4 class="card-title"><legend>Polls</legend></h4>
                    </div>
                 </div>
                 <div class="iq-card-body">
                    <ul class="media-story m-0 p-0">
-                      <li class="d-flex mb-6 align-items-center">
-                          <a href="#">
+                      <li class="d-flex mb-6 align-items-center" data-toggle="modal" data-target="#post-modal1">
+                          <a href="{% url 'poll:create-poll' group.id %}">
                              <i class="ri-add-line font-size-18"></i>
                              <div class="stories-data ml-3">
-                                <h5>Create your polls</h5>
-                                <p class="mb-0"></p>
+                                <h5>Create Polls</h5>
+                                <p class="mb-0">Questions you want people to answer</p>
                              </div>
                           </a>
                       </li>
-                       <!-- For Loop for polls -->
+                           <!-- For Loop for polls -->
                        <hr>
-                      <li class="d-flex mb-4 align-items-center">
-                          <p>Poll text</p>
+                       <li class="d-flex mb-4 align-items-center">
+                           <div class="d-flex flex-wrap" style="flex-direction: column;">
+                               <div>
+                                   <h5>Poll List</h5>
+                                   {% for poll in group.poll_set.all %}
+                                       <p>{{ poll.title }}</p>
+                                       <div>
+                                   <div class="iq-card-post-toolbar">
+                                        <div class="dropdown">
+                                            <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                <i class="ri-more-fill"></i>
+                                            </span>
+                                            <div class="dropdown-menu m-0 p-0">
+                                                <a class="dropdown-item p-3" href="{% url 'poll:poll-detail' group.id poll.id %}">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-save-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Answer Poll</h6>
+                                                            <p class="mb-0">Answer the polls with your opinion</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a class="dropdown-item p-3" href="{% url 'poll:edit' group.id poll.id %}" >
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-save-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Edit Poll</h6>
+                                                            <p class="mb-0">Edit the poll details.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
 
-                      </li>
-                     <!--end for loop-->
+                                                <a class="dropdown-item p-3" href="#">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>View poll summary</h6>
+                                                            <p class="mb-0">Get the statistics of the poll.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                   </div>
+                               </div><hr>
+                                   {% endfor %}
+                               </div>
+                           </div>
+
+                       </li>
+                       <!--end for loop-->
                    </ul>
-                   <a href="#" class="btn btn-primary d-block mt-3">See All</a>
+                    <a href="#" class="btn btn-primary d-block mt-3">See All</a>
                 </div>
-             </div>
+{#                 <div class="modal fade" id="post-modal1" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none; margin-top: 75px; overflow: scroll;">#}
+{#                     <div class="modal-dialog" role="document">#}
+{#                         <div class="modal-content">#}
+{#                             <div class="modal-header">#}
+{#                                 <h5 class="modal-title" id="post-modalLabel">Create your polls</h5>#}
+{#                                 <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>#}
+{#                            </div>#}
+{##}
+{#                            <div class="modal-body">#}
+{#                                <div class="d-flex align-items-center">#}
+{#                                    <form class="post-text ml-3 w-100" action="{% url 'poll:create-poll' group.id %}" method="post">#}
+{#                                        {% csrf_token %}#}
+{#                                        <div>#}
+{#                                        <label for="title">Title:</label>#}
+{#                                        <input type="text" class="form-control rounded" name="title" id="title" placeholder="Write your poll title..." style="border:1px solid #ccc; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{##}
+{#                                    {{ form.as_p }}#}
+{##}
+{#                                        {{ choice_form.non_form_errors }}#}
+{#                                        {{ choice_form.management_form }}#}
+{##}
+{#                                        {% for choice in choice_form %}#}
+{#                                        <div>#}
+{#                                        <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_set-{{ forloop.counter0 }}-{{ choice.choice_text.name }}" id="choice_{{ forloop.counter }}" placeholder="Choice {{ forloop.counter }}" style="border:none; margin-bottom: 10px;">#}
+{#                                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id" value="{% if forloop.counter == 1 %}{{ choice1.id }}{% elif forloop.counter == 2 %}{{ choice2.id }}{% else %}{{ choice3.id }}{% endif %}" id="id_choice_set-{{ forloop.counter0 }}-id">#}
+{#                                            <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll" value="{{ pol.id }}" id="id_choice_set-{{ forloop.counter0 }}-poll">#}
+{##}
+{#                                        </div>#}
+{#                                        {% endfor %}#}
+{#                                        <div>#}
+{#                                        <label for="choice_two">Choice 2</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_two" id="choice_two" placeholder="Second choice" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="choice_three">Choice 3</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_three" id="choice_three" placeholder="Three choice" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="start_date">Start Date</label>#}
+{#                                        <input type="date" class="form-control rounded" name="start_date" id="start_date" placeholder="Pick Start Date..." style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="end_date">End Date</label>#}
+{#                                        <input type="date" class="form-control rounded" name="end_date" id="end_date" placeholder="Pick End Date..." style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <hr>#}
+{#                                        <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">#}
+{#                                            <li class="col-md-6 mb-3">#}
+{#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>#}
+{#                                            </li>#}
+{#                                            <li class="col-md-6 mb-3">#}
+{#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>#}
+{#                                            </li>#}
+{#                                        </ul>#}
+{#                                        <hr>#}
+{#                                        <div class="other-option">#}
+{#                                            <div class="d-flex align-items-center justify-content-between">#}
+{#                                                <div class="d-flex align-items-center">#}
+{#                                                    <div class="user-img mr-3">#}
+{#                                                        <img src="{{ request.user.image.url }}" alt="userimg" class="avatar-60 rounded-circle img-fluid">#}
+{#                                                    </div>#}
+{#                                                    <h6>Your Poll</h6>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <button type="submit" class="btn btn-primary d-block w-100 mt-3">Add Poll</button>#}
+{#                                    </form>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                         </div>#}
+{#                     </div>#}
+{#                 </div>#}
+{#                 <div class="modal fade" id="post-modal2" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none; margin-top: 75px; overflow: scroll;">#}
+{#                     <div class="modal-dialog" role="document">#}
+{#                         <div class="modal-content">#}
+{#                             <div class="modal-header">#}
+{#                                 <h5 class="modal-title" id="post-modalLabel">Edit Your Poll</h5>#}
+{#                                 <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>#}
+{#                            </div>#}
+{#                            <div class="modal-body">#}
+{#                                <div class="d-flex align-items-center">#}
+{#                                    <form class="post-text ml-3 w-100" action="" method="post">#}
+{#                                        {% csrf_token %}#}
+{#                                        <div>#}
+{#                                        <label for="title">Title:</label>#}
+{#                                        <input type="text" class="form-control rounded" name="title" id="title" value="{{ pol_form.title.value }}" style="border:1px solid #ccc; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="choice_one">Choice 1</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_one" id="choice_one" value="" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="choice_two">Choice 2</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_two" id="choice_two" value="" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="choice_three">Choice 3</label>#}
+{#                                        <input type="text" class="form-control rounded" name="choice_three" id="choice_three" value="" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="start_date">Start Date</label>#}
+{#                                        <input type="date" class="form-control rounded" name="start_date" id="start_date" value="{{ pol_form.start_date.value }}" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <div>#}
+{#                                        <label for="end_date">End Date</label>#}
+{#                                        <input type="date" class="form-control rounded" name="end_date" id="end_date" value="{{ pol_form.end_date.value }}" style="border:none; margin-bottom: 10px;">#}
+{#                                        </div>#}
+{#                                        <hr>#}
+{#                                        <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">#}
+{#                                            <li class="col-md-6 mb-3">#}
+{#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>#}
+{#                                            </li>#}
+{#                                            <li class="col-md-6 mb-3">#}
+{#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>#}
+{#                                            </li>#}
+{#                                        </ul>#}
+{#                                        <hr>#}
+{#                                        <div class="other-option">#}
+{#                                            <div class="d-flex align-items-center justify-content-between">#}
+{#                                                <div class="d-flex align-items-center">#}
+{#                                                    <div class="user-img mr-3">#}
+{#                                                        <img src="{{ request.user.image.url }}" alt="userimg" class="avatar-60 rounded-circle img-fluid">#}
+{#                                                    </div>#}
+{#                                                    <h6>Your Poll</h6>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <button type="submit" class="btn btn-primary d-block w-100 mt-3">Edit Poll</button>#}
+{#                                    </form>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                         </div>#}
+{#                     </div>#}
+{#                 </div>#}
+{#             </div>#}
              <div class="iq-card">
                 <div class="iq-card-header d-flex justify-content-between">
                    <div class="iq-header-title">
                       <h4 class="card-title">Events</h4>
                    </div>
                     <div class="iq-header-media">
-
                     </div>
                 </div>
                 <div class="iq-card-body">
@@ -334,34 +542,24 @@
                          <div class="stories-data ml-3">
                             <h5>Web Workshop</h5>
                             <p class="mb-0">1 hour ago</p>
+                             <div class="btn-group">
+                                  <a href="#" class="btn btn-success">
+                                      Yes
+                                  </a>
+                                  <a href="#" class="btn btn-danger">
+                                      No
+                                  </a>
+                                  <a href="#" class="btn btn-primary">
+                                      Maybe
+                                  </a>
+                             </div>
                          </div>
                       </li>
-                       <a class="btn-group" style="display: block;">
-                              <a href="#" class="btn btn-success">
-                                Yes
-                              </a>
-                              <a href="#" class="btn btn-danger">
-                                No
-                              </a>
-                              <a href="#" class="btn btn-primary">
-                                Maybe
-                              </a>
-                          </a>
                       <!--end for-->
                    </ul>
                     <a href="#" class="btn btn-primary d-block mt-3">See More Events</a>
                 </div>
              </div>
-
-         </div>
-      </div>
-{#    {{group.creator}}#}
-{#    {{group.name}}#}
-{#    {% comment %} {{group.group_member.all}}| {% endcomment %}#}
-{#    {{members}}#}
-{#    {{count}}#}
-{#    {% for mem in members %}#}
-{#        {{mem.first_name}}#}
-{#        {{mem.member}}#}
-{#    {% endfor %}#}
+        </div>
+    </div>
 {% endblock %}

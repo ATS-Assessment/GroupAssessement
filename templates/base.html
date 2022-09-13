@@ -5,6 +5,7 @@
       <!-- Required meta tags -->
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
       <title>
           {% block title %}
           {% endblock %}
@@ -33,7 +34,7 @@
                         <a href="{% url 'index' %}" class="iq-waves-effect"><i class="las la-newspaper"></i><span>Newsfeed</span></a>
                      </li>
                      <li>
-                        <a href="profile.html" class="iq-waves-effect"><i class="las la-user"></i><span>Profile</span></a>
+                        <a href="{% url 'update-profile' request.user.id %}" class="iq-waves-effect"><i class="las la-user"></i><span>Profile</span></a>
                      </li>
                      <li>
                         <a href="friend-list.html" class="iq-waves-effect"><i class="las la-user-friends"></i><span>Friend Lists</span></a>
@@ -45,13 +46,13 @@
                         <a href="{% url 'create-group' %}" class="iq-waves-effect"><i class="las la-image"></i><span>Create Group</span></a>
                      </li>
                      <li>
-                        <a href="profile-video.html" class="iq-waves-effect"><i class="las la-video"></i><span>Profile Video</span></a>
+                        {% comment %} <a href="profile-video.html" class="iq-waves-effect"><i class="las la-video"></i><span>Profile Video</span></a> {% endcomment %}
                      </li>
                      <li>
                         <a href="profile-event.html" class="iq-waves-effect"><i class="las la-film"></i><span>Profile Events</span></a>
                      </li>
                      <li>
-                        <a href="notification.html" class="iq-waves-effect"><i class="las la-bell"></i><span>Notification</span></a>
+                        <a href="{% url "notification-list" %}" class="iq-waves-effect"><i class="las la-bell"></i><span>{{noti_count}} Notification</span></a>
                      </li>
                      <li>
                         <a href="file.html" class="iq-waves-effect"><i class="las la-file"></i><span>Files</span></a>
@@ -68,24 +69,24 @@
                      <li>
                         <a href="calendar.html" class="iq-waves-effect"><i class="las la-calendar"></i><span>Calendar</span></a>
                      </li>
-                     <li>
+                     {% comment %} <li>
                         <a href="birthday.html" class="iq-waves-effect"><i class="las la-birthday-cake"></i><span>Birthday</span></a>
                      </li>
                      <li>
                         <a href="weather.html" class="iq-waves-effect"><i class="ri-snowy-line"></i><span>Weather</span></a>
                      </li>
                      <li>
-                        <a href="music.html" class="iq-waves-effect"><i class="ri-play-circle-line"></i><span>Music</span></a>
-                     </li>
-                     <li>
+                        <a href="music.html" class="iq-waves-effect"><i class="ri-play-circle-line"></i><span>Music</span></a> {% endcomment %}
+                     {% comment %} </li> {% endcomment %}
+                     {% comment %} <li>
                         <a href="#mailbox" class="iq-waves-effect collapsed"  data-toggle="collapse" aria-expanded="false"><i class="ri-mail-line"></i><span>Email</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                         <ul id="mailbox" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
                            <li><a href="app/index.html"><i class="ri-inbox-line"></i>Inbox</a></li>
                            <li><a href="app/email-compose.html"><i class="ri-edit-line"></i>Email Compose</a></li>
                         </ul>
-                     </li>
+                     </li> {% endcomment %}
                      <li>
-                        <a href="#ui-elements" class="iq-waves-effect collapsed"  data-toggle="collapse" aria-expanded="false"><i class="ri-focus-2-line"></i><span>Ui-Elements</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
+                        {% comment %} <a href="#ui-elements" class="iq-waves-effect collapsed"  data-toggle="collapse" aria-expanded="false"><i class="ri-focus-2-line"></i><span>Ui-Elements</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a> {% endcomment %}
                         <ul id="ui-elements" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
                            <li>
                               <a href="#ui-kit" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="ri-pencil-ruler-line"></i><span>UI Kit</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
@@ -104,7 +105,7 @@
                                  <li><a href="ui-list-group.html"><i class="ri-file-list-3-line"></i>list Group</a></li>
                                  <li><a href="ui-media-object.html"><i class="ri-camera-line"></i>Media</a></li>
                                  <li><a href="ui-modal.html"><i class="ri-stop-mini-line"></i>Modal</a></li>
-                                 <li><a href="ui-notifications.html"><i class="ri-notification-line"></i>Notifications</a></li>
+                                 <li><a href="{% url "notification-list" %}"><i class="ri-notification-line"></i>Notifications</a></li>
                                  <li><a href="ui-pagination.html"><i class="ri-pages-line"></i>Pagination</a></li>
                                  <li><a href="ui-popovers.html"><i class="ri-folder-shield-2-line"></i>Popovers</a></li>
                                  <li><a href="ui-progressbars.html"><i class="ri-battery-low-line"></i>Progressbars</a></li>
@@ -153,7 +154,7 @@
                      <li class="active">
                         <a href="#pages" class="iq-waves-effect collapsed"  data-toggle="collapse" aria-expanded="true"><i class="ri-pages-line"></i><span>Pages</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                         <ul id="pages" class="iq-submenu collapse show" data-parent="#iq-sidebar-toggle">
-                           <li>
+                           {% comment %} <li>
                               <a href="#authentication" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="ri-pages-line"></i><span>Authentication</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                               <ul id="authentication" class="iq-submenu collapse" data-parent="#pages">
                                  <li><a href="sign-in.html"><i class="ri-login-box-line"></i>Login</a></li>
@@ -162,8 +163,8 @@
                                  <li><a href="pages-confirm-mail.html"><i class="ri-file-code-line"></i>Confirm Mail</a></li>
                                  <li><a href="pages-lock-screen.html"><i class="ri-lock-line"></i>Lock Screen</a></li>
                               </ul>
-                           </li>
-                           <li class="active">
+                           </li> {% endcomment %}
+                           {% comment %} <li class="active">
                               <a href="#extra-pages" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="true"><i class="ri-pantone-line"></i><span>Extra Pages</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                               <ul id="extra-pages" class="iq-submenu collapse show" data-parent="#pages">
                                  <li><a href="pages-timeline.html"><i class="ri-map-pin-time-line"></i>Timeline</a></li>
@@ -177,7 +178,7 @@
                                  <li><a href="pages-comingsoon.html"><i class="ri-mastercard-line"></i>Coming Soon</a></li>
                                  <li><a href="pages-faq.html"><i class="ri-compasses-line"></i>Faq</a></li>
                               </ul>
-                           </li>
+                           </li> {% endcomment %}
                         </ul>
                      </li>
                      
@@ -216,7 +217,7 @@
                      <ul class="navbar-nav ml-auto navbar-list">
                         <li>
                            <a href="profile.html" class="iq-waves-effect d-flex align-items-center">
-                              <img src="{% static 'images/user/1.jpg' %}" class="img-fluid rounded-circle mr-3" alt="user">
+                              <img src="{{ request.user.image.url }}" class="img-fluid rounded-circle mr-3" alt="user">
                               <div class="caption">
                                   {% if request.user.first_name or request.user.last_name %}
                                       <h6 class="mb-0 line-height">{{ request.user.first_name|capfirst }} {{ request.user.last_name|capfirst }}</h6>
@@ -265,11 +266,10 @@
                            </div>
                         </li>
                         <li class="nav-item">
-                           <a href="#" class="search-toggle iq-waves-effect">
-                              <div id="lottie-beil"><span>{{noti_count}} 
-
-                                 <span> </span>
-                              </span></div>
+                           <a href="{% url "notification-list" %}" class="search-toggle iq-waves-effect">
+                              <div id="lottie-beil">
+                                 </div><div> <span>{{noti_count}}</span></div>
+                                 
                               <span class="bg-danger dots"></span>
                            </a>
                            <div class="iq-sub-dropdown">
@@ -346,7 +346,7 @@
                                           </div>
                                        </div>
                                     </a>
-                                    <a href="{% url 'update-profile' request.user.id %}" class="iq-sub-card iq-bg-warning-hover">
+                                    {% comment %} <a href="{% url 'update-profile' request.user.id %}" class="iq-sub-card iq-bg-warning-hover"> {% endcomment %}
                                        <div class="media align-items-center">
                                           <div class="rounded iq-card-icon iq-bg-warning">
                                              <i class="ri-profile-line"></i>

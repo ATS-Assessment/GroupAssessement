@@ -10,7 +10,7 @@
             <li><a href="{% url 'addtoadmin' %}">Add Admin</a></li>
             <li><a href="{% url 'remove-member' %}">Remove Member</a></li> {% endcomment %}
             <li><a href="{% url 'change-password' %}">Change Password</a></li>
-            <li><a href="{% url 'update-profile' user.pk %}">Update Profile</a></li>
+            {% comment %} <li><a href="{% url 'update-profile' user.pk %}">Update Profile</a></li> {% endcomment %}
             <li><a href="{% url 'logout' %}">Logout</a></li>
         {% else %}
             <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>

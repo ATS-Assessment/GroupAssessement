@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notification.context_processors.count_notification',
+                # 'groups.context_processors.create_post',
             ],
         },
     },
@@ -146,9 +147,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = "yaoyedele@student.lautech.edu.ng"
-EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
-DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
+EMAIL_HOST_USER = "yusufoyedele43@gmail.com"
+EMAIL_HOST_PASSWORD = "amrzangbnrbbyljg"
+DEFAULT_FROM_EMAIL = "GroupAssessment <yusufoyedele@gmail.com>"
 
 
 MESSAGE_TAGS = {

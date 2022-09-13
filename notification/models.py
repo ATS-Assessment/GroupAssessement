@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
@@ -7,6 +8,7 @@ from account.models import User
 
 
 # Create your models here.
+logger = logging.getLogger(__name__)
 
 
 def _json():
@@ -20,6 +22,7 @@ def __json():
 class Notification(models.Model):
     NOTIFICATION_TYPE = (
         ("like", "like"),
+
         ("group_request", "group_request"),
         ("invite", "invite")
     )
@@ -35,17 +38,25 @@ class Notification(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     is_seen = models.BooleanField(default=False)
     is_admin_notification = models.BooleanField(default=False)
+    yes = models.ManyToManyField("groups.Member", related_name="yes_members")
+    no = models.ManyToManyField("groups.Member", related_name="no_members")
+    maybe = models.ManyToManyField(
+        "groups.Member", related_name="maybe_members")
+
+    def mark_as_seen(self) -> None:
+        """Mark notification as viewed."""
+        logger.info("Marking notification as viewed: %s" % self)
+        self.is_seen = True
+        self.save()
+
+    def __str__(self) -> str:
+        return self.notification_type
 
     class Meta:
         ordering = ["-time_created"]
 
 
 class Event(models.Model):
-    EVENT_RESPONSE = (
-        ("yes", "Yes"),
-        ("no", "No"),
-        ("maybe", "Maybe"),
-    )
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
@@ -61,8 +72,9 @@ class Event(models.Model):
     has_started = models.BooleanField(default=False)
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
-    response = models.CharField(
-        max_length=50, choices=EVENT_RESPONSE, blank=True, null=True)
+
+    def __str__(self) -> str:
+        return self.title
 
     def has_started(self):
         return self.start_date > datetime.datetime.now()
@@ -88,5 +100,3 @@ post_save.connect(Event.admin_create_event, sender=Event)
 #
 #     def has_started(self):
 #         return self.start_date > datetime.datetime.now()
-
-
