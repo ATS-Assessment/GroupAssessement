@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
     <div class="modal-header">
         <h5 class="modal-title" id="post-modalLabel">Edit Your Poll</h5>
     </div>
@@ -14,7 +19,8 @@
                 <div>
                     <label for="title">Title:</label>
                     <input type="text" class="form-control rounded" name="title" id="title"
-                           value="{{ pol_form.title.value }}" required style="border:1px solid #ccc; margin-bottom: 10px;">
+                           value="{{ pol_form.title.value }}" required
+                           style="border:1px solid #ccc; margin-bottom: 10px;">
                 </div>
                 {{ pollform.non_form_errors }}
                 {{ pollform.management_form }}
@@ -27,6 +33,7 @@
                                {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}
                                style="border:none; margin-bottom: 10px;">
                         <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id" value="
+
                                 {% if forloop.counter == 1 %}{{ choice1.id }}{% elif forloop.counter == 2 %}{{ choice2.id }}{% else %}{{ choice3.id }}{% endif %}"
                                id="id_choice_set-{{ forloop.counter0 }}-id">
                         <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll" value="{{ pol.id }}"

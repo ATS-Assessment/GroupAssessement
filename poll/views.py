@@ -2,7 +2,7 @@ import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.forms import modelformset_factory, formset_factory, inlineformset_factory
+from django.forms import inlineformset_factory
 
 # Create your views here.
 from django.urls import reverse
@@ -21,10 +21,13 @@ def create_poll(request, pk):
 
             if request.method == 'POST':
                 form = PollForm(request.POST)
-                choice_form = PollFormSet(request.POST)
+                choice_form = PollFormSet(request.POST, instance=form.instance)
 
                 if choice_form.is_valid() and form.is_valid():
                     form = form.save(commit=False)
+                    member = group.group_member.get(member=request.user)
+                    form.creator = member
+                    form.group = group
                     form.save()
                     choice_form.save()
                     messages.success(request, 'Poll saved..')
@@ -50,7 +53,6 @@ def poll_detail(request, pk, poll_pk):
     return render(request, 'poll/poll-detail.html', {'poll': poll})
 
 
-
 def edit_poll(request, group_pk, poll_pk):
     group = Group.objects.get(pk=group_pk)
     poll = group.poll_set.get(pk=poll_pk)
@@ -62,29 +64,33 @@ def edit_poll(request, group_pk, poll_pk):
     pollform = PollInlineFormSet(instance=poll)
     pol_form = PollForm(instance=poll)
 
-    if poll.start_date > datetime.date.today():
-        if request.method == 'POST':
-            poll_form = PollForm(request.POST, instance=poll)
-            choice_form = PollInlineFormSet(request.POST, instance=poll)
+    if group.group_member.get(member=request.user).is_admin:
+        if poll.start_date > datetime.date.today():
+            if request.method == 'POST':
+                poll_form = PollForm(request.POST, instance=poll)
+                choice_form = PollInlineFormSet(request.POST, instance=poll)
 
-            if poll_form.is_valid() and choice_form.is_valid():
-                poll_form.save()
-                choice_form.save()
-                messages.success(request, "Update Successful...")
-                return redirect('group-detail', group.id)
-        context = {
-            'grp': group,
-            'pol': poll,
-            'choice1': choice_objects[0],
-            'choice2': choice_objects[1],
-            'choice3': choice_objects[2],
-            'pollform': pollform,
-            'pol_form': pol_form,
-        }
-        return render(request, 'poll/edit-poll.html', context)
+                if poll_form.is_valid() and choice_form.is_valid():
+                    poll_form.save()
+                    choice_form.save()
+                    messages.success(request, "Update Successful...")
+                    return redirect('group-detail', group.id)
+            context = {
+                'grp': group,
+                'pol': poll,
+                'choice1': choice_objects[0],
+                'choice2': choice_objects[1],
+                'choice3': choice_objects[2],
+                'pollform': pollform,
+                'pol_form': pol_form,
+            }
+            return render(request, 'poll/edit-poll.html', context)
 
+        else:
+            messages.error(request, 'You can only edit before the start date.')
+            return redirect('group-detail', group.id)
     else:
-        messages.error(request, 'You can only edit before the start date.')
+        messages.error(request, "Only admin can edit the poll..")
         return redirect('group-detail', group.id)
 
 
@@ -118,3 +124,11 @@ def vote(request, pk):
     else:
         messages.error(request, "You are not the member of the group.")
         return redirect('poll:poll-detail', group.id, poll.id)
+
+
+def poll_summary(request, group_pk, poll_pk):
+    group = Group.objects.get(pk=group_pk)
+    poll = group.poll_set.get(pk=poll_pk)
+
+    return render(request, 'poll/poll-summary.html', {'poll': poll})
+
