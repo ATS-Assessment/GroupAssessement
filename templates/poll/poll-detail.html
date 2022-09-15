@@ -1,38 +1,38 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <div class="right-sidebar-mini right-sidebar">
-        <div class="right-sidebar-panel p-0">
-            <div class="iq-card shadow-none">
-                 <div class="iq-card-body p-0">
-                    <div class="media-height p-3">
-                        {% for member in members %}
-                            <div class="media align-items-center mb-4">
-                                <div class="iq-profile-avatar status-away">
-                                    <img class="rounded-circle avatar-50" src="{{ member.member.profile.profile_pix.url }}" alt="">
-                                </div>
-                                <div class="media-body ml-3">
-                                  <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>
-                                  <p class="mb-0">
-                                       {{member.is_admin}}
-                                      {% if member.is_admin %}
-                                          Group Admin
-                                      {% else %}
-                                          Group Member
-                                      {% endif %}
-                                  </p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                         <div class="right-sidebar-toggle bg-primary mt-3">
-                            <i class="ri-arrow-left-line side-left-icon"></i>
-                            <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>
-                         </div>
-                    </div>
-                 </div>
-            </div>
-        </div>
-    </div>
+{#    <div class="right-sidebar-mini right-sidebar">#}
+{#        <div class="right-sidebar-panel p-0">#}
+{#            <div class="iq-card shadow-none">#}
+{#                 <div class="iq-card-body p-0">#}
+{#                    <div class="media-height p-3">#}
+{#                        {% for member in members %}#}
+{#                            <div class="media align-items-center mb-4">#}
+{#                                <div class="iq-profile-avatar status-away">#}
+{#                                    <img class="rounded-circle avatar-50" src="{{ member.member.profile.profile_pix.url }}" alt="">#}
+{#                                </div>#}
+{#                                <div class="media-body ml-3">#}
+{#                                  <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>#}
+{#                                  <p class="mb-0">#}
+{#                                       {{member.is_admin}}#}
+{#                                      {% if member.is_admin %}#}
+{#                                          Group Admin#}
+{#                                      {% else %}#}
+{#                                          Group Member#}
+{#                                      {% endif %}#}
+{#                                  </p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                         <div class="right-sidebar-toggle bg-primary mt-3">#}
+{#                            <i class="ri-arrow-left-line side-left-icon"></i>#}
+{#                            <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>#}
+{#                         </div>#}
+{#                    </div>#}
+{#                 </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     <!---header--->
      <div class="header-for-bg">
         <div class="background-header position-relative">
@@ -73,7 +73,7 @@
 
 
 
-                           <input type="submit" class="btn btn-success" value="Submit"></fieldset>
+                           <input type="submit" class="btn btn-success" value="Vote"></fieldset>
                         </form>
                     </div>
                 </div>

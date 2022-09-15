@@ -9,7 +9,7 @@ from django.utils.http import urlsafe_base64_encode
 
 def send_email_verification(request, user):
     # send Verification
-    from_email = settings.DEFAULT_FROM_EMAIL
+    from_email = settings.EMAIL_HOST_USER
     current_site = get_current_site(request)
     mail_subject = " Please Activate your Account"
     message = render_to_string("account/account_verification_email.html", {

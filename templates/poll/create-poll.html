@@ -1,14 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {#    <div class="modal fade" id="post-modal1" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none; margin-top: 75px; overflow: scroll;">#}
-    {#                     <div class="modal-dialog" role="document">#}
-    {#                         <div class="modal-content">#}
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
+    <!---header--->
+    <div class="header-for-bg">
+        <div class="background-header position-relative">
+            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
+            <div class="title-on-header">
+                <div class="data-block">
+                    <h2>{{ group.name }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!---end header--->
     <div class="modal-header">
         <h5 class="modal-title" id="post-modalLabel">Create your polls</h5>
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
@@ -16,6 +31,7 @@
 
     <div class="modal-body">
         <div class="d-flex align-items-center">
+            {{ form.errors }}
             <form class="post-text ml-3 w-100" action="{% url 'poll:create-poll' group.id %}" method="post">
                 {% csrf_token %}
                 <div>
@@ -24,54 +40,56 @@
                            placeholder="Write your poll title..." style="border:1px solid #ccc; margin-bottom: 10px;">
                 </div>
 
+                <div>
+                    <label for="start_date">Start Date</label>
+                    <input type="date" class="form-control rounded" required name="start_date" id="start_date"
+                           placeholder="Pick Start Date..." style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+                <div>
+                    <label for="end_date">End Date</label>
+                    <input type="date" class="form-control rounded" required name="end_date" id="end_date"
+                           placeholder="Pick End Date..." style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+
+
                 {#                {{ choice_form.as_p }}#}
 
                 {{ choice_form.non_form_errors }}
                 {{ choice_form.management_form }}
 
-                {% for choice in choice_form %}
-                    <div>
-                        <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>
-                        <input type="text" class="form-control rounded"
-                               name="choice_set-{{ forloop.counter0 }}-{{ choice.choice_text.name }}"
-                               id="choice_{{ forloop.counter }}" placeholder="Choice {{ forloop.counter }}"
-                               {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}
-                               style="border:none; margin-bottom: 10px;">
-                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id"
-                               id="id_choice_set-{{ forloop.counter0 }}-id">
-                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll"
-                               id="id_choice_set-{{ forloop.counter0 }}-poll">
+                <div id="ingredient-form-list">
+                    {% for choice in choice_form %}
+                        <div class="ingredient-form">
+                            <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>
+                            <input type="text" class="form-control rounded"
+                                   name="choice_set-{{ forloop.counter0 }}-{{ choice.choice_text.name }}"
+                                   id="choice_{{ forloop.counter }}" placeholder="Choice {{ forloop.counter }}"
+                                   {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}
+                                   style="border:1px solid #ccc; margin-bottom: 10px;">
+                            <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id"
+                                   id="id_choice_set-{{ forloop.counter0 }}-id">
+                            <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll"
+                                   id="id_choice_set-{{ forloop.counter0 }}-poll">
 
-                    </div>
-                {% endfor %}
-                {#                                        <div>#}
-                {#                                        <label for="choice_two">Choice 2</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="choice_two" id="choice_two" placeholder="Second choice" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
-                {#                                        <div>#}
-                {#                                        <label for="choice_three">Choice 3</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="choice_three" id="choice_three" placeholder="Three choice" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
-                <div>
-                    <label for="start_date">Start Date</label>
-                    <input type="date" class="form-control rounded" required name="start_date" id="start_date"
-                           placeholder="Pick Start Date..." style="border:none; margin-bottom: 10px;">
+                        </div>
+                    {% endfor %}
                 </div>
-                <div>
-                    <label for="end_date">End Date</label>
-                    <input type="date" class="form-control rounded" required name="end_date" id="end_date"
-                           placeholder="Pick End Date..." style="border:none; margin-bottom: 10px;">
+
+                <div id="empty-forms" class="hidden">
+                    <label for="id_choice_set-__prefix__-choice_text">Choice Name</label>
+                    <input type="text" class="form-control rounded"
+                           name="choice_set-__prefix__-choice_text"
+                           id="id_choice_set-__prefix__-choice_text"
+                           style="border:1px solid #ccc; margin-bottom: 10px;">
+                    <input type="hidden" name="choice_set-__prefix__-id"
+                           id="id_choice_set-__prefix__-id">
+                    <input type="hidden" name="choice_set-__prefix__-poll"
+                           id="id_choice_set-__prefix__-poll">
                 </div>
+                <button type="button" id="add-more" class="btn btn-success">Add more choice</button>
+
                 <hr>
-                {#                                        <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">#}
-                {#                                            <li class="col-md-6 mb-3">#}
-                {#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>#}
-                {#                                            </li>#}
-                {#                                            <li class="col-md-6 mb-3">#}
-                {#                                                <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>#}
-                {#                                            </li>#}
-                {#                                        </ul>#}
-                {#                                        <hr>#}
+
                 <div class="other-option">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
@@ -87,7 +105,42 @@
             </form>
         </div>
     </div>
-    {#                         </div>#}
-    {#                     </div>#}
-    {#                 </div>#}
+
+
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>#}
+    {#<div class="container1">#}
+    {#    <button class="add_form_field">Add New Field &nbsp;#}
+    {#      <span style="font-size:16px; font-weight:bold;">+ </span>#}
+    {#    </button>#}
+    {#    <div><input type="text" name="mytext[]"></div>#}
+    {#</div>#}
+
+    <script>
+
+        const addmore = document.querySelector('#add-more')
+        const totalNewForms = document.querySelector('#id_choice_set-TOTAL_FORMS')
+        addmore.addEventListener('click', add_new_form)
+
+        function add_new_form(event) {
+            if (event) {
+                event.preventDefault()
+            }
+
+            const currentIngredientForms = document.getElementsByClassName('ingredient-form')
+            const currentFormCount = currentIngredientForms.length // + 1
+            const formTarget = document.querySelector('#ingredient-form-list')
+            const emptyForm = document.querySelector('#empty-forms').cloneNode(true)
+            emptyForm.setAttribute('class', 'ingredient-form')
+            emptyForm.setAttribute('id', `choice_set-${currentFormCount}-choice_text`)
+            const regex = new RegExp('__prefix__', 'g')
+            emptyForm.innerHTML = emptyForm.innerHTML.replace(regex, currentFormCount)
+            totalNewForms.setAttribute('value', currentFormCount + 1)
+
+            formTarget.append(emptyForm)
+
+        }
+
+    </script>
+
+
 {% endblock %}

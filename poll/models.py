@@ -16,6 +16,7 @@ class Poll(models.Model):
     def __str__(self):
         return self.title
 
+
     # # polls_option = models.JSONField(default=_json())
     #
     # def has_started(self):

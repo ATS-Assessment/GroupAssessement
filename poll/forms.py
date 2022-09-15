@@ -1,6 +1,6 @@
 import datetime
 from django import forms
-from django.forms import ModelForm, inlineformset_factory
+from django.forms import ModelForm, inlineformset_factory, BaseFormSet
 
 from groups.models import Group
 from .models import Poll, Choice
@@ -37,6 +37,12 @@ class ChoiceForm(forms.ModelForm):
     class Meta:
         model = Choice
         exclude = ["poll", "vote"]
+        widgets = {
+            'choice_text': forms.TextInput(attrs={'class': "form-control rounded",
+                                                  'style': 'border: 1px solid #ccc',
+                                                  'margin-bottom': '10px'})
+        }
+
 
 
 PollInlineFormSet = inlineformset_factory(Poll, Choice, form=ChoiceForm, extra=0, can_delete=False)
@@ -50,3 +56,4 @@ PollInlineFormSet = inlineformset_factory(Poll, Choice, form=ChoiceForm, extra=0
 #     class Meta:
 #         model = Choice
 #         fields = ["choice_text"]
+

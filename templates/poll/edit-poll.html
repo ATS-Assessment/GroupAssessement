@@ -1,65 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+    <style>
+    .hidden {
+        display: none;
+    }
+    </style>
+
+    <!---header--->
+    <div class="header-for-bg">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <div class="background-header position-relative">
+            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
+            <div class="title-on-header">
+                <div class="data-block">
+                    <h2>{{ group.name }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!---end header--->
     <div class="modal-header">
         <h5 class="modal-title" id="post-modalLabel">Edit Your Poll</h5>
     </div>
     <div class="modal-body">
         <div class="d-flex align-items-center">
-            <form class="post-text ml-3 w-100" action="{% url 'poll:edit' grp.id pol.id %}" method="post"
-                  enctype="multipart/form-data">
+            {{ pol_form.errors }}
+            <form class="post-text ml-3 w-100" action="{% url 'poll:edit' group.id pol.id %}" method="post"
+                  enctype="multipart/form-data" id="demo">
                 {% csrf_token %}
-                {#                                    {{ pollform.as_p }}#}
-                {#                                    {{ pol_form.as_p }}#}
+            {{ pollform.management_form }}
+
                 <div>
                     <label for="title">Title:</label>
                     <input type="text" class="form-control rounded" name="title" id="title"
                            value="{{ pol_form.title.value }}" required
                            style="border:1px solid #ccc; margin-bottom: 10px;">
                 </div>
-                {{ pollform.non_form_errors }}
-                {{ pollform.management_form }}
-                {% for form in pollform %}
-                    <div>
-                        <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>
-                        <input type="text" class="form-control rounded"
-                               name="choice_set-{{ forloop.counter0 }}-{{ form.choice_text.name }}"
-                               id="choice_{{ forloop.counter }}" value="{{ form.choice_text.value }}"
-                               {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}
-                               style="border:none; margin-bottom: 10px;">
-                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id" value="
 
-                                {% if forloop.counter == 1 %}{{ choice1.id }}{% elif forloop.counter == 2 %}{{ choice2.id }}{% else %}{{ choice3.id }}{% endif %}"
-                               id="id_choice_set-{{ forloop.counter0 }}-id">
-                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll" value="{{ pol.id }}"
-                               id="id_choice_set-{{ forloop.counter0 }}-poll">
-
-                    </div>
-                {% endfor %}
-                {#                                        <div>#}
-                {#                                        <label for="choice_two">Choice 2</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="form-1-choice_text" id="choice_two" value="{{ choice_form.choice_text }}" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
-                {#                                        <div>#}
-                {#                                        <label for="choice_three">Choice 3</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="form-2-choice_text" id="choice_three" value="{{ choice_form.choice_text.value }}" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
                 <div>
                     <label for="start_date">Start Date</label>
                     <input type="date" class="form-control rounded" name="start_date" required id="start_date"
                            value="{{ pol_form.start_date.value|date:'Y-m-d' }}"
-                           style="border:none; margin-bottom: 10px;">
+                           style="border:1px solid #ccc; margin-bottom: 10px;">
                 </div>
                 <div>
                     <label for="end_date">End Date</label>
                     <input type="date" class="form-control rounded" required name="end_date" id="end_date"
-                           value="{{ pol_form.end_date.value|date:'Y-m-d' }}" style="border:none; margin-bottom: 10px;">
+                           value="{{ pol_form.end_date.value|date:'Y-m-d' }}" style="border:1px solid #ccc; margin-bottom: 10px;">
                 </div>
+
+                <div id="ingredient-form-list">
+                    {% for form in pollform %}
+                        <div class="ingredient-form">
+                        {{ form }}
+
+{#                        {% for field in form %}#}
+{#                            <div>Choice {{ forloop.counter }}: {{ field }}</div>#}
+{#                          {% endfor %}#}
+
+                        </div>
+                    {% endfor %}
+                </div><br>
+
+                <div id="empty-forms" class="hidden">
+                     <label for="id_choice_set-__prefix__-choice_text">Choice Name</label>
+                            <input type="text" class="form-control rounded"
+                                   name="choice_set-__prefix__-choice_text"
+                                   id="id_choice_set-__prefix__-choice_text"
+                                   style="border:1px solid #ccc; margin-bottom: 10px;">
+                            <input type="hidden" name="choice_set-__prefix__-id"
+                                   id="id_choice_set-__prefix__-id">
+                            <input type="hidden" name="choice_set-__prefix__-poll" value="{{ pol.id }}"
+                                   id="id_choice_set-__prefix__-poll">
+                </div>
+                <button type="button" id="add-more" class="btn btn-success">Add more choice</button>
+
+
                 <hr>
                 <div class="other-option">
                     <div class="d-flex align-items-center justify-content-between">
@@ -76,5 +97,33 @@
             </form>
         </div>
     </div>
-    </div>
+
+
+    <script>
+
+        const addmore = document.querySelector('#add-more')
+        const totalNewForms = document.querySelector('#id_choice_set-TOTAL_FORMS')
+        addmore.addEventListener('click', add_new_form)
+
+        function add_new_form(event) {
+            if (event) {
+                event.preventDefault()
+            }
+            const currentIngredientForms = document.getElementsByClassName('ingredient-form')
+            const currentFormCount = currentIngredientForms.length // + 1
+            const formTarget = document.querySelector('#ingredient-form-list')
+            const emptyForm = document.querySelector('#empty-forms').cloneNode(true)
+            emptyForm.setAttribute('class', 'ingredient-form')
+            emptyForm.setAttribute('id', `choice_set-${currentFormCount}-choice_text`)
+            const regex = new RegExp('__prefix__', 'g')
+            emptyForm.innerHTML = emptyForm.innerHTML.replace(regex, currentFormCount)
+            totalNewForms.setAttribute('value', currentFormCount + 1)
+
+            formTarget.append(emptyForm)
+
+        }
+
+    </script>
+
+
 {% endblock %}

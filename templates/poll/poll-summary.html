@@ -1,38 +1,38 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="right-sidebar-mini right-sidebar">
-        <div class="right-sidebar-panel p-0">
-            <div class="iq-card shadow-none">
-                 <div class="iq-card-body p-0">
-                    <div class="media-height p-3">
-                        {% for member in members %}
-                            <div class="media align-items-center mb-4">
-                                <div class="iq-profile-avatar status-away">
-                                    <img class="rounded-circle avatar-50" src="{{ member.member.profile.profile_pix.url }}" alt="">
-                                </div>
-                                <div class="media-body ml-3">
-                                  <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>
-                                  <p class="mb-0">
-                                       {{member.is_admin}}
-                                      {% if member.is_admin %}
-                                          Group Admin
-                                      {% else %}
-                                          Group Member
-                                      {% endif %}
-                                  </p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                         <div class="right-sidebar-toggle bg-primary mt-3">
-                            <i class="ri-arrow-left-line side-left-icon"></i>
-                            <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>
-                         </div>
-                    </div>
-                 </div>
-            </div>
-        </div>
-    </div>
+{#<div class="right-sidebar-mini right-sidebar">#}
+{#        <div class="right-sidebar-panel p-0">#}
+{#            <div class="iq-card shadow-none">#}
+{#                 <div class="iq-card-body p-0">#}
+{#                    <div class="media-height p-3">#}
+{#                        {% for member in members %}#}
+{#                            <div class="media align-items-center mb-4">#}
+{#                                <div class="iq-profile-avatar status-away">#}
+{#                                    <img class="rounded-circle avatar-50" src="{{ member.member.profile.profile_pix.url }}" alt="">#}
+{#                                </div>#}
+{#                                <div class="media-body ml-3">#}
+{#                                  <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>#}
+{#                                  <p class="mb-0">#}
+{#                                       {{member.is_admin}}#}
+{#                                      {% if member.is_admin %}#}
+{#                                          Group Admin#}
+{#                                      {% else %}#}
+{#                                          Group Member#}
+{#                                      {% endif %}#}
+{#                                  </p>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                         <div class="right-sidebar-toggle bg-primary mt-3">#}
+{#                            <i class="ri-arrow-left-line side-left-icon"></i>#}
+{#                            <i class="ri-arrow-right-line side-right-icon"><span class="ml-3 d-inline-block">Close Menu</span></i>#}
+{#                         </div>#}
+{#                    </div>#}
+{#                 </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     <!---header--->
      <div class="header-for-bg">
         <div class="background-header position-relative">
@@ -56,25 +56,23 @@
                             {% endfor %}
                         {% endif %}
 
-                        <form class="d-flex align-items-center mt-3" action="{% url 'poll:vote' poll.id %}" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                        <fieldset>
-                            <p><legend>{{ poll.title }}</legend></p>
+                    {% if member.is_admin  or member and today > end_date %}
 
-                            <div>
-                              {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-                                {% for choice in poll.choice_set.all %}
-                                    {% if choice.choice_text  %}
-                                    <input type="radio" id="id-{{ choice }}" name="poll.choice_set" value="{{ choice.id }}">
-                                    <label for="id-{{ choice }}">{{ choice.choice_text }}</label><br>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                        <p><legend><strong>{{ poll.title }}</strong></legend></p><hr>
+
+                        <p><strong>Start date :</strong> {{ poll.start_date }}</p>
+                        <p><strong>End date :</strong> {{ poll.end_date }}</p>
+                        <p><strong>Number of voters :</strong> {{ poll.voter_set.all.count }}</p>
+
+                    {% for choice in poll.choice_set.all %}
+                        <p><strong>{{ choice.choice_text }} : </strong> {{ choice.vote }}</p>
+                    {% endfor %}
+                        {% else %}
+                        <p>You can only view the result at the end of the poll.</p>
+
+                    {% endif %}
 
 
-
-                           <input type="submit" class="btn btn-success" value="Submit"></fieldset>
-                        </form>
                     </div>
                 </div>
             </div>

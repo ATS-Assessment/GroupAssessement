@@ -337,7 +337,7 @@ def like_post(request, group_pk, post_pk):
                 post.like.add(group_member)
                 liked = True
                 notification = Notification.objects.create(
-                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
+                    notification_type="like", content_preview="A Member liked a Post", receiver=request.user)
                 return JsonResponse({
                     "liked": liked,
                     "content_id": content_id,
@@ -346,7 +346,7 @@ def like_post(request, group_pk, post_pk):
                 post.like.remove(request.user)
                 liked = False
                 notification = Notification.object.create(
-                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
+                    notification_type="like", content_preview="A Member unliked a Post", receiver=request.user)
                 return JsonResponse({
                     "liked": liked,
                     "content_id": content_id,
