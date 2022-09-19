@@ -78,6 +78,9 @@ TEMPLATES = [
                 'notification.context_processors.count_notification',
                 # 'groups.context_processors.create_post',
             ],
+            'libraries': {
+                'poll_extras': 'poll.templatetags.poll_extras'
+            }
         },
     },
 ]
@@ -149,16 +152,12 @@ LOGOUT_REDIRECT_URL = '/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = "yaoyedele@student.lautech.edu.ng"
-EMAIL_HOST_PASSWORD = "wmrqmahubkpoipms"
-DEFAULT_FROM_EMAIL = "GroupAssessment <yaoyedele@student.lautech.edu.ng>"
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = '82d372b5d9f3c5'
+EMAIL_HOST_PASSWORD = '9074d988a0b96c'
+EMAIL_PORT = '2525'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load poll_extras %}
 {% block content %}
     <div class="right-sidebar-mini right-sidebar">
       {{post}}
@@ -8,21 +9,33 @@
               <div class="iq-card-body p-0">
                  <div class="media-height p-3">
                   {% for member in members %}
-         
                     <div class="media align-items-center mb-4">
                        <div class="iq-profile-avatar status-away">
                           <img class="rounded-circle avatar-50" src="{{ member.member.image.url }}" alt="">
                        </div>
                        <div class="media-body ml-3">
-                          <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>
+                          <h6 class="mb-0"><a href="#">{{member.member.first_name.capitalize}} {{member.member.last_name.capitalize}}</a></h6>
                           <p class="mb-0">
-                           {{member.is_admin}}
                           {% if member.is_admin %}
-                          
-                              <p> Group Admin</p>
+                              <p>Group Admin</p>
                            {% else %}
-                           <p> Group Member</p>
-                           {% endif %}</p>
+
+                              <p class="{% if member.is_suspended %}iq-bg-danger{% endif %}" style="{% if member.is_suspended %}color: #ba8b00{% endif %}">Group Member
+                              <div class="d-block mt-2">
+                              {% if current_user.is_admin %}
+                                <form action="{% url "make-admin" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary mb-2" value="Make Admin"></form>
+                                  <form action="{% url "remove-group-member" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary" value="Remove"></form>
+                                <form action="{% url "suspend-member" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary" value="{% if member.is_suspended %}Unsuspended{% else %}Suspend{% endif %}"></form>
+                                  {% endif %}
+
+
+
+                              </div>
+                              </p>
+
+                           {% endif %}
+                           </p>
+
                        </div>
                     </div>
                     {% endfor %}
@@ -37,6 +50,11 @@
     </div>
     <!---header--->
      <div class="header-for-bg">
+     {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         <div class="background-header position-relative">
            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
            <div class="title-on-header">
@@ -61,7 +79,7 @@
                      <div class="user-img">
                         <img src="#" alt="userimg" class="avatar-60 rounded-circle">
                      </div>
-                     <form class="post-text ml-3 w-100" action="{% url "group-detail" group.pk %}">
+                     <form class="post-text ml-3 w-100" action="#">
                         <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
                      </form>
                   </div>
@@ -100,7 +118,7 @@
                               <div class="user-img">
                                  <img src="#" alt="userimg" class="avatar-60 rounded-circle img-fluid">
                               </div>
-                              <form class="post-text ml-3 w-100" method="POST" enctype="multipart/form-data"  action="{% url "group-detail" group.pk %}">
+                              <form class="post-text ml-3 w-100" method="POST" enctype="multipart/form-data"  action="{% url "group-detail" group.id %}">
                                  {% csrf_token %}
                                   <label for="Content">Title (Optional)</label>
                                  {{ post_form.title }}
@@ -110,36 +128,7 @@
                                  {{ post_form.post_image }}
                                   <label for="Content">Other Files</label>
                                  {{ post_form.post_files }}
-                                
-
                                  <hr>
-                           <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
-                              </li>
-                           </ul>
-                           <hr>
                            <div class="other-option">
                               <div class="d-flex align-items-center justify-content-between">
                                  <div class="d-flex align-items-center">
@@ -148,22 +137,18 @@
                                     </div>
                                     <h6>Your Post</h6>
                                  </div>
-
                               </div>
                            </div>
                            <button type="submit" class="btn btn-primary d-block w-100 mt-3">Post</button>
                         </div>
                               </form>
                            </div>
-                           
                      </div>
                   </div>
                </div>
             </div>
          </div>
           <!-- for loop for posts -->
-          
-          
           {% if group_post %}
           {{post.pk}}
           {% for post in group_post %}
@@ -204,8 +189,6 @@
                                        </div>
                                     </div>
                                  </a>
-
-                
                                  <a class="dropdown-item p-3" href="#">
                                     <div class="d-flex align-items-top">
                                        <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
@@ -245,13 +228,11 @@
                               <div class="like-data">
                                  <div class="dropdown">
                                     <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                    {% if  post.post_image.url %}
+                                    {% if  post.post_image %}
                                     <img src="{{ post.post_image.url }}" class="img-fluid" alt="">
                                     {% else %}
                                       <img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt="">
                                     {% endif %}
-                     
-                              
                                     </span>
                                     <div class="dropdown-menu">
                                        <a class="ml-2 mr-2" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Like"><img src="{% static 'images/icon/01.png' %}" class="img-fluid" alt=""></a>
@@ -264,14 +245,12 @@
                                     </div>
                                  </div>
                               </div>
-
                            </div>
-                  
                         </div>
                      </div>
                      <hr>
-                    
                   <div class="d-flex align-items-center flex-wrap">
+<<<<<<< HEAD
                      <div class="total-like-block ml-2 mr-3">
                         <div class="dropdown">
                            <form method="POST" action="{% url 'like-post' group.pk post.pk %}" id="my-like-form">
@@ -335,15 +314,64 @@ $('.likin').click(function(){
 
    </div>
 </div>
+=======
+                           <div class="total-like-block ml-2 mr-3">
+                                       <div class="dropdown">
+                                            <form method="POST" action="{% url 'like-post' group.pk post.pk %}" id="my-like-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" class="likin" name="next" value="{{ request.path }}">
+                                                <button  type="submit" id="openPopup" class="like-btn{{ request.path }}" style="border: none; ">
+                                                     <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
+                                                      xmlns="http://www.w3.org/2000/svg">
+                                                      <path fill-rule="evenodd"
+                                                         d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                                      </svg>
+                                                {{post.like.all.count}} Likes
+                                          </span>
+                                                </button>
+                                                </form>
+                                                <script>
+                                                    $("#my-like-form").submit(function(e){
+                                                   e.preventDefault(); // Prevent form submission
+                                                   let form = $(this);
+                                                   let url = form.attr("action");
+                                                   let res
+                                                   const likes = $(`.like-btn{{ request.path }}`).text();// this code stopping the function of like button from work
+                                                   const trimCount = parseInt(likes)
+                                                   $.ajax({
+                                                      type: "POST",
+                                                      url: url,
+                                                      data: form.serialize(),
+                                                      dataType: "json",
+                                                      success: function(response) {
+                                                            selector = document.getElementsByName(response.next);
+                                                            console.log(selector)
+                                                            if(response.liked==true){
+                                                               $(selector).css("color","blue");
+                                                               res = trimCount - 1
+                                                            } else if(response.liked==false){
+                                                               $(selector).css("color","black");
+                                                               res = trimCount + 1
+                                                            }
+                                                      }
+                                                   })
+                                                })
+                                                </script>
+                                          {% comment %} <div class="dropdown-menu">
+                                             <a class="dropdown-item" href="#">View likes </a>
+                                          </div> {% endcomment %}
+                                       </div>
+                                 </div>
+>>>>>>> origin
                                  <div class="total-comment-block">
                                        <div class="dropdown">
                                        <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
                                        <i class="fa fa-comment-o" style="font-size:20px"></i>
                                        {{post.post_comment.count}} Comments
                                        </span>
-                                       
                                              <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"> 
+                                                <a class="dropdown-item" href="#">
                                                 {% if post_comments > 0 %}
                                                    {{post_comments.count}} Hidden
                                                    {% else %}
@@ -351,7 +379,6 @@ $('.likin').click(function(){
                                                 {% endif %}
                                                    </a>
                                              </div>
-                                    
                                        </div>
                                  </div>
                                  <div style="margin-left:300px" >
@@ -386,26 +413,27 @@ $('.likin').click(function(){
                     else if(response.hidden ==false){
                       $(selector).css("color","black");
                     }
-
-
               }
-
         });
-
     });
                                     </script>
                                     {% endif %}
                                  {% endfor %}
                               </div>
                            </div>
-                  
-
                         <hr>
+<<<<<<< HEAD
          {% for comment in post.post_comment.all %}
                     
                {% if not  comment.is_hidden %}
             <ul class="post-comments p-0 m-0">
                   <li class="mb-2" style="list-style-type: none;">
+=======
+                     {% for comment in post.post_comment.all %}
+                        {% if not  comment.is_hidden %}
+                        <ul class="post-comments p-0 m-0">
+                        <li class="mb-2" style="list-style-type: none;">
+>>>>>>> origin
                            <div class="d-flex flex-wrap">
                                     <div class="user-img">
                                        <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
@@ -413,6 +441,7 @@ $('.likin').click(function(){
                               <div class="comment-data-block ml-3">
                                     <h6>{{comment.member.member.first_name}} {{comment.member.member.last_name}}</h6>
                                     <p class="mb-0">{{comment.content}}</p>
+<<<<<<< HEAD
                                                       <div class="d-flex flex-wrap align-items-center comment-activity">
                                                          <a href="#">
                                                             <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
@@ -556,6 +585,140 @@ $('.likin').click(function(){
             {% endfor %}
                      <form class="comment-text d-flex align-items-center mt-3" action="#">
                         <input type="text" class="form-control rounded">
+=======
+                                          <div class="d-flex flex-wrap align-items-center comment-activity">
+                                             <a href="#">
+                                                <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
+                                                               xmlns="http://www.w3.org/2000/svg">
+                                                               <path fill-rule="evenodd"
+                                                                  d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                                               </svg> {{comment.likes.all.count}} likes</a>
+                                             <a href="#" data-toggle="modal" data-target="#post-modal0"> <i class="fa fa-comment-o" style="font-size:20px"></i>  {{comment.comment_replies.all.count}} replies</a>
+                                             <span> {{comment.date_created}} </span>
+                                          </div>
+                                          <div class="modal fade" id="post-modal0" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none;">
+                                             <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                   <div class="modal-header">
+                                                      <h5 class="modal-title" id="post-modalLabel">Create Post</h5>
+                                                      <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
+                                                   </div>
+                                                   <div class="modal-body">
+                                                      <div class="d-flex align-items-center">
+                                                         <div class="user-img">
+                                                            <img src="#" alt="userimg" class="avatar-60 rounded-circle img-fluid">
+                                                         </div>
+                                                         <form class="post-text ml-3 w-100" id="my-reply-form" method="POST" enctype="multipart/form-data"  action="{% url 'reply-comment' group.pk post.pk comment.pk %}">
+                                                            {% csrf_token %}
+                                                            <label for="content">Your Reply:</label>
+                                                            <input type="text" id="content" name="content" class="form-control rounded" placeholder="Write your reply..." style="border:none;">
+                                                            <hr>
+                                                      <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
+                                                         </li>
+                                                         <li class="col-md-6 mb-3">
+                                                            <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
+                                                         </li>
+                                                      </ul>
+                                                      <hr>
+                                                      <div class="other-option">
+                                                         <div class="d-flex align-items-center justify-content-between">
+                                                            <div class="d-flex align-items-center">
+                                                               <div class="user-img mr-3">
+                                                                  <img src="{% static 'images/user/1.jpg' %}" alt="userimg" class="avatar-60 rounded-circle img-fluid">
+                                                               </div>
+                                                               <h6>Your Reply</h6>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                      <button type="submit" class="btn btn-primary d-block w-100 mt-3"> Reply</button>
+                                                   </div>
+                                             </form>
+                                                   <script>
+                                       $('.hide-p').on('click',function(e) {
+                                             console.log('Black')
+                                             e.preventDefault();
+                                             var post_pk = $(this).attr('data-size');
+                                             $('.hide-p').css('background-color', 'black');
+                                             $(this).css('background-color', 'black');
+                                                console.log(post_pk)
+                                             $.ajax({
+                                                   type: "POST",
+                                                   url : "{% url "hide-post" group.pk post.pk %}",
+                                                   data: {
+                                                      'post_pk': $(this).attr('data-size'),
+                                                      'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                                      },
+                                                   dataType: "json",
+                                                   success: function(response) {
+                                                   selector = document.getElementsByName(response.post_pk);
+                                                         if(response.hidden ==true){
+                                                            $(selector).css("color","red");
+                                                         }
+                                                         else if(response.hidden ==false){
+                                                            $(selector).css("color","black");
+                                                         }
+                                                   }
+                                             });
+                                          });
+                                    </script>
+                                                      </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                 </div>
+                           </div>
+                               {% for reply in comment.comment_replies.all  %}
+                                    <ul class="post-reply p-0 mt-2">
+                                       <li class="mb-2" >
+                                             <div class="d-flex flex-wrap ml-5 mt-2">
+                                                <div class="user-img">
+                                                   <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
+                                                </div>
+                                                      <div class="comment-data-block ml-3">
+                                                         <h6>{{reply.member.member.first_name}}  {{reply.member.member.last_name}}</h6>
+                                                         <p class="mb-0">{{reply.content}}</p>
+                                                               <div class="d-flex flex-wrap align-items-center comment-activity">
+                                                                  <a href="#">
+                                                                     <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
+                                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                                    <path fill-rule="evenodd"
+                                                                                       d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                                                                                    </svg> likes</a>
+                                                                  <span> {{reply.date_created}}</span>
+                                                               </div>
+                                                      </div>
+                                             </div>
+                                       </li>
+                                    </ul>
+                              </li>
+                           </ul>
+                     {% endfor %}
+                     {% endif %}
+                     {% endfor %}
+                     <form class="comment-text d-flex align-items-center mt-3" action="{% url "comment-on-post" group.id  post.id %}" method="post">
+                         {% csrf_token %}
+                        <input type="text" name="content" class="form-control rounded">
+>>>>>>> origin
                         <div class="comment-attagement d-flex">
                            <a href="#"><i class="ri-link mr-3"></i></a>
                            <a href="#"><i class="ri-user-smile-line mr-3"></i></a>
@@ -582,7 +745,7 @@ $('.likin').click(function(){
                 <div class="iq-card-body">
                    <ul class="media-story m-0 p-0">
                       <li class="d-flex mb-6 align-items-center">
-                          <a href="#">
+                          <a href="{% url 'poll:create-poll' group.id %}">
                              <i class="ri-add-line font-size-18"></i>
                              <div class="stories-data ml-3">
                                 <h5>Create your polls</h5>
@@ -592,10 +755,56 @@ $('.likin').click(function(){
                       </li>
                        <!-- For Loop for polls -->
                        <hr>
-                      <li class="d-flex mb-4 align-items-center">
-                          <p>Poll text</p>
+                   <li class="d-flex mb-4 align-items-center">
+                     <div class="d-flex flex-wrap" style="flex-direction: column;">
+                       <p>Poll Lists</p>
+                       {% for poll in group.poll_set.all|slice:"0:2" %}
 
-                      </li>
+                          {% if poll.end_date >= today %}{{ poll.title }}
+                      <div>
+                                   <div class="iq-card-post-toolbar">
+                                        <div class="dropdown">
+                                            <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                <i class="ri-more-fill"></i>
+                                            </span>
+                                            <div class="dropdown-menu m-0 p-0">
+                                                <a class="dropdown-item p-3" href="{% url 'poll:poll-detail' group.id poll.id %}">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-save-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Answer Poll</h6>
+                                                            <p class="mb-0">Answer the polls with your opinion</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a class="dropdown-item p-3" href="{% url 'poll:edit' group.id poll.id %}" >
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-save-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>Edit Poll</h6>
+                                                            <p class="mb-0">Edit the poll details.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a class="dropdown-item p-3" href="{% url 'poll:poll-summary' group.id poll.id %}">
+                                                    <div class="d-flex align-items-top">
+                                                        <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
+                                                        <div class="data ml-2">
+                                                            <h6>View poll summary</h6>
+                                                            <p class="mb-0">Get the statistics of the poll.</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                   </div>
+                               </div>
+                           <hr>
+                           {% endif %}
+
+                       {% endfor %}
+                     </div>
+                     </li>
                      <!--end for loop-->
                    </ul>
                    <a href="#" class="btn btn-primary d-block mt-3">See All</a>
@@ -607,7 +816,6 @@ $('.likin').click(function(){
                       <h4 class="card-title">Events</h4>
                    </div>
                     <div class="iq-header-media">
-
                     </div>
                 </div>
                 <div class="iq-card-body">
@@ -633,17 +841,24 @@ $('.likin').click(function(){
                           </a>
                       <!--end for-->
                    </ul> {% endcomment %}
+<<<<<<< HEAD
                    
+=======
+>>>>>>> origin
                    {% if member.is_admin %}
                      <a href="{% url 'calendar-view' group.pk %}" class="btn btn-primary d-block mt-3">Create Event</a>
                      <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events</a>
                     {% else %}
+<<<<<<< HEAD
                     <<a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events</a>
+=======
+                    <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events {{ member }}</a>
+>>>>>>> origin
                     {% endif %}
                 </div>
              </div>
-
          </div>
+<<<<<<< HEAD
       
       </div>
 
@@ -656,6 +871,14 @@ $('.likin').click(function(){
                e.preventDefault(); 
                $('#btn-reply').click(function() {
                console.log("replied")          
+=======
+      </div>
+      <script>
+         $("#my-reply-form").submit(function(e){
+               e.preventDefault();
+               $('#btn-reply').click(function() {
+               console.log("replied")
+>>>>>>> origin
                $('#post-modal0').modal('hide');
                            })
                let form = $(this);
@@ -678,7 +901,11 @@ $('.likin').click(function(){
                                           + '<h6>' + resp.first_name + ' '  + resp.last_name + '</h6>'
                                           + '<p class="mb-0">' + resp.content + '</p>'
                                                 + '<div class="d-flex flex-wrap align-items-center comment-activity">'
+<<<<<<< HEAD
                                                    + '<a href="#">' 
+=======
+                                                   + '<a href="#">'
+>>>>>>> origin
                                                       + '<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
                                                             + '<path fill-rule="evenodd" d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />'
                                                             + '</svg>' + 'likes' + '</a>'
@@ -695,13 +922,20 @@ $('.likin').click(function(){
             console.log(xhr.status + ":" +xhr.responseText)
          }
                })
+<<<<<<< HEAD
             });                  
 
+=======
+            });
+>>>>>>> origin
       $("#my-like-form").submit(function(e){
       e.preventDefault(); // Prevent form submission
       let form = $(this);
       let url = form.attr("action");
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin
       let res
       const likes = $(`.like-btn{{ request.path }}`).text();// this code stopping the function of like button from work
       console.log(likes);
@@ -724,7 +958,10 @@ $('.likin').click(function(){
          }
       })
    })
+<<<<<<< HEAD
       
+=======
+>>>>>>> origin
     $('.bi-heart').on('click',function(e) {
         e.preventDefault();
         var size = $(this).attr('data-size');
@@ -732,9 +969,6 @@ $('.likin').click(function(){
         $('.bi-heart').css('background-color', 'transparent');
         $(this).css('background-color', 'red');
     });
-   
-
-
     $('.bi-heart').click(function(){
       console.log(post.pk);
       console.log(post.pk);
@@ -755,12 +989,8 @@ $('.likin').click(function(){
                     else if(response.liked==false){
                       $(selector).css("color","black");
                     }
-
-
               }
-
         });
-
   })
                                                 </script>
 {% endblock %}

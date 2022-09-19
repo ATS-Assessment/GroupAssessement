@@ -21,11 +21,15 @@
                          <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
                         <p class="mb-0">{{notifi.time_created}}</p>
                                  <div class="btn-group m-1">
+<<<<<<< HEAD
                                     
                                     {% if notifi.event.pk %}
                                        
                                     
                                        
+=======
+                                    {% if notifi.event.pk %}
+>>>>>>> origin
                                   <form action="{% url 'yes-members' notifi.group.pk  notifi.event.pk %}" method="post">
                                     {% csrf_token %}
                                     <button class="btn btn-success mr-5" type="submit">Yes</button>
@@ -42,8 +46,11 @@
                                  {% else %}
                                  <div class="alert alert-danger alert-dismissible" role="alert">{{notifi.event}}</div>
                                  {% endif %}
+<<<<<<< HEAD
                               
                                   
+=======
+>>>>>>> origin
                         {% elif notifi.notification_type == 'Like' %}
                            <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
                            <p class="mb-0">{{notifi.time_created}}</p>
@@ -55,7 +62,10 @@
                                   </div>
                                   {% endif %}
                            </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin
                       </div>
                   </li>
                </ul>
@@ -65,8 +75,12 @@
            <!-- end for loop for each notification -->
       </div>
     </div>
+<<<<<<< HEAD
 
     <script>
 
+=======
+    <script>
+>>>>>>> origin
     </script>
 {% endblock %}

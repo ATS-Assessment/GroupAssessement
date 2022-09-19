@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "type": "service_account",
   "project_id": "django-group",
@@ -10,3 +11,17 @@
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/socialv%40django-group.iam.gserviceaccount.com"
 }
+=======
+{
+  "type": "service_account",
+  "project_id": "django-group",
+  "private_key_id": "fe5d9071d782d873d88f3ac5e6ddbc389db44dbf",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5XKxuBIEDJmvp\nzVK6FuMIvo4xcBvsGm82m5uWtEde1V8EHlsP5jzx3NMoPfPnNkI38VlisxBpYuZH\n9FdnB2c5EXyC9d2i1GPSQn/ngArNFeGexb8Uq+eo8CHtEBVJzVnmL295M/WjucT5\nWbbHLWtnWaYIfwa2iKVid/oXUOPw2IVCD8b72PnglCFLMtl2k6Mp2teRyfhfj+gS\n8rw0CI9lsNN98kGca7Ihi3Hxh4lfMUdNnBonCS/w7VRMyaPnXYNJia4ARARcbSxV\n9Q3Zd3MqhSIRdmPV+OgiwYLAjEqzH5dZCsu8HMP57O9vXvEcHKOhAV9h0tmmoj3+\nXB/jlfjlAgMBAAECggEAEwaQ2UMDlfXv3iHZw6l9OKTMdgUWjJui/iUnKWcMK071\nz3epK57bcwzSLJ99RSZj0hem79NG1DZXQhvxi6zuGqSxlcSUMPYhX8+9Dp8tHKNK\nEvCjngTOBKBPLyS3NqnJ+C82vydG53z2G4zqjpOaIlPIj7cwEnTAmvSLGjEOkGYQ\nP+Ba2OOHLJVyjOuF5Hiq1hIOQiTJOlDuEIk+x1hYh+AO5EyDKzGY9BmSLutPlsxy\nGg5lxGaXmQyqdjcCK2Isqx0y5KvFIcwpncij5DHVdVdG84VIiuiqmTrewaP2JpmE\naKeLLQQUtbQcQzpPlPf0XQILtZ/jkTgvsGfd44AewQKBgQDdoBC2udkG3AUiALBT\ngi1ykdWp8pZ1NN6TgpPU1YLTTfUN7NhcXz9OMLdR9txOEkgmdcqHrZDr7mEOwuzJ\ngpgZBJgMJFBkpkmDFyToIhlMtADfP9MCUj/xwRvxYhSKl+32YYjIdm97SKWSpnEE\nNdiJ1d2MHt0+5PVuXHeF64s+QQKBgQDWHLnqOFaLreN8+rh1Cd7dzR+WNsfVvyDI\n6j/k9WxYjkI3jZDEjLZBfduBuC75pd4a5YTpvMT6qMB8ROBBDAmjzO+nLE/1KnpW\n2C69qklf83B4QjYgWBd6CynTdGFcn3RhZUQemEeFOvnSk9ZKKqTAwETDy176If9I\nue7xFiKZpQKBgQCJOan/qjViFOussSZ8npcLYJceopFcwz6psWldmFJoCdYZKDST\nhXpKLMnlm2evg4xfHAIqXmLkYvZ/0FwTLaSFoR2QLxAEMh5EaBk3Dp4Bq1b65Kb/\nwfPL+hkWLfewFQCH1L5/+S1v9XxnwF0sETchqWWDdDzjy5rYGbL8HetawQKBgHyc\nj19Plp8IfwN37+695eV0wlNsYnV2HSCRpMoeRAZuFP+79mtN8azAEQa4KS7GaDOD\nLQ3T/Vhc6lnoxBNXbCzW0wuacJahOD5e5yUffEDJr8Vt046TdmZjJN6aNyfu7Y7Z\nnwGnYsiZgFgcDnVvyB8eR2ckb4xoSOkMvZG2bkC5AoGBAMOCQ3B0m2/0Oxs6aX0v\nQfKyLCHD3eC5jhS2r+MVGOwkqO+Hu3WyaeqhNn53HsuOEbmr1zsETHC6Hbga1K75\nqbb5qWIyDa976qKybMDY756FgtBmVq3wGOISj9R3YyuGsos2HFLdz+ZUQ+zi7D6y\nPrOSgAi/ZT/ar/ontMgAVKke\n-----END PRIVATE KEY-----\n",
+  "client_email": "socialv@django-group.iam.gserviceaccount.com",
+  "client_id": "105470137475239339176",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/socialv%40django-group.iam.gserviceaccount.com"
+}
+>>>>>>> origin

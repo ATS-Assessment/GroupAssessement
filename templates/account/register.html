@@ -6,8 +6,11 @@
     <div class="sign-in-from">
         <h1 class="mb-0">Sign Up</h1>
         <p>Enter your details here.</p>
-        <form method="post" action="{% url 'index' %}" class="mt-4">
+        <form method="post" action="{% url 'register' %}" class="mt-4">
             {% csrf_token %}
+        {{ form.username.errors }}
+        {{ form.email.errors }}
+        {{ form.password2.errors }}
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">{{ message }}</div>

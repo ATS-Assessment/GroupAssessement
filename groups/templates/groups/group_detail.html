@@ -1,3 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail</title>
+</head>
+<body>
+    {{group.creator}}
+    {{group.name}}
+    {% comment %} {{group.group_member.all}}| {% endcomment %}
+    {{members}} 
+    {{count}}
+    {% for mem in members %}
+        {{mem.first_name}}
+        {{mem.member.last_name}}
+    {% endfor %}
+    {% comment %} <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" 
+            crossorigin="anonymous" charset="utf-8" >
+        console.log(" before welcome");
+        $(document).ready(function(){
+            console.log("welcome");
+        })
+</script> {% endcomment %}
+<script type="text/javascript">
+    $(document).ready(function(){
+            console.log("welcome");
+            $.ajax({
+                url:"{% url "poll" %}",
+                dataType:"json",
+                beforeSend: function(){
+                    $('.ajaxResponse').text('Loading')
+                },
+                success: function(resp){
+                     $('.ajaxResponse').hide()
+                },
+                error: function(){
+
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
@@ -26,7 +65,7 @@
            </div>
         </div>
     </div>
-    <!---header--->
+
      <div class="header-for-bg">
         <div class="background-header position-relative">
            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">
@@ -37,7 +76,7 @@
            </div>
         </div>
      </div>
-    <!---end header--->
+
    <div class="row" style="margin-top: 100px;">
       <div class="col-lg-8 row m-0 p-0">
          <div class="col-sm-12">
@@ -99,7 +138,7 @@
                                  <label for="Content">Content</label>
                                  {{ post_form.content }}
                                  <label for="Content">Add Image</label>
-                                 {{ post_form.post_image }}
+                                 {{ post_form.post_image.url }}
                                  <label for="Content">Other files</label>
                                  {{ post_form.post_files }}
 

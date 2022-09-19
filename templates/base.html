@@ -52,13 +52,7 @@
                <nav class="iq-sidebar-menu">
                   <ul id="iq-sidebar-toggle" class="iq-menu">
                      <li>
-                        <a href="{% url 'index' %}" class="iq-waves-effect"><i class="las la-newspaper"></i><span>Newsfeed</span></a>
-                     </li>
-                     <li>
-                        <a href="profile.html" class="iq-waves-effect"><i class="las la-user"></i><span>Profile</span></a>
-                     </li>
-                     <li>
-                        <a href="friend-list.html" class="iq-waves-effect"><i class="las la-user-friends"></i><span>Friend Lists</span></a>
+                        <a href="{% url 'update-profile' request.user.id %}" class="iq-waves-effect"><i class="las la-user"></i><span>Profile</span></a>
                      </li>
                      <li>
                         <a href="{% url 'group-list' %}" class="iq-waves-effect"><i class="las la-users"></i><span>Groups</span></a>
@@ -74,18 +68,6 @@
                      </li>
                      <li>
                         <a href="{% url "notification-list" %}" class="iq-waves-effect"><i class="las la-bell"></i><span>{{noti_count}} Notification</span></a>
-                     </li>
-                     <li>
-                        <a href="file.html" class="iq-waves-effect"><i class="las la-file"></i><span>Files</span></a>
-                     </li>
-                     <li>
-                        <a href="friend-request.html" class="iq-waves-effect"><i class="las la-anchor"></i><span>Friend Request</span></a>
-                     </li>
-                     <li>
-                        <a href="chat.html" class="iq-waves-effect"><i class="lab la-rocketchat"></i><span>Chat</span></a>
-                     </li>
-                     <li>
-                        <a href="todo.html" class="iq-waves-effect"><i class="las la-check-circle"></i><span>Todo</span></a>
                      </li>
                      <li>
                         <a href="calendar.html" class="iq-waves-effect"><i class="las la-calendar"></i><span>Calendar</span></a>
@@ -214,7 +196,7 @@
                      <ul class="navbar-nav ml-auto navbar-list">
                         <li>
                            <a href="profile.html" class="iq-waves-effect d-flex align-items-center">
-                              <img src="{% static 'images/user/1.jpg' %}" class="img-fluid rounded-circle mr-3" alt="user">
+                              <img src="{{ request.user.image.url }}" class="img-fluid rounded-circle mr-3" alt="user">
                               <div class="caption">
                                   {% if request.user.first_name or request.user.last_name %}
                                       <h6 class="mb-0 line-height">{{ request.user.first_name|capfirst }} {{ request.user.last_name|capfirst }}</h6>
@@ -346,7 +328,7 @@
                                           </div>
                                        </div>
                                     </a>
-                                    {% comment %} <a href="{% url 'update-profile' request.user.id %}" class="iq-sub-card iq-bg-warning-hover"> {% endcomment %}
+                                    <a href="{# {% url 'update-profile' request.user.id %} #}" class="iq-sub-card iq-bg-warning-hover">
                                        <div class="media align-items-center">
                                           <div class="rounded iq-card-icon iq-bg-warning">
                                              <i class="ri-profile-line"></i>

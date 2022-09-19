@@ -31,10 +31,9 @@ NOTE: This file contains the styling for responsive Template.
 		.right-sidebar-mini { transform: translateX(calc(111% + -8em)); }
 		.right-sidebar-mini.right-sidebar { transform: translateX(calc(10% + -1em)); }
 		.right-sidebar-mini .media-body{opacity: 0;}
-		.right-sidebar-mini.right-sidebar .media-body { opacity: 1; }
+		.right-sidebar .media-body { opacity: 1; }
 		.without-right-sidebar .iq-footer { width: calc(100vw - 90px);margin-left: 80px;}
 		.iq-footer {margin-left: 80px; width: calc(100vw - 163px);}
-
 	}
 	@media(max-width:1699px) {
 		.email-form .select2-container { width: 100% !important; }
@@ -89,7 +88,7 @@ NOTE: This file contains the styling for responsive Template.
 		.display-5 { font-size: 2rem; font-weight: 300; }
 		.display-6 { font-size: 1.5rem; font-weight: 300; }
 		.iq-top-navbar .navbar { position: relative; }
-		.iq-top-navbar .navbar-toggler { position: static; color: var(--iq-primary); background: var(--iq-light-primary); border: none; padding: 7px 10px; border-radius: 5px; font-size: 24px; }
+		.iq-top-navbar .navbar-toggler { position: static; color: var(--iq-primary); background: var(--iq-dark-primary); border: none; padding: 7px 10px; border-radius: 5px; font-size: 24px; }
 		.navbar-collapse {display: flex; position: absolute; top:100%; left: 0; width: 100%; background: var(--iq-white); -webkit-box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); -moz-box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); box-shadow: 0px 5px 12px 0px rgba(55, 73, 72, 0.15); }
 		.navbar-nav.navbar-list { float: right; display: inline-block; }
 		.iq-top-navbar .iq-navbar-custom .iq-menu-bt { right: 125px; top: 18px; }
@@ -110,7 +109,7 @@ NOTE: This file contains the styling for responsive Template.
 		button.close-btn-res { display: block; background: transparent; border: none; font-size: 20px; font-weight: 600; position: absolute; top: 10px; left: auto; right: 0; }
 		.chat-head header { padding-left: 15px; }
 		div.sidebar-toggle { display: block; }
-		.sidebar-toggle { background: var(--iq-light-primary); padding: 12px 10px; margin-right: 15px; border-radius: 5px; height: 40px; width: 40px; line-height: 17px; text-align: center; color: var(--iq-primary); }
+		.sidebar-toggle { background: var(--iq-dark-primary); padding: 12px 10px; margin-right: 15px; border-radius: 5px; height: 40px; width: 40px; line-height: 17px; text-align: center; color: var(--iq-primary); }
 		#chat-user-detail-popup { overflow-y: scroll; padding-bottom: 20px; }
 		#user-detail-popup { overflow: scroll; }
 		ul.profile-img-gallary li img { width: 100%; }

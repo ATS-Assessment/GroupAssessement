@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-
 urlpatterns = [
     path('', views.AllEventsListView.as_view(), name='event-list'),
     path('calendar/<int:group_pk>/',
@@ -15,15 +14,17 @@ urlpatterns = [
          views.no_members_view, name="no-members"),
     path('maybe/<int:group_pk>/<int:event_pk>/',
          views.maybe_members_view, name="maybe-members"),
+<<<<<<< HEAD
 
 
 
 
 
 
+=======
+>>>>>>> origin
     # path('notifications/mark_all_read/',
     #      views.mark_all_read, name='mark_all_read'),
     # path('notifications/delete_all_read/',
     #      views.delete_all_read, name='delete_all_read'),
-
 ]

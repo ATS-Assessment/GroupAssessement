@@ -1,32 +1,31 @@
-
 import logging
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from event.models import Event
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin
 from groups.models import Group, Member
 from notification.models import Notification
-
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-
 from groups.models import Group
-
 from .models import Notification
 from poll.models import Poll
-
-
 logger = logging.getLogger(__name__)
 # Create your views here.
 print(logger, 'here')
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin
 def show_notification(request, event_pk):
     member = Member.objects.get(member__pk=request.user.pk)
     event = Event.objects.get(pk=event_pk)
@@ -36,12 +35,12 @@ def show_notification(request, event_pk):
         "notification": notify,
         "member": member,
         "event": event,
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin
     })
-
-
 # @login_required(login_url='login')
-
 # def count_notification(request):
 #     if not request.user.pk:
 #         return {}
@@ -58,7 +57,10 @@ def notification_list(request):
     notifications_qs = Notification.objects.all()
     # filter(
     #     receiver=request.user).order_by("-time_created")
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin
     # member = Member.objects.get(member__pk=request.user.pk)
     new_notifs = notifications_qs.filter(is_seen=False)
     old_notifs = notifications_qs.filter(is_seen=True)
@@ -76,8 +78,6 @@ def notification_list(request):
         # "event": event,
     }
     return render(request, 'notification.html', context)
-
-
 @login_required
 def notification_view(request, notif_pk):
     logger.debug(
@@ -100,8 +100,6 @@ def notification_view(request, notif_pk):
         messages.error(request, _(
             'You are not authorized to view that notification.'))
         return redirect('notification-list')
-
-
 @login_required
 def remove_notification(request, notif_pk):
     logger.debug(
@@ -125,16 +123,12 @@ def remove_notification(request, notif_pk):
         )
         messages.error(request, _('Failed to locate notification.'))
     return redirect('notification-list')
-
-
 @login_required
 def mark_all_read(request):
     logger.debug('mark all notifications read called by user %s', request.user)
     Notification.objects.filter(receiver=request.user).update(is_seen=True)
     messages.success(request, _('Marked all notifications as read.'))
     return redirect('notification-list')
-
-
 @login_required
 def delete_all_read(request):
     logger.debug(
@@ -143,25 +137,18 @@ def delete_all_read(request):
         receiver=request.user).filter(is_seen=True).delete()
     messages.success(request, _('Deleted all read notifications.'))
     return redirect('notification-list')
-
-
 # def user_notifications_count(request, user_pk: int):
 #     """returns to notifications count for the give user as JSON
-
 #     This view is public and does not require login
 #     """
 #     unread_count = Notification.objects.user_unread_count(user_pk)
 #     data = {'unread_count': unread_count}
 #     return JsonResponse(data, safe=False)
-
-
 def count_notification(request):
     if not request.user.pk:
         return {}
     noti_count = Notification.objects.filter(
         receiver=request.user, is_seen=False).count()
     return dict(noti_count=noti_count)
-
-
 def event_on_calender_view(request):
     pass

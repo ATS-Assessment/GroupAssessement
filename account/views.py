@@ -100,6 +100,7 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
 
 class UpdateProfileView(UpdateView):
     model = User
+    form_class = UserForm
 
     def get_success_url(self):
         return reverse('update-profile', kwargs={'pk': self.kwargs.get('pk')})
