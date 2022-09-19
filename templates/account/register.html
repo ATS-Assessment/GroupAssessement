@@ -8,6 +8,9 @@
         <p>Enter your details here.</p>
         <form method="post" action="{% url 'register' %}" class="mt-4">
             {% csrf_token %}
+        {{ form.username.errors }}
+        {{ form.email.errors }}
+        {{ form.password2.errors }}
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">{{ message }}</div>

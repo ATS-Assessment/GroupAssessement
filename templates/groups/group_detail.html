@@ -14,15 +14,28 @@
                           <img class="rounded-circle avatar-50" src="{{ member.member.image.url }}" alt="">
                        </div>
                        <div class="media-body ml-3">
-                          <h6 class="mb-0"><a href="#">{{member.member.first_name}} {{member.member.last_name}} {{member.member.username}}</a></h6>
+                          <h6 class="mb-0"><a href="#">{{member.member.first_name.capitalize}} {{member.member.last_name.capitalize}}</a></h6>
                           <p class="mb-0">
-                           {{member.is_admin}}
                           {% if member.is_admin %}
-                              <p> Group Admin</p>
+                              <p>Group Admin</p>
                            {% else %}
-                           <p> Group Member</p>
+
+                              <p class="{% if member.is_suspended %}iq-bg-danger{% endif %}" style="{% if member.is_suspended %}color: #ba8b00{% endif %}">Group Member
+                              <div class="d-block mt-2">
+                              {% if current_user.is_admin %}
+                                <form action="{% url "make-admin" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary mb-2" value="Make Admin"></form>
+                                  <form action="{% url "remove-group-member" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary" value="Remove"></form>
+                                <form action="{% url "suspend-member" group.id request.user.id member.member.id %}" method="post">{% csrf_token %}<input type="submit" class="btn btn-primary" value="{% if member.is_suspended %}Unsuspended{% else %}Suspend{% endif %}"></form>
+                                  {% endif %}
+
+
+
+                              </div>
+                              </p>
+
                            {% endif %}
                            </p>
+
                        </div>
                     </div>
                     {% endfor %}
@@ -66,7 +79,7 @@
                      <div class="user-img">
                         <img src="#" alt="userimg" class="avatar-60 rounded-circle">
                      </div>
-                     <form class="post-text ml-3 w-100" action="{% url "group-detail" group.pk %}">
+                     <form class="post-text ml-3 w-100" action="#">
                         <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;">
                      </form>
                   </div>
@@ -105,7 +118,7 @@
                               <div class="user-img">
                                  <img src="#" alt="userimg" class="avatar-60 rounded-circle img-fluid">
                               </div>
-                              <form class="post-text ml-3 w-100" method="POST" enctype="multipart/form-data"  action="{% url "group-detail" group.pk %}">
+                              <form class="post-text ml-3 w-100" method="POST" enctype="multipart/form-data"  action="{% url "group-detail" group.id %}">
                                  {% csrf_token %}
                                  {% comment %} <input type="text" class="form-control rounded" placeholder="Write something here..." style="border:none;"> {% endcomment %}
                                   <label for="Content">Title (Optional)</label>
@@ -117,33 +130,6 @@
                                   <label for="Content">Other Files</label>
                                  {{ post_form.post_files }}
                                  <hr>
-                           <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
-                              </li>
-                              <li class="col-md-6 mb-3">
-                                 <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
-                              </li>
-                           </ul>
-                           <hr>
                            <div class="other-option">
                               <div class="d-flex align-items-center justify-content-between">
                                  <div class="d-flex align-items-center">
@@ -511,8 +497,9 @@
                      {% endfor %}
                      {% endif %}
                      {% endfor %}
-                     <form class="comment-text d-flex align-items-center mt-3" action="#">
-                        <input type="text" class="form-control rounded">
+                     <form class="comment-text d-flex align-items-center mt-3" action="{% url "comment-on-post" group.id  post.id %}" method="post">
+                         {% csrf_token %}
+                        <input type="text" name="content" class="form-control rounded">
                         <div class="comment-attagement d-flex">
                            <a href="#"><i class="ri-link mr-3"></i></a>
                            <a href="#"><i class="ri-user-smile-line mr-3"></i></a>
@@ -552,9 +539,9 @@
                    <li class="d-flex mb-4 align-items-center">
                      <div class="d-flex flex-wrap" style="flex-direction: column;">
                        <p>Poll Lists</p>
-                       {% for poll in group.poll_set.all %}
+                       {% for poll in group.poll_set.all|slice:"0:2" %}
 
-                          {{ poll.title }}
+                          {% if poll.end_date >= today %}{{ poll.title }}
                       <div>
                                    <div class="iq-card-post-toolbar">
                                         <div class="dropdown">
@@ -580,7 +567,7 @@
                                                         </div>
                                                     </div>
                                                 </a>
-                                                <a class="dropdown-item p-3" href="#">
+                                                <a class="dropdown-item p-3" href="{% url 'poll:poll-summary' group.id poll.id %}">
                                                     <div class="d-flex align-items-top">
                                                         <div class="icon font-size-20"><i class="ri-user-unfollow-line"></i></div>
                                                         <div class="data ml-2">
@@ -594,6 +581,7 @@
                                    </div>
                                </div>
                            <hr>
+                           {% endif %}
 
                        {% endfor %}
                      </div>
@@ -612,7 +600,7 @@
                     </div>
                 </div>
                 <div class="iq-card-body">
-                   <ul class="media-story m-0 p-0">
+                   {% comment %} <ul class="media-story m-0 p-0">
                        <!-- for loop for events --->
                       <li class="d-flex mb-4 align-items-center ">
                          <img src="{% static 'images/page-img/s4.jpg' %}" alt="" class="rounded-circle img-fluid">
@@ -633,57 +621,88 @@
                               </a>
                           </a>
                       <!--end for-->
-                   </ul>
-                    <a href="#" class="btn btn-primary d-block mt-3">See More Events</a>
+                   </ul> {% endcomment %}
+                   {% if member.is_admin %}
+                     <a href="{% url 'calendar-view' group.pk %}" class="btn btn-primary d-block mt-3">Create Event</a>
+                     <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events</a>
+                    {% else %}
+                    <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events {{ member }}</a>
+                    {% endif %}
                 </div>
              </div>
          </div>
-         {{post.pk}}
       </div>
       <script>
-         console.log($("#my-reply-form").serialize())
-                                                            $("#my-reply-form").submit(function(e){
-                                                               e.preventDefault();
-                                                               let form = $(this);
-                                                               let url = form.attr("action");
-                                                               $.ajax({
-                                                                  type: "POST",
-                                                                  url: url,
-                                                                  data: form.serialize(),
-                                                                  dataType: "json",
-                                                                  success: function(resp) {
-                                                                     console.log(resp)
-                                                                       $("#post-reply").prepend(
-                                                                     '<ul class="post-reply p-0 mt-2">'
-                                                                        + '<li class="mb-2">'
-                                                                              + '<div class="d-flex flex-wrap ml-5 mt-2">'
-                                                                                 + '<div class="user-img">'
-                                                                                    + '<img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">'
-                                                                                       + '</div>'
-                                                                                       + '<div class="comment-data-block ml-3">'
-                                                                                          + '<h6>' + resp.first_name + ' '  + reply.last_name + '</h6>'
-                                                                                          + '<p class="mb-0">' + resp.content + '</p>'
-                                                                                                + '<div class="d-flex flex-wrap align-items-center comment-activity">'
-                                                                                                   + '<a href="#">'
-                                                                                                      + '<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
-                                                                                                            + '<path fill-rule="evenodd" d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />'
-                                                                                                            + '</svg>' + 'likes' + '</a>'
-                                                                                          + '<span>' + resp.date_created + '</span>'
-                                                                                       + '</div>'
-                                                                              + '</div>'
-                                                                     + '</div>'
-                                                               + '</li>'
-                                                            + '</ul>'
-                                                      + '</li>'
-                                                   + '</ul>')
-                                                   },
-                                                         error: function(xhr,errmsg,err){
-                                                            console.log(xhr.status + ":" +xhr.responseText)
-                                                         }
-                                                               })
-                                                            });
-   console.log("welcome");
-   console.log("welcome");
+         $("#my-reply-form").submit(function(e){
+               e.preventDefault();
+               $('#btn-reply').click(function() {
+               console.log("replied")
+               $('#post-modal0').modal('hide');
+                           })
+               let form = $(this);
+               let url = form.attr("action");
+               $.ajax({
+                  type: "POST",
+                  url: url,
+                  data: form.serialize(),
+                  dataType: "json",
+                  success: function(resp) {
+                     console.log(resp)
+                        $("#post-reply").prepend(
+                     '<ul class="post-reply p-0 mt-2">'
+                        + '<li class="mb-2">'
+                              + '<div class="d-flex flex-wrap ml-5 mt-2">'
+                                 + '<div class="user-img">'
+                                    + '<img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">'
+                                       + '</div>'
+                                       + '<div class="comment-data-block ml-3">'
+                                          + '<h6>' + resp.first_name + ' '  + resp.last_name + '</h6>'
+                                          + '<p class="mb-0">' + resp.content + '</p>'
+                                                + '<div class="d-flex flex-wrap align-items-center comment-activity">'
+                                                   + '<a href="#">'
+                                                      + '<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
+                                                            + '<path fill-rule="evenodd" d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />'
+                                                            + '</svg>' + 'likes' + '</a>'
+                                          + '<span>' + resp.date_created + '</span>'
+                                       + '</div>'
+                              + '</div>'
+                     + '</div>'
+               + '</li>'
+            + '</ul>'
+      + '</li>'
+   + '</ul>')
+   },
+         error: function(xhr,errmsg,err){
+            console.log(xhr.status + ":" +xhr.responseText)
+         }
+               })
+            });
+      $("#my-like-form").submit(function(e){
+      e.preventDefault(); // Prevent form submission
+      let form = $(this);
+      let url = form.attr("action");
+      let res
+      const likes = $(`.like-btn{{ request.path }}`).text();// this code stopping the function of like button from work
+      console.log(likes);
+      const trimCount = parseInt(likes)
+      $.ajax({
+         type: "POST",
+         url: url,
+         data: form.serialize(),
+         dataType: "json",
+         success: function(response) {
+               selector = document.getElementsByName(response.next);
+               console.log(selector)
+               if(response.liked==true){
+                  $(selector).css("color","blue");
+                  res = trimCount - 1
+               } else if(response.liked==false){
+                  $(selector).css("color","black");
+                  res = trimCount + 1
+               }
+         }
+      })
+   })
     $('.bi-heart').on('click',function(e) {
         e.preventDefault();
         var size = $(this).attr('data-size');
@@ -714,18 +733,5 @@
               }
         });
   })
-  $(function () {
-    $('input').on('click', function () {
-        var Status = $(this).val();
-        $.ajax({
-            url: 'Ajax/StatusUpdate.php',
-            data: {
-                text: $("textarea[name=Status]").val(),
-                Status: Status,
-            },
-            dataType : 'json'
-        });
-    });
-});
-</script>
+                                                </script>
 {% endblock %}

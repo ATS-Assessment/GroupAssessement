@@ -9,7 +9,7 @@ def not_suspended_member(view_func):
         group_pk = kwargs.pop("group_pk", None)
         group = Group.objects.get(pk=group_pk)
         member = Member.objects.get(pk=request.user.pk)
-        group_member = group.group_member.all().filter(member=member)
+        group_member = group.group_member.get(member=request.user)
         if group_member.is_suspended is False:
             return view_func(request, *args, **kwargs)
         else:

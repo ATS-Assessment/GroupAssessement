@@ -1,6 +1,6 @@
-import datetime
 from django import forms
 from django.forms import ModelForm, inlineformset_factory, BaseFormSet
+from django.utils import timezone
 
 from groups.models import Group
 from .models import Poll, Choice
@@ -16,7 +16,7 @@ class PollForm(forms.ModelForm):
         start_date = self.cleaned_data.get('start_date')
         end_date = self.cleaned_data.get('end_date')
 
-        if start_date < datetime.date.today():
+        if start_date < timezone.now().date():
             raise forms.ValidationError('Invalid input. Start date should not be in past.')
 
         if end_date < start_date:

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 from account.models import User
@@ -12,6 +13,10 @@ class Poll(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ["-created_date"]
+
 
     def __str__(self):
         return self.title

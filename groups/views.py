@@ -1,5 +1,3 @@
-
-
 from groups.decorators import is_member_of_group, not_suspended_member
 from .models import Group, Member, Post, Member, Like, Replies, GroupRequest, Comment
 import json
@@ -15,9 +13,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+from django.utils import timezone
 from .models import Group
 from .forms import CommentForm, GroupForm, PostForm, ReplyForm
 from notification.models import Notification
+
 
 # Create your views here.
 
@@ -27,9 +27,15 @@ class GroupList(LoginRequiredMixin, ListView):
     template_name = "groups/group_list.html"
     context_object_name = "group_list"
 
+    def get_context_data(self, **kwargs):
+        context = super(GroupList, self).get_context_data()
+        context['member'] = Member.objects.filter(member=self.request.user)
+        return context
+
 
 def group_list(request):
     groups = Group.objects.all()
+
 
 # class GroupDetail(LoginRequiredMixin, DetailView):
 #     model = Group
@@ -43,10 +49,11 @@ def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_posts = Post.visible_objects.filter(
         group__pk=group_pk).order_by('-date_created')
-    if request.method == "POST":
-        member = Member.objects.get(pk=request.user.pk)
 
-        member = group.group_member.get(user__pk=request.user.pk)
+    if request.method == "POST":
+
+
+        member = group.group_member.get(member__pk=request.user.pk)
 
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
@@ -62,19 +69,22 @@ def group_detail(request, group_pk):
             post_form = PostForm()
     else:
         post_form = PostForm()
+        member = group.group_member.get(member__pk=request.user.pk)
     context = {
+        "current_user": Member.objects.get(member=request.user, group_id=group_pk),
         "group": group,
         "members": group.group_member.all(),
         "count": group.group_member.all().count(),
-        "member": Member.objects.all(),
+        "member": member,
         "post_form": post_form,
         "group_post": group_posts,
+        "today": timezone.now().date(),
     }
 
     # print(group_posts)
     # print(group.group_member.all())
-    (group_posts)
-    print(group.group_member.all())
+    # (group_posts)
+    # print(group.group_member.all())
 
     for post in group_posts:
         post_comments = Comment.objects.filter(
@@ -89,7 +99,7 @@ def group_detail(request, group_pk):
     return render(request, "groups/group_detail.html", context)
 
 
-@ login_required(login_url='login')
+@login_required(login_url='login')
 def create_group(request):
     if request.method == "POST":
         group_form = GroupForm(request.POST, request.FILES)
@@ -99,7 +109,8 @@ def create_group(request):
             privacy_status = group_form.cleaned_data.get("privacy_status")
             group_image = group_form.cleaned_data.get("group_image")
             group = Group.objects.create(
-                name=name, description=description, privacy_status=privacy_status, creator=request.user, group_image=group_image)
+                name=name, description=description, privacy_status=privacy_status, creator=request.user,
+                group_image=group_image)
             new_member = Member.objects.create(
                 group=group, member=group.creator, is_admin=True)
             print(new_member.member)
@@ -121,38 +132,47 @@ def create_group(request):
         })
 
 
-@ require_POST
-@ login_required(login_url="login")
+@require_POST
+@login_required(login_url="login")
 def make_admin(request, group_pk, admin_pk, user_pk):
-    group = Group.objects.filter(
-        pk=group_pk, creator__pk=admin_pk).first()
-    if group.group_member.all().filter(is_admin=True).count() < 3:
-        member = Member.objects.get(user__pk=user_pk)
-        member.is_admin = True
-        member.save()
-        messages.success(
-            request, f"{member.user.first_name} has successfully been made an Admin!")
-        return redirect(request.META["HTTP_REFERER"])
+    if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
+        group = Group.objects.get(
+            pk=group_pk, creator_id=admin_pk)
+        if group.group_member.all().filter(is_admin=True).count() < 3:
+            member = group.group_member.get(member_id=user_pk)
+            # member = Member.objects.get(member_id=user_pk, group=group)
+            member.is_admin = True
+            member.save()
+            messages.success(
+                request, f"{member.member.first_name} has successfully been made an Admin!")
+            return redirect('group-detail', group.id)
+        else:
+            messages.error(
+                request, "Group Admins cannot be more than 3!")
+            return redirect('group-detail', group.id)
+
     else:
-        messages.error(
-            request, "Group Admins cannot be more than 3!")
-        return redirect(request.META["HTTP_REFERER"])
+        messages.error(request, "Only admin can make member an admin.")
+        return redirect('group-detail', group_pk)
 
 
 @require_POST
 @login_required(login_url='login')
 def remove_group_member(request, group_pk, admin_pk, user_pk):
-    group = Group.objects.filter(
-        pk=group_pk, creator__pk=admin_pk)
-    member = group.group_member.filter(user__pk=user_pk)
-    member.has_exited = True
-    member.save()
-    messages.success(
-        request, f"{member.user.first_name} has successfully been removed from the Group!")
-    return redirect(request.META["HTTP_REFERER"])
+    if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
+        group = Group.objects.get(
+            pk=group_pk, creator_id=admin_pk)
+        member = group.group_member.get(member_id=user_pk)
+        member.delete()
+        messages.success(
+            request, f"{member.member.first_name} has successfully been removed from the Group!")
+        return redirect('group-detail', group.id)
+    else:
+        messages.error(request, "Only admin can remove member of a group")
+        return redirect('group-detail', group_pk)
 
 
-@ login_required(login_url='login')
+@login_required(login_url='login')
 def request_to_join_group(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_request = GroupRequest.objects.create(
@@ -160,17 +180,26 @@ def request_to_join_group(request, group_pk):
     # admins = group.group_member.all().filter(member__is_admin=True)
     # for admin in admins:
     Notification.objects.create(group=group,
-                                notification_type="group_request", content_preview="A Potential Member wants to join your Group", is_admin_notification=True)
+                                notification_type="group_request",
+                                content_preview="A Potential Member wants to join your Group",
+                                is_admin_notification=True)
     return redirect(request.META["HTTP_REFERER"])
 
 
 def request_add(request, group_pk, user_pk):
-
     group = Group.objects.get(pk=group_pk)
     user = User.objects.get(pk=user_pk)
     new_member = Member.objects.create(
         group=group, member=user)
     return redirect(reverse('group-detail', args=[group_pk]))
+
+
+def join_group(request, group_pk):
+    group = Group.objects.get(pk=group_pk)
+    if not Member.objects.filter(member=request.user).exists():
+        Member.objects.create(group=group, member=request.user)
+        return redirect(reverse("group-detail", args=[group_pk]))
+    return redirect(request.META.get("HTTP_REFERER"))
 
 
 def request_reject_():
@@ -185,7 +214,7 @@ def accept_to_group(request):
 
 
 @require_POST
-@ login_required(login_url='login')
+@login_required(login_url='login')
 def exit_group(request, group_name, user_pk):
     group = Group.objects.get(name=group_name)
     member = group.group_member.filter(user__pk=user_pk)
@@ -197,12 +226,17 @@ def exit_group(request, group_name, user_pk):
     return redirect("group-list")
 
 
-def suspend_member(request, group_name, admin_pk, user_pk):
-    group = Group.objects.get(name=group_name, user__pk=admin_pk).first()
-    member = group.group_member.filter(user__pk=user_pk)
-    member.is_suspended = True
-    member.save()
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+def suspend_member(request, group_pk, admin_pk, user_pk):
+    if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
+        group = Group.objects.get(pk=group_pk, creator_id=admin_pk)
+        member = group.group_member.get(member_id=user_pk)
+
+        member.is_suspended = not member.is_suspended
+        member.save()
+        return redirect('group-detail', group.id)
+    else:
+        messages.error(request, "Only admin can suspend a member")
+        return redirect("group-detail", group_pk)
 
 
 # @is_member_of_group
@@ -255,26 +289,26 @@ def search_groups(request):
         return render(request, 'search.html', context)
 
 
-@is_member_of_group
-@not_suspended_member
+# @is_member_of_group
+# @not_suspended_member
 def comment_on_post(request, group_pk, post_pk):
     post = Post.objects.get(group__pk=group_pk, pk=post_pk)
+    group = Group.objects.get(pk=group_pk)
     if request.method == "POST":
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             content = comment_form.cleaned_data.get("content")
             comment = Comment.objects.create(
-                member=request.user, content=content, post=post, group=Group.objects.get(pk=group_pk))
+                member=group.group_member.get(member=request.user), content=content, post=post, group=group)
             comment.save()
+            return redirect('group-detail', group.id)
         else:
             comment_form = CommentForm(request.POST)
             messages.error(request, "Comment Creation Failed")
-            return render(request, 'comment.html', {
-                "comment_form": comment_form,
-            })
+            return redirect('group-detail', group.id)
     else:
         comment_form = CommentForm()
-        return render(request, 'comment.html', {
+        return render(request, 'groups/group_detail.html', {
             "comment_form": comment_form,
         })
 

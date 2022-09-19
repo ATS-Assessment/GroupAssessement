@@ -17,33 +17,39 @@
                   <li class="d-flex align-items-center">
                      <div class="user-img img-fluid"><img src="#" alt="story-img" class="rounded-circle avatar-40"></div>
                      <div class="media-support-info ml-3">
-                        <h6>Paige Turner Posted in Community <strong>{{notifi.group}}</strong></h6>
-                        <small class="mb-0">{{notifi.time_created}}</small>
-                         <p class="mb-0">*<b>{{notifi.notification_type}}</b></p>
-                     </div>
-                      {% if notifi.notification_type != 'like' %}
-                      <div class="d-flex align-items-center">
-                        <a href="javascript:void();" class="mr-3 iq-notify iq-bg-primary rounded"><i class="ri-award-line"></i></a>
-                        <div class="iq-card-header-toolbar d-flex align-items-center">
-                           <div class="dropdown">
-                              <span class="dropdown-toggle" data-toggle="dropdown">
-                              <i class="ri-more-fill"></i>
-                              </span>
-                              <div class="dropdown-menu dropdown-menu-right">
-                                  {% if notifi.notification_type == 'group_request' %}
-                                  <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Add</a>
+                         {% if notifi.notification_type == 'Event Invite' %}
+                         <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
+                        <p class="mb-0">{{notifi.time_created}}</p>
+                                 <div class="btn-group m-1">
+                                    {% if notifi.event.pk %}
+                                  <form action="{% url 'yes-members' notifi.group.pk  notifi.event.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-success mr-5" type="submit">Yes</button>
+                                  </form>
+                                  <form action="{% url 'no-members' notifi.group.pk  notifi.event.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button  class="btn btn-danger mr-5" type="submit">No</button>
+                                  </form>
+                                  <form action="{% url "maybe-members" notifi.group.pk notifi.event.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-primary mr-5" type="submit">Maybe</button>
+                                  </form>
+                                 </div>
+                                 {% else %}
+                                 <div class="alert alert-danger alert-dismissible" role="alert">{{notifi.event}}</div>
+                                 {% endif %}
+                        {% elif notifi.notification_type == 'Like' %}
+                           <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
+                           <p class="mb-0">{{notifi.time_created}}</p>
+                           <div class="dropdown-menu dropdown-menu-right">
+                                  {% elif notifi.notification_type == 'Group Request' %}
+                                  <div class="btn-group">
+                                    <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Add</a>
                                   <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Ignore</a>
+                                  </div>
                                   {% endif %}
-                                  {% if notifi.notification_type == 'invite' %}
-                                  <a class="btn btn-success" href="#">Yes</a>
-                                  <a class="btn btn-danger" href="#">No</a>
-                                  <a class="btn btn-primary" href="#">Maybe</a>
-                                  {% endif %}
-                              </div>
                            </div>
-                        </div>
                       </div>
-                      {% endif %}
                   </li>
                </ul>
             </div>
@@ -52,4 +58,6 @@
            <!-- end for loop for each notification -->
       </div>
     </div>
+    <script>
+    </script>
 {% endblock %}
