@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="header-for-bg">
+        <div class="background-header position-relative">
+           <img src="{% static 'images/page-img/profile-bg6.jpg' %}" class="img-fluid w-100 rounded rounded" alt="profile-bg">
+           <div class="title-on-header">
+              <div class="data-block">
+                 <h2>Events</h2>
+              </div>
+           </div>
+        </div>
+    </div>
+     <!-- Page Content  -->
+    <div id="content-page" class="content-page">
+        <div class="container">
+           <div class="row">
+               <!-- for loop for events-->
+              <div class="col-md-6 col-lg-4">
+                 <div class="iq-card rounded iq-card-block iq-card-stretch iq-card-height">
+                    <div class="event-images">
+                       <a href="#">
+                           <img src="{% static 'images/page-img/51.jpg' %}" class="img-fluid" alt="Responsive image">
+                       </a>
+                    </div>
+                    <div class="iq-card-body">
+                       <div class="d-flex">
+                          <div class="date-of-event">
+                             <span>Month</span>
+                             <h5>Day</h5>
+                          </div>
+                          <div class="events-detail ml-3">
+                             <h5>Event Title</h5>
+                             <p>Description:50 chars + ...</p>
+                             <div class="event-member">
+                                <div class="iq-media-group">
+                                   <a href="#" class="iq-media">
+                                       <img class="img-fluid avatar-40 rounded-circle" src="{% static 'images/user/05.jpg' %}" alt="">
+                                   </a>
+                                   <a href="#" class="iq-media">
+                                       <img class="img-fluid avatar-40 rounded-circle" src="{% static 'images/user/06.jpg' %}" alt="">
+                                   </a>
+                                   <a href="#" class="iq-media">
+                                       <img class="img-fluid avatar-40 rounded-circle" src="{% static 'images/user/07.jpg' %}" alt="">
+                                   </a>
+                                   <a href="#" class="iq-media">
+                                       <img class="img-fluid avatar-40 rounded-circle" src="{% static 'images/user/08.jpg' %}" alt="">
+                                   </a>
+                                   <a href="#" class="iq-media">
+                                       <img class="img-fluid avatar-40 rounded-circle" src="{% static 'images/user/09.jpg' %}" alt="">
+                                   </a>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+               <!-- end for loop-->
+           </div>
+        </div>
+    </div>
+{% endblock %}

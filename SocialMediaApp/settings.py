@@ -27,10 +27,11 @@ SECRET_KEY = 'django-insecure-5a&u6$j&r5g1g(^1^ft*8^wka6aybj+9gv06@588u460vy)s+6
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+ALLOWED_HOSTS = []
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-ALLOWED_HOSTS = ["127.0.0.1", ]
 
 
 # Application definition
@@ -47,6 +48,8 @@ INSTALLED_APPS = [
     'notification',
     'poll',
     'event',
+    'widget_tweaks',
+
 ]
 
 MIDDLEWARE = [

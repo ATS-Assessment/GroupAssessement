@@ -4,6 +4,7 @@ import logging
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from event.models import Event
 
 from groups.models import Group, Member
 from notification.models import Notification
@@ -26,11 +27,16 @@ logger = logging.getLogger(__name__)
 print(logger, 'here')
 
 
-def show_notification(request):
+def show_notification(request, event_pk):
+    member = Member.objects.get(member__pk=request.user.pk)
+    event = Event.objects.get(pk=event_pk)
     notify = Notification.objects.filter(
         receiver=request.user, is_seen=False).order_by("-time_created")
     return render(request, "groups/group_detail.html", {
-        "notification": notify
+        "notification": notify,
+        "member": member,
+        "event": event,
+
     })
 
 
@@ -48,9 +54,12 @@ def show_notification(request):
 @login_required
 def notification_list(request):
     logger.debug("notification_list called by user %s" % request.user)
+    # event = Event.objects.get(pk=event_pk)
     notifications_qs = Notification.objects.all()
     # filter(
     #     receiver=request.user).order_by("-time_created")
+
+    # member = Member.objects.get(member__pk=request.user.pk)
     new_notifs = notifications_qs.filter(is_seen=False)
     old_notifs = notifications_qs.filter(is_seen=True)
     logger.debug(
@@ -63,6 +72,8 @@ def notification_list(request):
         "notifications_qs": notifications_qs,
         'read': old_notifs,
         'unread': new_notifs,
+        # "member": member,
+        # "event": event,
     }
     return render(request, 'notification.html', context)
 
@@ -105,6 +116,7 @@ def remove_notification(request, notif_pk):
             logger.info("Deleting notif id %s by user %s",
                         notif_pk, request.user)
             messages.success(request, _('Deleted notification.'))
+            return redirect('notification-list')
     else:
         logger.error(
             "Unable to delete notif id %s for user %s - notif matching id not found.",

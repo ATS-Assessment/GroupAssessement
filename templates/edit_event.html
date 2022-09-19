@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="header-for-bg">
+    <div class="background-header position-relative">
+       <img src="{% static 'images/page-img/profile-bg6.jpg' %}" class="img-fluid w-100" alt="profile-bg">
+       <div class="title-on-header">
+          <div class="data-block">
+             <h2>Edit Event</h2>
+          </div>
+       </div>
+    </div>
+</div>
+ <!-- Page Content  -->
+<div id="content-page" class="content-page">
+    <div class="container">
+        <div class="row">
+            <form action="#" method="post">
+                <div class="form-group">
+                    <label for="title">Event Title:</label>
+                    <input type="text" class="form-control rounded" name="title" id="title" placeholder="Write your post title..." style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+                <div class="form-group">
+                    <label for="description">Event Description:</label>
+                    <textarea class="form-control rounded" name=description" id="description" placeholder="Enter description of the group..." style="border:1px solid #ccc; margin-bottom: 10px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="location">Event Location:</label>
+                    <input type="text" class="form-control rounded" name="location" id="location" placeholder="Where will the event take place?" style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Event Start Date:</label>
+                    <input type="datetime-local" class="form-control rounded" name="start_date" id="start_date" placeholder="When will the event start?" style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+                <div class="form-group">
+                    <label for="end_date">Event End Date:</label>
+                    <input type="datetime-local" class="form-control rounded" name="end_date" id="end_date" placeholder="When will the event end?" style="border:1px solid #ccc; margin-bottom: 10px;">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

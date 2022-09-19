@@ -22,14 +22,21 @@ from notification.models import Notification
 # Create your views here.
 
 
-class GroupList(LoginRequiredMixin, ListView):
-    model = Group
-    template_name = "groups/group_list.html"
-    context_object_name = "group_list"
-
-
+@ login_required(login_url='login')
 def group_list(request):
     groups = Group.objects.all()
+    for group in groups:
+        members = list(group.group_member.all())
+        if group.group_member.filter(member=request.user).exists():
+            member = group.group_member.get(member=request.user)
+            print(member)
+
+    return render(request, "groups/group_list.html",  {
+        "group_list": groups,
+        "members": members,
+        "member": member,
+
+    })
 
 # class GroupDetail(LoginRequiredMixin, DetailView):
 #     model = Group
@@ -37,16 +44,17 @@ def group_list(request):
 #     context_object_name = "group"
 
 
-@login_required(login_url='login')
-@is_member_of_group
+@ login_required(login_url='login')
+@ is_member_of_group
 def group_detail(request, group_pk):
     group = Group.objects.get(pk=group_pk)
     group_posts = Post.visible_objects.filter(
         group__pk=group_pk).order_by('-date_created')
+    # member = Member.objects.get(pk=request.user.pk)
+    member = group.group_member.get(member__pk=request.user.pk)
 
     if request.method == "POST":
-        member = Member.objects.get(pk=request.user.pk)
-        member = group.group_member.get(user__pk=request.user.pk)
+
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
             title = post_form.cleaned_data.get("title")
@@ -62,13 +70,23 @@ def group_detail(request, group_pk):
     else:
         post_form = PostForm()
 
+    contents = Post.objects.all()
+    already_liked = []
+    id = member.id
+    for content in group_posts:
+        if (content.like.filter(id=id).exists()):
+            already_liked.append(content.id)
+    ctx = {"contents": contents, "already_liked": already_liked}
+
     context = {
         "group": group,
         "members": group.group_member.all(),
         "count": group.group_member.all().count(),
-        "member": Member.objects.all(),
+        "member": member,
         "post_form": post_form,
         "group_post": group_posts,
+        "contents": contents,
+        "already_liked": already_liked
 
     }
     # print(group_posts)
@@ -85,6 +103,48 @@ def group_detail(request, group_pk):
             context["post"] = post
 
     return render(request, "groups/group_detail.html", context)
+
+
+@login_required(login_url="login")
+@is_member_of_group
+@not_suspended_member
+def like_post(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.get(member=request.user)
+    if request.method == "POST":
+        content_id = request.POST.get("content_id", None)
+
+        if group_member.is_suspended is False:
+
+            post = Post.objects.get(pk=content_id)
+
+            if request.user not in post.like.all():
+                post.like.add(group_member)
+                liked = True
+                notification = Notification.objects.create(
+                    notification_type="Like", content_preview="A Member a liked a Post", receiver=request.user)
+                # return JsonResponse({
+                #     "liked": liked,
+                #     "content_id": content_id,
+                # })
+            else:
+                post.like.remove(group_member)
+                liked = False
+                notification = Notification.object.create(
+                    notification_type="Like", content_preview="A Member a unliked a Post", receiver=request.user)
+                return JsonResponse({
+                    "liked": liked,
+                    "content_id": content_id,
+                })
+
+    contents = Post.objects.all()
+    already_liked = []
+    id = group_member.id
+    for content in contents:
+        if (content.like.filter(id=id).exists()):
+            already_liked.append(content.id)
+    ctx = {"contents": contents, "already_liked": already_liked}
+    return render(request, "groups/group_detail.html", ctx)
 
 
 @ login_required(login_url='login')
@@ -125,7 +185,11 @@ def make_admin(request, group_pk, admin_pk, user_pk):
     group = Group.objects.filter(
         pk=group_pk, creator__pk=admin_pk).first()
     if group.group_member.all().filter(is_admin=True).count() < 3:
-        member = Member.objects.get(user__pk=user_pk)
+        try:
+            member = group.group_member.get(member__pk=user_pk)
+        except Exception as e:
+            print("An error occurred while querying the group member", e)
+
         member.is_admin = True
         member.save()
         messages.success(
@@ -158,7 +222,7 @@ def request_to_join_group(request, group_pk):
     # admins = group.group_member.all().filter(member__is_admin=True)
     # for admin in admins:
     Notification.objects.create(group=group,
-                                notification_type="group_request", content_preview="A Potential Member wants to join your Group", is_admin_notification=True)
+                                notification_type="Group Request", content_preview="A Potential Member wants to join your Group", is_admin_notification=True)
     return redirect(request.META["HTTP_REFERER"])
 
 
@@ -203,42 +267,6 @@ def suspend_member(request, group_name, admin_pk, user_pk):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
-# @is_member_of_group
-# @ login_required(login_url='login')  # join with group_detail
-# def create_post(request, group_pk):
-#     group = Group.objects.get(pk=group_pk)
-#     group_member = group.group_member.all().filter(member=request.user)
-#     if group_member.is_suspended is False:
-#         if request.method == "POST":
-#             post_form = PostForm(request.POST, request.FILES)
-#             if post_form.is_valid():
-#                 title = post_form.cleaned_data.get("title")
-#                 content = post_form.cleaned_data.get("content")
-#                 post_image = post_form.cleaned_data.get("post_image")
-#                 post_files = post_form.cleaned_data.get("post_files")
-#                 post = Post.objects.create(
-#                     title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
-#                 post.save()
-#                 messages.success(request, "Post was created Successfully!")
-#                 return JsonResponse({"data": post})
-#             else:
-#                 context = {
-#                     "post_form": post_form
-#                 }
-#                 messages.error(
-#                     request, "Post Creation failed,Please try again!")
-#                 return render(request, "groups/group_detail.html", context)
-#         else:
-#             post_form = PostForm()
-#             context = {
-#                 "post_form": post_form
-#             }
-#             return render(request, "groups/group_detail.html", context)
-#     else:
-#         return JsonResponse({"message": "Permission Denied",
-#                              })
-
-
 @login_required(login_url="login")
 def search_groups(request):
     if request.method == "GET" and "keyword" in request.GET:
@@ -257,13 +285,19 @@ def search_groups(request):
 @not_suspended_member
 def comment_on_post(request, group_pk, post_pk):
     post = Post.objects.get(group__pk=group_pk, pk=post_pk)
+
     if request.method == "POST":
         comment_form = CommentForm(request.POST)
+        # comment = request.GET.get('content', None)
         if comment_form.is_valid():
             content = comment_form.cleaned_data.get("content")
             comment = Comment.objects.create(
                 member=request.user, content=content, post=post, group=Group.objects.get(pk=group_pk))
             comment.save()
+            data = {
+                "comment": comment
+            }
+            return JsonResponse(comment)
         else:
             comment_form = CommentForm(request.POST)
             messages.error(request, "Comment Creation Failed")
@@ -284,7 +318,6 @@ def reply_comment(request, group_pk, post_pk, comment_pk):
     group = Group.objects.get(pk=group_pk)
 
     member = group.group_member.get(member__pk=request.user.pk)
-    print(member)
     comment = Comment.objects.get(
         group__pk=group_pk, post__pk=post_pk, pk=comment_pk)
     if request.method == "POST":
@@ -294,12 +327,7 @@ def reply_comment(request, group_pk, post_pk, comment_pk):
             if member:
                 new_reply = Replies.objects.create(member=member,
                                                    content=content, comment=comment)
-
-                # s = serialize('json', [new_reply])
-                # o = s.strip("[]")
-                # print(new_reply)
-                # print(s)
-                # print(o)
+                print("ok")
                 print(new_reply.member.member.first_name)
                 print(new_reply.member.member.last_name)
                 resp = {
@@ -308,6 +336,7 @@ def reply_comment(request, group_pk, post_pk, comment_pk):
                     "last_name": new_reply.member.member.last_name,
 
                 }
+                print("noe")
                 return JsonResponse(resp, content_type="application/json")
         else:
             print(reply_form.errors)
@@ -318,14 +347,14 @@ def reply_comment(request, group_pk, post_pk, comment_pk):
         })
 
 
-# @login_required(login_url="login")
-# @is_member_of_group
-# @not_suspended_member
+@login_required(login_url="login")
+@is_member_of_group
+@not_suspended_member
 def like_post(request, group_pk, post_pk):
+    group = Group.objects.get(pk=group_pk)
+    group_member = group.group_member.get(member=request.user)
     if request.method == "POST":
         content_id = request.POST.get("content_id", None)
-        group = Group.objects.get(pk=group_pk)
-        group_member = group.group_member.get(member=request.user)
 
         if group_member.is_suspended is False:
 
@@ -335,20 +364,55 @@ def like_post(request, group_pk, post_pk):
                 post.like.add(group_member)
                 liked = True
                 notification = Notification.objects.create(
-                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
-                return JsonResponse({
-                    "liked": liked,
-                    "content_id": content_id,
-                })
+                    notification_type="Like", content_preview="A Member a liked a Post", receiver=request.user)
+                # return JsonResponse({
+                #     "liked": liked,
+                #     "content_id": content_id,
+                # })
             else:
-                post.like.remove(request.user)
+                post.like.remove(group_member)
                 liked = False
                 notification = Notification.object.create(
-                    notification_type="like", content_preview="A Member a like a Post", receiver=request.user)
+                    notification_type="Like", content_preview="A Member a unliked a Post", receiver=request.user)
                 return JsonResponse({
                     "liked": liked,
                     "content_id": content_id,
                 })
+
+    contents = Post.objects.all()
+    already_liked = []
+    id = group_member.id
+    for content in contents:
+        if (content.like.filter(id=id).exists()):
+            already_liked.append(content.id)
+    ctx = {"contents": contents, "already_liked": already_liked}
+    return render(request, "groups/group_detail.html", ctx)
+
+
+# def like_button(request):
+#     if request.method == "POST":
+#         if request.POST.get("operation") == "like_submit":
+#             content_id = request.POST.get("content_id", None)
+#             content = get_object_or_404(LikeButton, pk=content_id)
+#             # already liked the content
+#             if content.likes.filter(id=request.user.id):
+#                 content.likes.remove(request.user)  # remove user from likes
+#                 liked = False
+#             else:
+#                 content.likes.add(request.user)
+#                 liked = True
+#             ctx = {"likes_count": content.total_likes,
+#                    "liked": liked, "content_id": content_id}
+#             return HttpResponse(json.dumps(ctx), content_type='application/json')
+
+#     contents = LikeButton.objects.all()
+#     already_liked = []
+#     id = request.user.id
+#     for content in contents:
+#         if (content.likes.filter(id=id).exists()):
+#             already_liked.append(content.id)
+#     ctx = {"contents": contents, "already_liked": already_liked}
+#     return render(request, "like/like_template.html", ctx)
 
 
 def like_comment(request, group_pk, post_pk, comment_pk):

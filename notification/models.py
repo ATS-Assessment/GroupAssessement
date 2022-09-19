@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
 
 from account.models import User
+from event.models import Event
 
 
 # Create your models here.
@@ -13,17 +14,19 @@ logger = logging.getLogger(__name__)
 
 class Notification(models.Model):
     NOTIFICATION_TYPE = (
-        ("like", "like"),
+        ("Like", "Like"),
 
-        ("group_request", "group_request"),
-        ("invite", "invite")
+        ("Group Request", "Group Request"),
+        ("Event Invite", "Event Invite")
     )
     receiver = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="to_user", null=True)
+        "groups.Member", on_delete=models.SET_NULL, related_name="to_user", null=True)
     created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="noti_creator", null=True)
+        "groups.Member", on_delete=models.CASCADE, related_name="noti_creator", null=True)
     group = models.ForeignKey(
         "groups.Group", on_delete=models.SET_NULL, null=True)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, null=True, blank=True)
     content_preview = models.CharField(max_length=100, null=True)
     notification_type = models.CharField(max_length=50,
                                          choices=NOTIFICATION_TYPE, null=True)
@@ -39,6 +42,7 @@ class Notification(models.Model):
 # not notpk userpk
 # Notification.objects.get(pk=notpk)
 # notif.yes.add(member.pk)
+# eventMember.objects.all()
 
 
 # Yes.
@@ -47,14 +51,13 @@ class Notification(models.Model):
 # Notification.objects.get(pk=notpk)
 # not
 
-
     def mark_as_seen(self) -> None:
         """Mark notification as viewed."""
         logger.info("Marking notification as viewed: %s" % self)
         self.is_seen = True
         self.save()
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.notification_type
 
     class Meta:
@@ -62,25 +65,16 @@ class Notification(models.Model):
 
 
 class EventInvite(models.Model):
-    yes = models.ManyToManyField("groups.Member", related_name="yes_members")
+    event = models.ForeignKey(
+        "event.Event", on_delete=models.CASCADE, null=True, blank=True)
+    yes = models.ManyToManyField("groups.Member", related_name="yes_members",)
     no = models.ManyToManyField("groups.Member", related_name="no_members")
     maybe = models.ManyToManyField(
         "groups.Member", related_name="maybe_members")
 
+    def __str__(self) -> str:
+        return self.event.title
 
-class Yes(models.Model):
-    member = models.ForeignKey(
-        "groups.Member", on_delete=models.CASCADE, null=True)
-
-
-class No(models.Model):
-    member = models.ForeignKey(
-        "groups.Member", on_delete=models.CASCADE, null=True)
-
-
-class Maybe(models.Model):
-    member = models.ForeignKey(
-        "groups.Member", on_delete=models.CASCADE, null=True)
 # class Event(models.Model):
 #     creator = models.ForeignKey("groups.Member", on_delete=models.SET_NULL, null=True)
 #     group = models.ForeignKey(
@@ -113,15 +107,3 @@ class Maybe(models.Model):
 
 
 # post_save.connect(Event.admin_create_event, sender=Event)
-
-
-# class Poll(models.Model):
-#     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-#     group = models.ForeignKey(
-#         "groups.Group", on_delete=models.SET_NULL, null=True)
-#     title = models.CharField(max_length=90, null=True)
-#
-#     # polls_option = models.JSONField(default=_json())
-#
-#     def has_started(self):
-#         return self.start_date > datetime.datetime.now()

@@ -2,7 +2,8 @@
 from django.db import models
 from datetime import datetime
 from account.models import User
-from notification.models import Notification
+
+# from notification.models import Notification
 from django.db.models.signals import post_save, post_delete
 from django.urls import reverse
 
@@ -13,18 +14,16 @@ class EventManager(models.Manager):
     """ Event manager """
 
     def get_all_events(self, member):
-        events = Event.objects.filter(
-            member=member, is_active=True, is_deleted=False)
-        return events
+
+        return Event.objects.filter(
+            member=member)
 
     def get_running_events(self, member):
-        running_events = Event.objects.filter(
+
+        return Event.objects.filter(
             member=member,
-            is_active=True,
-            is_deleted=False,
             end_time__gte=datetime.now().date(),
         ).order_by("start_time")
-        return running_events
 
 
 class EventAbstract(models.Model):
@@ -57,31 +56,30 @@ class Event(EventAbstract):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("event-detail", args=(self.id,))
+        return reverse("event-detail-gcal", args=(self.pk,))
 
-    def admin_create_event(sender, instance, *args, **kwargs):
-        event = instance
-        sender = event.member.member
-        receiver_group = event.group
-        notify = Notification.objects.create(
-            group=receiver_group,content_preview="The Group Admin  Created an Event", created_by=sender)
-        notify.save()
+    # def admin_create_event(sender, instance, *args, **kwargs):
+    #     event = instance
+    #     sender = event.member.member
+    #     receiver_group = event.group
+    #     notify = Notification.objects.create(
+    #         group=receiver_group, content_preview="The Group Admin  Created an Event", is_admin_notification=False, created_by=sender)
+    #     notify.save()
 
 
-post_save.connect(Event.admin_create_event, sender=Event)
+# post_save.connect(Event.admin_create_event, sender=Event)
 
 
 class EventMember(EventAbstract):
     """ Event member model """
 
-    event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="events")
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="event_members"
-    )
-
-    class Meta:
-        unique_together = ["event", "user"]
+    # event = models.ForeignKey(
+    #     Event, on_delete=models.CASCADE, related_name="event", null=True, blank=True)
+    # member = models.ForeignKey(
+    #     Member, on_delete=models.CASCADE, related_name="event_members", null=True, blank=True
+    # )
+    # group = models.ForeignKey(
+    #     Group, on_delete=models.CASCADE, related_name="event_group", null=True, blank=True)
 
     def __str__(self):
         return str(self.user)

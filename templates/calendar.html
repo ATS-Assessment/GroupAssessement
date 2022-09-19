@@ -1,67 +1,176 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
+{% load static %}
 {% block content %}
-    
-    
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar</title>
-</head>
-<body>
-    <div id='calendar' style="
-  margin: 10px 10px;"></div>
-<div>
-    <p>{{ form.as_p }}</p>
-    <div>{{calendar}}</div>
-    <p>{{events}}</p>
-</div>
+    <div class="header-for-bg">
+        <div class="background-header position-relative">
+           <img src="{% static 'images/page-img/profile-bg6.jpg' %}" class="img-fluid w-100" alt="profile-bg">
+           <div class="title-on-header">
+              <div class="data-block">
+                 <h2>Calendar and Events</h2>
+              </div>
+           </div>
+        </div>
+    </div>
+     <!-- Page Content  -->
+   <div id="content-page" class="content-page">
+        <div class="container">
+           <div class="row row-eq-height">
+              <div class="col-md-3">
+                 <div class="iq-card calender-small">
+                    <div class="iq-card-body">
+                       <input type="text" class="flatpicker d-none">
+                    </div>
+                 </div>
+                 <div class="iq-card">
+                    <div class="iq-card-header d-flex justify-content-between">
+                       <div class="iq-header-title">
+                          <h4 class="card-title ">Classification</h4>
+                       </div>
+                       <div class="iq-card-header-toolbar d-flex align-items-center">
+                          <a href="#"><i class="fa fa-plus  mr-0" aria-hidden="true"></i></a>
+                       </div>
+                    </div>
+                    <div class="iq-card-body">
+                       <ul class="m-0 p-0 job-classification">
+                          <li class=""><i class="ri-check-line bg-danger"></i>Meeting</li>
+                          <li class=""><i class="ri-check-line bg-success"></i>Business travel</li>
+                          <li class=""><i class="ri-check-line bg-warning"></i>Personal Work</li>
+                          <li class=""><i class="ri-check-line bg-info"></i>Team Project</li>
+                       </ul>
+                    </div>
+                 </div>
+                 <div class="iq-card">
+                    <div class="iq-card-header d-flex justify-content-between">
+                       <div class="iq-header-title">
+                          <h4 class="card-title">Today's Schedule</h4>
+                       </div>
+                    </div>
+                    <div class="iq-card-body">
+                       <ul class="m-0 p-0 today-schedule">
+                          <li class="d-flex">
+                             <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill text-primary"></i></div>
+                             <div class="schedule-text"> <span>Web Design</span>
+                                <span>09:00 to 12:00</span>
+                             </div>
+                          </li>
+                          <li class="d-flex">
+                             <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill text-success"></i></div>
+                             <div class="schedule-text"> <span>Participate in Design</span>
+                                <span>09:00 to 12:00</span>
+                             </div>
+                          </li>
+                       </ul>
+                    </div>
+                 </div>
+              </div>
+              <div class="col-md-9">
+                 <div class="iq-card">
+                    <div class="iq-card-header d-flex justify-content-between">
+                     {% if member.is_admin %}
+                       <div class="iq-header-title">
+                          <h4 class="card-title">Create  a new Event</h4>
+                       </div>
+                       <div class="iq-card-header-toolbar d-flex align-items-center">
+                          <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#post-modal2"><i class="ri-add-line mr-2"></i>Create Event</a>
+                       </div>
+                        <div class="modal fade" id="post-modal2" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none;">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                       <div class="modal-header">
+                                          <h5 class="modal-title" id="post-modalLabel">Create Event</h5>
+                                          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
+                                       </div>
+                                    <div class="modal-body">
+                                        <div class="d-flex align-items-center">
+                                            <form class="post-text ml-3 mr-3 w-100" id="" method="POST" enctype="multipart/form-data" action="{% url 'calendar-view' group.pk %}">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label for="title">Event Title:</label>
+                                                    {{form.title}}
+                                                    
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="description">Event Description:</label>
+                                                     {{form.description}}
+                                                 
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="location">Event Location:</label>
+                                                     {{form.location}}
+                                                    
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="start_date">Event Start Date:</label>
+                                                    {{form.start_time}}
+                                                   
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="end_date">Event End Date:</label>
+                                                    {{form.end_time}}
 
-    <script>
-    </script>
-</head>
-<body>
-<br/>
-<h2><a href="#">title</a></h2>
-<br/>
-<div class="container">
-    <div id="calendar"></div>
-</div>
-</body>
-</html>
-</body>
-</html>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calenda');
+                                                    
+                                                </div>
+                                                <hr>
+                                                <div class="other-option">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="user-img mr-3">
+                                                                <img src="{% static 'images/user/1.jpg' %}" alt="userimg" class="avatar-60 rounded-circle img-fluid">
+                                                            </div>
+                                                            <h6>Your Event</h6>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary d-block w-100 mt-3">Create Event</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                              <div class="iq-card-body">
+                              <div id='calendar1'></div>
+                                 <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar1');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
+
+            initialView: 'dayGridMonth',
+            timeZone: 'Africa/Lagos',
+            locale: 'en',
+            firstDay: 1,
+            events: [
+                {% for event in events %}
+                    {
+                        title: "{{ event.title }}",
+                        location: "{{ event.location}}",
+                        description: "{{ event.description }}",
+                        start: "{{ event.start_time.isoformat }}",
+                        end: "{{ event.end_time.isoformat}}",
+                        url: "{{ event.get_absolute_url}}"
+                        
+
+                  
+
+                    },
+                {% endfor %}
+
+            ],
         });
         calendar.render();
       });
 
-    document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
+    </script>
+                                 </div> 
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
 
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    timeZone: 'UTC',
-    initialView: 'dayGridMonth',
-    aspectRatio: 1.5,
-    headerToolbar: {
-      left: 'prev,next',
-      center: 'title',
-      right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
-    },
-    editable: true,
-    resourceAreaHeaderContent: 'Events',
-    resources: 'https://fullcalendar.io/api/demo-feeds/resources.json?with-nesting&with-colors',
-    events: 'https://fullcalendar.io/api/demo-feeds/events.json?single-day&for-resource-timeline'
-  });
 
-  calendar.render();
-});
-</script>
-{% endblock content %}
+{% endblock %}
+  

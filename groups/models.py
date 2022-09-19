@@ -85,7 +85,7 @@ class GroupRequest(models.Model):
         requester = member_request.user
         content_preview = member_request.request_message[:50]
         notify = Notification.objects.create(
-            notification_type="group_request", is_admin_notification=True)
+            notification_type="Group Request", is_admin_notification=True)
         notify.save()
 
     def member_withdraw_request(sender, instance, *args, **kwargs):
@@ -141,6 +141,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse("like-post", kwargs={"group_pk": self.group.pk, "post_pk": self.pk})
 
+    @property
+    def total_likes(self):
+        return self.like.count()
+
     def member_post(self):
         pass
 
@@ -164,6 +168,10 @@ class Comment(models.Model):
     def __str__(self) -> str:
         return self.content[:20]
 
+    @property
+    def total_likes(self):
+        return self.like.count()
+
     def member_commented(sender, instance, *args, **kwargs):
         comment = instance
         post = comment.post
@@ -171,15 +179,16 @@ class Comment(models.Model):
         text_preview = comment.content[:50]
 
         notify = Notification.objects.create(receiver=post.member.member,
-                                             content_preview=text_preview, notification_type="like")
+                                             content_preview=text_preview, notification_type="Like")
         notify.save()
 
     def member_del_comment(sender, instance, *args, **kwargs):
         comment = instance
         post = comment.post
-        receiver = comment.group
+        group = comment.group
+        receiver = comment.member.member
         notify = Notification.objects.filter(
-            receiver=receiver, sender=sender, notification_type=2)
+            receiver=receiver, group=group, notification_type="")
         notify.delete()
 
 
@@ -194,6 +203,8 @@ class Replies(models.Model):
     comment = models.ForeignKey(
         Comment, on_delete=models.SET_NULL, related_name="comment_replies", null=True)
     content = models.TextField(max_length=80)
+    like = models.ManyToManyField(
+        Member, related_name="reply_liked_by", through="Like")
     date_created = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_hidden = models.BooleanField(default=False)
@@ -201,6 +212,10 @@ class Replies(models.Model):
     objects = models.Manager()
     visible_objects = ActiveManager()
     inactive_objects = InactiveManager()
+
+    @property
+    def total_likes(self):
+        return self.like.count()
 
     def __str__(self) -> str:
         return self.content[:20]
@@ -228,7 +243,7 @@ class Like(models.Model):
         object = like.post if like.post else like.comment
 
         notify = Notification.objects.create(
-            receiver=receiver, notification_type="like")
+            receiver=receiver, notification_type="Like")
         notify.save()
 
     def member_unlike(sender, instance, *args, **kwargs):
@@ -236,7 +251,7 @@ class Like(models.Model):
         receiver = unlike.member
         object = unlike.post if unlike.post else unlike.comment
         notify = Notification.objects.filter(
-            receiver=receiver, notification_type="like")
+            receiver=receiver, notification_type="Like")
         notify.delete()
 
 

@@ -47,40 +47,15 @@
                                      </li>
                                   </ul>
                                </div>
-{#                                   <div class="group-member mb-3">#}
-{#                                      <div class="iq-media-group">#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/05.jpg" alt="">#}
-{#                                         </a>#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/06.jpg" alt="">#}
-{#                                         </a>#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/07.jpg" alt="">#}
-{#                                         </a>#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/08.jpg" alt="">#}
-{#                                         </a>#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/09.jpg" alt="">#}
-{#                                         </a>#}
-{#                                         <a href="#" class="iq-media">#}
-{#                                         <img class="img-fluid avatar-40 rounded-circle" src="images/user/10.jpg" alt="">#}
-{#                                         </a>#}
-{#                                      </div>#}
-{#                                   </div>#}
-{% if group.privacy_status == "open" %}
-  <a href="#" class="join btn btn-primary d-block w-100">
-   {% if user in group.group_member.all %}
-   View 
-   {% else %}
-   Join
-  {% endif %}</a>
-  {% else %}
-  
-
-   
-<a href="{% url "request-to-join" group.pk %}" class="req-join btn btn-primary d-block w-100" data-size="Requested">Request To Join</a>
+{% if group.privacy_status == "closed" and  member in group.group_member.all %}
+         <a href="#" class="join btn btn-primary d-block w-100">View {{group.name}} Group</a>
+         {% elif group.privacy_status == "closed" and  member not in group.group_member.all %}
+      <a href="{% url "request-to-join" group.pk %}" class="req-join btn btn-primary d-block w-100" data-size="Requested">Request To Join</a>
+{% endif %}
+{% if group.privacy_status == "open" and  member in group.group_member.all %}
+ <a href="#" class="join btn btn-primary d-block w-100">View {{group.name}} Group</a>
+{% elif group.privacy_status == "open" and  member in group.group_member.all %}
+         <a href="#" class="join btn btn-primary d-block w-100">Join  Group </a>
 {% endif %}
                                 
                             </div>
@@ -110,9 +85,29 @@
     $('.req-join').on('click',function(e) {
         e.preventDefault();
         var size = $(this).attr('data-size');
+        let url = $(this).attr('href');
         $('.req-join').text(size);
         $('.req-join').css('background-color', 'transparent');
         $(this).css('background-color', '#ff6600');
-    });
+        $.ajax({
+         type: "POST",
+         url: url,
+         data: form.serialize(),
+         dataType: "json",
+         success: function(response) {
+               selector = document.getElementsByName(response.next);
+               console.log(selector)
+               if(response.liked==true){
+                  $(selector).css("color","blue");
+                  res = trimCount - 1
+               } else if(response.liked==false){
+                  $(selector).css("color","black");
+                  res = trimCount + 1
+               }
+         }
+      })
+   })
+
+       
 </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from event.models import Event
+from notification.models import EventInvite
 
 # Register your models here.
 
@@ -11,3 +12,4 @@ class EventAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Event, EventAdmin)
+admin.site.register(EventInvite)
