@@ -22,21 +22,7 @@ from notification.models import Notification
 # Create your views here.
 
 
-<<<<<<< HEAD
 @ login_required(login_url='login')
-=======
-class GroupList(LoginRequiredMixin, ListView):
-    model = Group
-    template_name = "groups/group_list.html"
-    context_object_name = "group_list"
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupList, self).get_context_data()
-        context['member'] = Member.objects.filter(member=self.request.user)
-        return context
-
-
->>>>>>> origin
 def group_list(request):
     groups = Group.objects.all()
     for group in groups:
@@ -70,12 +56,8 @@ def group_detail(request, group_pk):
 
     if request.method == "POST":
 
-<<<<<<< HEAD
-=======
-
         member = group.group_member.get(member__pk=request.user.pk)
 
->>>>>>> origin
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
             title = post_form.cleaned_data.get("title")
@@ -90,7 +72,6 @@ def group_detail(request, group_pk):
             post_form = PostForm()
     else:
         post_form = PostForm()
-<<<<<<< HEAD
 
     contents = Post.objects.all()
     already_liked = []
@@ -100,9 +81,6 @@ def group_detail(request, group_pk):
             already_liked.append(content.id)
     ctx = {"contents": contents, "already_liked": already_liked}
 
-=======
-        member = group.group_member.get(member__pk=request.user.pk)
->>>>>>> origin
     context = {
         "current_user": Member.objects.get(member=request.user, group_id=group_pk),
         "group": group,
@@ -111,13 +89,9 @@ def group_detail(request, group_pk):
         "member": member,
         "post_form": post_form,
         "group_post": group_posts,
-<<<<<<< HEAD
         "contents": contents,
         "already_liked": already_liked
 
-=======
-        "today": timezone.now().date(),
->>>>>>> origin
     }
 
     # print(group_posts)
@@ -138,53 +112,7 @@ def group_detail(request, group_pk):
     return render(request, "groups/group_detail.html", context)
 
 
-<<<<<<< HEAD
-@login_required(login_url="login")
-@is_member_of_group
-@not_suspended_member
-def like_post(request, group_pk, post_pk):
-    group = Group.objects.get(pk=group_pk)
-    group_member = group.group_member.get(member=request.user)
-    if request.method == "POST":
-        content_id = request.POST.get("content_id", None)
-
-        if group_member.is_suspended is False:
-
-            post = Post.objects.get(pk=content_id)
-
-            if request.user not in post.like.all():
-                post.like.add(group_member)
-                liked = True
-                notification = Notification.objects.create(
-                    notification_type="Like", content_preview="A Member a liked a Post", receiver=request.user)
-                # return JsonResponse({
-                #     "liked": liked,
-                #     "content_id": content_id,
-                # })
-            else:
-                post.like.remove(group_member)
-                liked = False
-                notification = Notification.object.create(
-                    notification_type="Like", content_preview="A Member a unliked a Post", receiver=request.user)
-                return JsonResponse({
-                    "liked": liked,
-                    "content_id": content_id,
-                })
-
-    contents = Post.objects.all()
-    already_liked = []
-    id = group_member.id
-    for content in contents:
-        if (content.like.filter(id=id).exists()):
-            already_liked.append(content.id)
-    ctx = {"contents": contents, "already_liked": already_liked}
-    return render(request, "groups/group_detail.html", ctx)
-
-
-@ login_required(login_url='login')
-=======
 @login_required(login_url='login')
->>>>>>> origin
 def create_group(request):
     if request.method == "POST":
         group_form = GroupForm(request.POST, request.FILES)
@@ -220,21 +148,6 @@ def create_group(request):
 @require_POST
 @login_required(login_url="login")
 def make_admin(request, group_pk, admin_pk, user_pk):
-<<<<<<< HEAD
-    group = Group.objects.filter(
-        pk=group_pk, creator__pk=admin_pk).first()
-    if group.group_member.all().filter(is_admin=True).count() < 3:
-        try:
-            member = group.group_member.get(member__pk=user_pk)
-        except Exception as e:
-            print("An error occurred while querying the group member", e)
-
-        member.is_admin = True
-        member.save()
-        messages.success(
-            request, f"{member.user.first_name} has successfully been made an Admin!")
-        return redirect(request.META["HTTP_REFERER"])
-=======
     if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
         group = Group.objects.get(
             pk=group_pk, creator_id=admin_pk)
@@ -251,7 +164,6 @@ def make_admin(request, group_pk, admin_pk, user_pk):
                 request, "Group Admins cannot be more than 3!")
             return redirect('group-detail', group.id)
 
->>>>>>> origin
     else:
         messages.error(request, "Only admin can make member an admin.")
         return redirect('group-detail', group_pk)
@@ -281,13 +193,9 @@ def request_to_join_group(request, group_pk):
     # admins = group.group_member.all().filter(member__is_admin=True)
     # for admin in admins:
     Notification.objects.create(group=group,
-<<<<<<< HEAD
-                                notification_type="Group Request", content_preview="A Potential Member wants to join your Group", is_admin_notification=True)
-=======
                                 notification_type="group_request",
                                 content_preview="A Potential Member wants to join your Group",
                                 is_admin_notification=True)
->>>>>>> origin
     return redirect(request.META["HTTP_REFERER"])
 
 
@@ -362,11 +270,7 @@ def search_groups(request):
 # @not_suspended_member
 def comment_on_post(request, group_pk, post_pk):
     post = Post.objects.get(group__pk=group_pk, pk=post_pk)
-<<<<<<< HEAD
-
-=======
     group = Group.objects.get(pk=group_pk)
->>>>>>> origin
     if request.method == "POST":
         comment_form = CommentForm(request.POST)
         # comment = request.GET.get('content', None)
@@ -375,14 +279,7 @@ def comment_on_post(request, group_pk, post_pk):
             comment = Comment.objects.create(
                 member=group.group_member.get(member=request.user), content=content, post=post, group=group)
             comment.save()
-<<<<<<< HEAD
-            data = {
-                "comment": comment
-            }
-            return JsonResponse(comment)
-=======
             return redirect('group-detail', group.id)
->>>>>>> origin
         else:
             comment_form = CommentForm(request.POST)
             messages.error(request, "Comment Creation Failed")
@@ -447,28 +344,16 @@ def like_post(request, group_pk, post_pk):
                 post.like.add(group_member)
                 liked = True
                 notification = Notification.objects.create(
-<<<<<<< HEAD
-                    notification_type="Like", content_preview="A Member a liked a Post", receiver=request.user)
-                # return JsonResponse({
-                #     "liked": liked,
-                #     "content_id": content_id,
-                # })
-=======
                     notification_type="like", content_preview="A Member liked a Post", receiver=request.user)
                 return JsonResponse({
                     "liked": liked,
                     "content_id": content_id,
                 })
->>>>>>> origin
             else:
                 post.like.remove(group_member)
                 liked = False
                 notification = Notification.object.create(
-<<<<<<< HEAD
-                    notification_type="Like", content_preview="A Member a unliked a Post", receiver=request.user)
-=======
                     notification_type="like", content_preview="A Member unliked a Post", receiver=request.user)
->>>>>>> origin
                 return JsonResponse({
                     "liked": liked,
                     "content_id": content_id,

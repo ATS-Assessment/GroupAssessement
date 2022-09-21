@@ -250,71 +250,6 @@
                      </div>
                      <hr>
                   <div class="d-flex align-items-center flex-wrap">
-<<<<<<< HEAD
-                     <div class="total-like-block ml-2 mr-3">
-                        <div class="dropdown">
-                           <form method="POST" action="{% url 'like-post' group.pk post.pk %}" id="my-like-form">
-                                 {% csrf_token %}
-                                    <input type="hidden" class="likin" name="next" value="{{ request.path }}">
-                                          <span>
-                                             <button  type="submit" id="openPopup" class="like-btn{{ request.path }}" style="border: none; ">
-                                                      <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                                            <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
-                                                                  xmlns="http://www.w3.org/2000/svg">
-                                                                  <path fill-rule="evenodd"
-                                                                  d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
-                                                                  </svg>
-                                                               {{post.like.all.count}}
-                                                      </span>
-                                       </button>Likes
-                                             </span>
-
-                                             <div style="text-align: center;margin-top:20%;">
-
-
-
-                                          </div>
-                                                   </form>
-                     
- {% comment %} {% for content in group_post %}
-  <!-- checkin if user has already liked the content or not -->
-    {% if content.id in already_liked %} 
-       <p>{{ content.content }}</p>
-        <a name="{{ content.id }}" style="font-size:48px;color: blue;" class="likin" id="co"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
-        {% else %}
-       <p> {{ content.content }} </p>
-        <a name="{{ content.id }}" style="font-size:48px;color: black;" class="likin" id="co"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
-    {% endif %}
- {% endfor %} {% endcomment %}
-
-<script>
-// AJAX CALL
-$('.likin').click(function(){
-    $.ajax({
-             type: "POST",
-             url: "{% url 'like-post' group.pk post.pk %}",
-             data: {'content_id': $(this).attr('name'),'operation':'like_submit','csrfmiddlewaretoken': '{{ csrf_token }}'},
-             dataType: "json",
-             success: function(response) {
-              selector = document.getElementsByName(response.content_id);
-                    if(response.liked==true){
-                      $(selector).css("color","blue");
-                    }
-                    else if(response.liked==false){
-                      $(selector).css("color","black");
-                    }
-
-
-              }
-
-        });
-
-  })
-</script>                         
-
-   </div>
-</div>
-=======
                            <div class="total-like-block ml-2 mr-3">
                                        <div class="dropdown">
                                             <form method="POST" action="{% url 'like-post' group.pk post.pk %}" id="my-like-form">
@@ -363,7 +298,6 @@ $('.likin').click(function(){
                                           </div> {% endcomment %}
                                        </div>
                                  </div>
->>>>>>> origin
                                  <div class="total-comment-block">
                                        <div class="dropdown">
                                        <span class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
@@ -422,18 +356,10 @@ $('.likin').click(function(){
                               </div>
                            </div>
                         <hr>
-<<<<<<< HEAD
-         {% for comment in post.post_comment.all %}
-                    
-               {% if not  comment.is_hidden %}
-            <ul class="post-comments p-0 m-0">
-                  <li class="mb-2" style="list-style-type: none;">
-=======
                      {% for comment in post.post_comment.all %}
                         {% if not  comment.is_hidden %}
                         <ul class="post-comments p-0 m-0">
                         <li class="mb-2" style="list-style-type: none;">
->>>>>>> origin
                            <div class="d-flex flex-wrap">
                                     <div class="user-img">
                                        <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
@@ -441,151 +367,6 @@ $('.likin').click(function(){
                               <div class="comment-data-block ml-3">
                                     <h6>{{comment.member.member.first_name}} {{comment.member.member.last_name}}</h6>
                                     <p class="mb-0">{{comment.content}}</p>
-<<<<<<< HEAD
-                                                      <div class="d-flex flex-wrap align-items-center comment-activity">
-                                                         <a href="#">
-                                                            <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
-                                                                           xmlns="http://www.w3.org/2000/svg">
-                                                                           <path fill-rule="evenodd"
-                                                                              d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
-                                                                           </svg> {{comment.likes.all.count}} likes</a>
-                                                         <a href="#" data-toggle="modal" data-target="#post-modal0"> <i class="fa fa-comment-o" style="font-size:20px"></i>  {{comment.comment_replies.all.count}} replies</a>
-                                                         <span> {{comment.date_created}} </span>
-                                                      </div>
-
-                                                                                                   <div class="modal fade" id="post-modal0" tabindex="-1" role="dialog" aria-labelledby="post-modalLabel" aria-hidden="true" style="display: none;">
-                                                                                                      <div class="modal-dialog" role="document">
-                                                                                                            <div class="modal-content">
-                                                                                                                     <div class="modal-header">
-                                                                                                                        <h5 class="modal-title" id="post-modalLabel">Create Post</h5>
-                                                                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="ri-close-fill"></i></button>
-                                                                                                                     </div>
-                                                                                                            <div class="modal-body">
-                                                                                                               <div class="d-flex align-items-center">
-                                                                                                                  {% comment %} <div class="user-img">
-                                                                                                                     <img src="#" alt="userimg" class="avatar-60 rounded-circle img-fluid">
-                                                                                                                  </div> {% endcomment %}
-                                                                                                                  <form class="post-text ml-3 w-100" id="my-reply-form" method="POST" enctype="multipart/form-data"  action="{% url 'reply-comment' group.pk post.pk comment.pk %}">
-                                                                                                                           {% csrf_token %}
-                                                                                                                  
-                                                                                                                           <label for="content">Your Reply:</label>
-                                                                                                                           <input type="text" id="content" name="content" class="form-control rounded" placeholder="Write your reply..." style="border:none;">
-                                                                                                                        
-
-                                                                                                                              <hr>
-                                                                                                                        <ul class="d-flex flex-wrap align-items-center list-inline m-0 p-0">
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/07.png' %}" alt="icon" class="img-fluid"> Photo/Video</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/08.png' %}" alt="icon" class="img-fluid"> Tag Friend</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/09.png' %}" alt="icon" class="img-fluid"> Feeling/Activity</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/10.png' %}" alt="icon" class="img-fluid"> Check in</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/11.png' %}" alt="icon" class="img-fluid"> Live Video</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/12.png' %}" alt="icon" class="img-fluid"> Gif</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/13.png' %}" alt="icon" class="img-fluid"> Watch Party</div>
-                                                                                                                           </li>
-                                                                                                                           <li class="col-md-6 mb-3">
-                                                                                                                              <div class="iq-bg-primary rounded p-2 pointer mr-3"><a href="#"></a><img src="{% static 'images/small/14.png' %}" alt="icon" class="img-fluid"> Play with Friends</div>
-                                                                                                                           </li>
-                                                                                                                        </ul>
-                                                                                                                        <hr>
-                                                                                                                        <div class="other-option">
-                                                                                                                           <div class="d-flex align-items-center justify-content-between">
-                                                                                                                              <div class="d-flex align-items-center">
-                                                                                                                                 <div class="user-img mr-3">
-                                                                                                                                    <img src="{% static 'images/user/1.jpg' %}" alt="userimg" class="avatar-60 rounded-circle img-fluid">
-                                                                                                                                 </div>
-                                                                                                                                 <h6>Your Reply</h6>
-                                                                                                                              </div>
-
-                                                                                                                           </div>
-                                                                                                                        </div>
-                                                                                                                        <button type="submit" id="btn-reply" class="btn btn-primary d-block w-100 mt-3" > Reply</button>
-                                                                                                                     </div>
-                                                                                                      </form>
-                                                                                             <script>
-                                                                                                $('.hide-p').on('click',function(e) {
-                                                                                                      console.log('Black')
-                                                                                                      e.preventDefault();
-                                                                                                      var post_pk = $(this).attr('data-size');
-                                                                                                      $('.hide-p').css('background-color', 'black');
-                                                                                                      $(this).css('background-color', 'black');
-                                                                                                         console.log(post_pk)
-                                                                                                      $.ajax({
-                                                                                                            type: "POST",
-                                                                                                            url : "{% url "hide-post" group.pk post.pk %}",
-                                                                                                            data: {
-                                                                                                               'post_pk': $(this).attr('data-size'),
-                                                                                                               'csrfmiddlewaretoken': '{{ csrf_token }}'
-                                                                                                               },
-                                                                                                            dataType: "json",
-                                                                                                            success: function(response) {
-                                                                                                            selector = document.getElementsByName(response.post_pk);
-                                                                                                                  if(response.hidden ==true){
-                                                                                                                     $(selector).css("color","red");
-                                                                                                                  }
-                                                                                                                  else if(response.hidden ==false){
-                                                                                                                     $(selector).css("color","black");
-                                                                                                                  }
-
-
-                                                                                                            }
-
-                                                                                                      });
-
-                                                                                                   });
-                                                                                             </script>
-                                                                                                               </div>
-                                                                                                               
-                                                                                                         </div>
-                                                                                                      </div>
-                                                                                                   </div>
-                                                                                          </div>
-                        
-                                                   {% for reply in comment.comment_replies.all  %}
-                        
-                                                         <ul class="post-reply p-0 mt-2">
-                                                            <li class="mb-2" >
-                                                                  <div class="d-flex flex-wrap ml-5 mt-2">
-                                                                     <div class="user-img">
-                                                                        <img src="{% static 'images/user/02.jpg' %}" alt="userimg" class="avatar-35 rounded-circle img-fluid">
-                                                                     </div>
-                                                                           <div class="comment-data-block ml-3">
-                                                                              <h6>{{reply.member.member.first_name}}  {{reply.member.member.last_name}}</h6>
-                                                                              <p class="mb-0">{{reply.content}}</p>
-                                                                                    <div class="d-flex flex-wrap align-items-center comment-activity">
-                                                                                       <a href="#">
-                                                                                          <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
-                                                                                                         xmlns="http://www.w3.org/2000/svg">
-                                                                                                         <path fill-rule="evenodd"
-                                                                                                            d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
-                                                                                                         </svg> likes</a>
-                                                                                       <span> {{reply.date_created}}</span>
-                                                                                    </div>
-                                                                           </div>
-                                                                  </div>
-                                                            </li>
-                                                         </ul>
-                                       {% endfor %}
-                                       </div>
-                                       </li>
-                                 </ul>
-               {% endif %}
-            {% endfor %}
-                     <form class="comment-text d-flex align-items-center mt-3" action="#">
-                        <input type="text" class="form-control rounded">
-=======
                                           <div class="d-flex flex-wrap align-items-center comment-activity">
                                              <a href="#">
                                                 <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor"
@@ -718,7 +499,6 @@ $('.likin').click(function(){
                      <form class="comment-text d-flex align-items-center mt-3" action="{% url "comment-on-post" group.id  post.id %}" method="post">
                          {% csrf_token %}
                         <input type="text" name="content" class="form-control rounded">
->>>>>>> origin
                         <div class="comment-attagement d-flex">
                            <a href="#"><i class="ri-link mr-3"></i></a>
                            <a href="#"><i class="ri-user-smile-line mr-3"></i></a>
@@ -841,44 +621,21 @@ $('.likin').click(function(){
                           </a>
                       <!--end for-->
                    </ul> {% endcomment %}
-<<<<<<< HEAD
-                   
-=======
->>>>>>> origin
                    {% if member.is_admin %}
                      <a href="{% url 'calendar-view' group.pk %}" class="btn btn-primary d-block mt-3">Create Event</a>
                      <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events</a>
                     {% else %}
-<<<<<<< HEAD
-                    <<a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events</a>
-=======
                     <a href="{% url "event-list" %}" class="btn btn-primary d-block mt-3">See More Events {{ member }}</a>
->>>>>>> origin
                     {% endif %}
                 </div>
              </div>
          </div>
-<<<<<<< HEAD
-      
-      </div>
-
-
-
-
-
-      <script>
-         $("#my-reply-form").submit(function(e){
-               e.preventDefault(); 
-               $('#btn-reply').click(function() {
-               console.log("replied")          
-=======
       </div>
       <script>
          $("#my-reply-form").submit(function(e){
                e.preventDefault();
                $('#btn-reply').click(function() {
                console.log("replied")
->>>>>>> origin
                $('#post-modal0').modal('hide');
                            })
                let form = $(this);
@@ -901,11 +658,7 @@ $('.likin').click(function(){
                                           + '<h6>' + resp.first_name + ' '  + resp.last_name + '</h6>'
                                           + '<p class="mb-0">' + resp.content + '</p>'
                                                 + '<div class="d-flex flex-wrap align-items-center comment-activity">'
-<<<<<<< HEAD
-                                                   + '<a href="#">' 
-=======
                                                    + '<a href="#">'
->>>>>>> origin
                                                       + '<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" name={{post.pk}} class="bi bi-heart" fill="currentColor" xmlns="http://www.w3.org/2000/svg">'
                                                             + '<path fill-rule="evenodd" d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />'
                                                             + '</svg>' + 'likes' + '</a>'
@@ -922,20 +675,11 @@ $('.likin').click(function(){
             console.log(xhr.status + ":" +xhr.responseText)
          }
                })
-<<<<<<< HEAD
-            });                  
-
-=======
             });
->>>>>>> origin
       $("#my-like-form").submit(function(e){
       e.preventDefault(); // Prevent form submission
       let form = $(this);
       let url = form.attr("action");
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
       let res
       const likes = $(`.like-btn{{ request.path }}`).text();// this code stopping the function of like button from work
       console.log(likes);
@@ -958,10 +702,6 @@ $('.likin').click(function(){
          }
       })
    })
-<<<<<<< HEAD
-      
-=======
->>>>>>> origin
     $('.bi-heart').on('click',function(e) {
         e.preventDefault();
         var size = $(this).attr('data-size');

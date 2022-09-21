@@ -21,36 +21,23 @@
                          <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
                         <p class="mb-0">{{notifi.time_created}}</p>
                                  <div class="btn-group m-1">
-<<<<<<< HEAD
-                                    
                                     {% if notifi.event.pk %}
-                                       
-                                    
-                                       
-=======
-                                    {% if notifi.event.pk %}
->>>>>>> origin
                                   <form action="{% url 'yes-members' notifi.group.pk  notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button class="btn btn-success mr-5" type="submit">Yes</button>
+                                    <button class="btn btn-success mr-5" type="button">Yes</button>
                                   </form>
                                   <form action="{% url 'no-members' notifi.group.pk  notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button  class="btn btn-danger mr-5" type="submit">No</button>
+                                    <button  class="btn btn-danger mr-5" type="button">No</button>
                                   </form>
                                   <form action="{% url "maybe-members" notifi.group.pk notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button class="btn btn-primary mr-5" type="submit">Maybe</button>
+                                    <button class="btn btn-primary mr-5" type="button">Maybe</button>
                                   </form>
                                  </div>
                                  {% else %}
                                  <div class="alert alert-danger alert-dismissible" role="alert">{{notifi.event}}</div>
                                  {% endif %}
-<<<<<<< HEAD
-                              
-                                  
-=======
->>>>>>> origin
                         {% elif notifi.notification_type == 'Like' %}
                            <h6><strong>{{notifi.group}}</strong>  Paige Turner Posted in Community   *<b>{{notifi.notification_type}}</b></h6>
                            <p class="mb-0">{{notifi.time_created}}</p>
@@ -62,10 +49,6 @@
                                   </div>
                                   {% endif %}
                            </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
                       </div>
                   </li>
                </ul>
@@ -75,12 +58,6 @@
            <!-- end for loop for each notification -->
       </div>
     </div>
-<<<<<<< HEAD
-
     <script>
-
-=======
-    <script>
->>>>>>> origin
     </script>
 {% endblock %}

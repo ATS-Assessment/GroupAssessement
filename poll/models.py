@@ -1,9 +1,6 @@
 from django.db import models
-<<<<<<< HEAD
-=======
 from django.utils import timezone
 
->>>>>>> origin
 # Create your models here.
 from account.models import User
 from groups.models import Member, Group
@@ -16,17 +13,12 @@ class Poll(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-<<<<<<< HEAD
-=======
-    
+
     class Meta:
         ordering = ["-created_date"]
 
-
     def __str__(self):
         return self.title
-
->>>>>>> origin
 
     def __str__(self):
         return self.title

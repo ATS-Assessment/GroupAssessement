@@ -87,43 +87,22 @@
                                                 <div class="form-group">
                                                     <label for="title">Event Title:</label>
                                                     {{form.title}}
-<<<<<<< HEAD
-                                                    
-=======
->>>>>>> origin
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="description">Event Description:</label>
                                                      {{form.description}}
-<<<<<<< HEAD
-                                                 
-=======
->>>>>>> origin
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="location">Event Location:</label>
                                                      {{form.location}}
-<<<<<<< HEAD
-                                                    
-=======
->>>>>>> origin
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="start_date">Event Start Date:</label>
                                                     {{form.start_time}}
-<<<<<<< HEAD
-                                                   
-=======
->>>>>>> origin
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="end_date">Event End Date:</label>
                                                     {{form.end_time}}
-<<<<<<< HEAD
-
-                                                    
-=======
->>>>>>> origin
                                                 </div>
                                                 <hr>
                                                 <div class="other-option">
@@ -148,17 +127,9 @@
                               <div class="iq-card-body">
                               <div id='calendar1'></div>
                                  <script>
-<<<<<<< HEAD
-
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar1');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-
-=======
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar1');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
->>>>>>> origin
             initialView: 'dayGridMonth',
             timeZone: 'Africa/Lagos',
             locale: 'en',
@@ -171,41 +142,18 @@
                         description: "{{ event.description }}",
                         start: "{{ event.start_time.isoformat }}",
                         end: "{{ event.end_time.isoformat}}",
-                        url: "{{ event.get_absolute_url}}"
-<<<<<<< HEAD
-                        
-
-                  
-
+                        url: "{% url "event-detail-gcal" group.pk event.pk %}"
                     },
                 {% endfor %}
-
-=======
-                    },
-                {% endfor %}
->>>>>>> origin
             ],
         });
         calendar.render();
       });
-<<<<<<< HEAD
-
-    </script>
-                                 </div> 
-=======
     </script>
                                  </div>
->>>>>>> origin
                </div>
             </div>
          </div>
       </div>
    </div>
-<<<<<<< HEAD
-
-
 {% endblock %}
-  
-=======
-{% endblock %}
->>>>>>> origin

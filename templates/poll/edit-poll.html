@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-{% extends 'base.html' %}
-{% block content %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>        {% endfor %}
-    {% endif %}
-     <!---header--->     <div class="header-for-bg">        <div class="background-header position-relative">            <img src="{{ group.group_image.url }}" class="img-fluid w-100 rounded rounded" alt="header-bg">            <div class="title-on-header">              <div class="data-block">                 <h2>{{ group.name }}</h2>              </div>           </div>        </div>    </div>    <!---end header--->    <div class="modal-header">        <h5 class="modal-title" id="post-modalLabel">Edit Your Poll</h5>    </div>    <div class="modal-body">        <div class="d-flex align-items-center">        {{ pol_form.errors }}
-        {{ pollform.errors }}
-            <form class="post-text ml-3 w-100" action="{% url 'poll:edit' group.id pol.id %}" method="post"                  enctype="multipart/form-data">                {% csrf_token %}
-                {#                                    {{ pollform.as_p }}#}
-                {#                                    {{ pol_form.as_p }}#}
-                <div>                    <label for="title">Title:</label>                    <input type="text" class="form-control rounded" name="title" id="title"                           value="{{ pol_form.title.value }}" required                           style="border:1px solid #ccc; margin-bottom: 10px;">                </div>                {{ pollform.non_form_errors }}
-                {{ pollform.management_form }}
-                {% for form in pollform %}
-                    <div>                        <label for="choice_{{ forloop.counter }}">Choice {{ forloop.counter }}</label>                        <input type="text" class="form-control rounded"                               name="choice_set-{{ forloop.counter0 }}-{{ form.choice_text.name }}"                               id="choice_{{ forloop.counter }}" value="{{ form.choice_text.value }}"                               {% if forloop.counter == 1 %}required{% elif forloop.counter == 2 %}required{% endif %}                               style="border:none; margin-bottom: 10px;">                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-id" value="                                {% if forloop.counter == 1 %}{{ choice1.id }}{% elif forloop.counter == 2 %}{{ choice2.id }}{% else %}{{ choice3.id }}{% endif %}"                               id="id_choice_set-{{ forloop.counter0 }}-id">                        <input type="hidden" name="choice_set-{{ forloop.counter0 }}-poll" value="{{ pol.id }}"                               id="id_choice_set-{{ forloop.counter0 }}-poll">                    </div>                {% endfor %}
-                {#                                        <div>#}
-                {#                                        <label for="choice_two">Choice 2</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="form-1-choice_text" id="choice_two" value="{{ choice_form.choice_text }}" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
-                {#                                        <div>#}
-                {#                                        <label for="choice_three">Choice 3</label>#}
-                {#                                        <input type="text" class="form-control rounded" name="form-2-choice_text" id="choice_three" value="{{ choice_form.choice_text.value }}" style="border:none; margin-bottom: 10px;">#}
-                {#                                        </div>#}
-                <div>                    <label for="start_date">Start Date</label>                    <input type="date" class="form-control rounded" name="start_date" required id="start_date"                           value="{{ pol_form.start_date.value|date:'Y-m-d' }}"                           style="border:none; margin-bottom: 10px;">                </div>                <div>                    <label for="end_date">End Date</label>                    <input type="date" class="form-control rounded" required name="end_date" id="end_date"                           value="{{ pol_form.end_date.value|date:'Y-m-d' }}" style="border:none; margin-bottom: 10px;">                </div>                <hr>                <div class="other-option">                    <div class="d-flex align-items-center justify-content-between">                        <div class="d-flex align-items-center">                            <div class="user-img mr-3">                                <img src="{{ request.user.image.url }}" alt="userimg"                                     class="avatar-60 rounded-circle img-fluid">                            </div>                            <h6>Your Poll</h6>                        </div>                    </div>                </div>                <button type="submit" class="btn btn-primary d-block w-100 mt-3">Edit Poll</button>            </form>        </div>    </div>    </div>{% endblock %}
-=======
 {% extends 'base.html' %}
 
 {% block content %}
@@ -153,4 +127,3 @@
 
 
 {% endblock %}
->>>>>>> origin

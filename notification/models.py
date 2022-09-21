@@ -5,20 +5,14 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
 from account.models import User
 from event.models import Event
-<<<<<<< HEAD
 
-
-=======
->>>>>>> origin
 # Create your models here.
 logger = logging.getLogger(__name__)
+
+
 class Notification(models.Model):
     NOTIFICATION_TYPE = (
         ("Like", "Like"),
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
         ("Group Request", "Group Request"),
         ("Event Invite", "Event Invite")
     )
@@ -36,40 +30,20 @@ class Notification(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     is_seen = models.BooleanField(default=False)
     is_admin_notification = models.BooleanField(default=False)
-    # yes = models.ManyToManyField("groups.Member", related_name="yes_members")
-    # no = models.ManyToManyField("groups.Member", related_name="no_members")
-    # maybe = models.ManyToManyField(
-    #     "groups.Member", related_name="maybe_members")
-# not notpk userpk
-# Notification.objects.get(pk=notpk)
-# notif.yes.add(member.pk)
-# eventMember.objects.all()
-<<<<<<< HEAD
 
-
-=======
->>>>>>> origin
-# Yes.
-# get evnt summary
-# Notification.objects.get(pk=notpk)
-# not
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
     def mark_as_seen(self) -> None:
         """Mark notification as viewed."""
         logger.info("Marking notification as viewed: %s" % self)
         self.is_seen = True
         self.save()
-<<<<<<< HEAD
 
-=======
->>>>>>> origin
     def __str__(self):
         return self.notification_type
+
     class Meta:
         ordering = ["-time_created"]
+
+
 class EventInvite(models.Model):
     event = models.ForeignKey(
         "event.Event", on_delete=models.CASCADE, null=True, blank=True)
@@ -77,15 +51,13 @@ class EventInvite(models.Model):
     no = models.ManyToManyField("groups.Member", related_name="no_members")
     maybe = models.ManyToManyField(
         "groups.Member", related_name="maybe_members")
-<<<<<<< HEAD
 
     def __str__(self) -> str:
         return self.event.title
 
-=======
     def __str__(self) -> str:
         return self.event.title
->>>>>>> origin
+
 # class Event(models.Model):
 #     creator = models.ForeignKey("groups.Member", on_delete=models.SET_NULL, null=True)
 #     group = models.ForeignKey(
@@ -111,10 +83,3 @@ class EventInvite(models.Model):
 #         receiver = event.group
 #         notify = Notification.objects.create(group=receiver, created_by=sender)
 #         notify.save()
-<<<<<<< HEAD
-
-
-# post_save.connect(Event.admin_create_event, sender=Event)
-=======
-# post_save.connect(Event.admin_create_event, sender=Event)
->>>>>>> origin

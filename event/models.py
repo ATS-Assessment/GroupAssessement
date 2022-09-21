@@ -1,17 +1,14 @@
 from django.db import models
 from datetime import datetime
 from account.models import User
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
 # from notification.models import Notification
 from django.db.models.signals import post_save, post_delete
 from django.urls import reverse
 # Create your models here.
+
+
 class EventManager(models.Manager):
     """ Event manager """
-<<<<<<< HEAD
 
     def get_all_events(self, member):
 
@@ -20,29 +17,23 @@ class EventManager(models.Manager):
 
     def get_running_events(self, member):
 
-=======
-    def get_all_events(self, group_pk):
-        return Event.objects.filter(
-            group__pk=group_pk)
-    def get_running_events(self, member):
->>>>>>> origin
         return Event.objects.filter(
             member=member,
             end_time__gte=datetime.now().date(),
         ).order_by("start_time")
-<<<<<<< HEAD
 
 
-=======
->>>>>>> origin
 class EventAbstract(models.Model):
     """ Event abstract model """
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         abstract = True
+
+
 class Event(EventAbstract):
     """ Event model """
     group = models.ForeignKey(
@@ -55,14 +46,12 @@ class Event(EventAbstract):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     objects = EventManager()
+
     def __str__(self):
         return self.title
-    def get_absolute_url(self):
-        return reverse("event-detail-gcal", args=(self.pk,))
-<<<<<<< HEAD
 
-=======
->>>>>>> origin
+    def get_absolute_url(self):
+        return reverse("event-detail-gcal", args=(self.g, self.pk,))
     # def admin_create_event(sender, instance, *args, **kwargs):
     #     event = instance
     #     sender = event.member.member
@@ -70,7 +59,6 @@ class Event(EventAbstract):
     #     notify = Notification.objects.create(
     #         group=receiver_group, content_preview="The Group Admin  Created an Event", is_admin_notification=False, created_by=sender)
     #     notify.save()
-<<<<<<< HEAD
 
 
 # post_save.connect(Event.admin_create_event, sender=Event)
@@ -79,11 +67,6 @@ class Event(EventAbstract):
 class EventMember(EventAbstract):
     """ Event member model """
 
-=======
-# post_save.connect(Event.admin_create_event, sender=Event)
-class EventMember(EventAbstract):
-    """ Event member model """
->>>>>>> origin
     # event = models.ForeignKey(
     #     Event, on_delete=models.CASCADE, related_name="event", null=True, blank=True)
     # member = models.ForeignKey(
@@ -91,9 +74,5 @@ class EventMember(EventAbstract):
     # )
     # group = models.ForeignKey(
     #     Group, on_delete=models.CASCADE, related_name="event_group", null=True, blank=True)
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
     def __str__(self):
         return str(self.user)

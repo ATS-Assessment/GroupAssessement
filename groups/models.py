@@ -116,7 +116,6 @@ class Member(models.Model):
         return self.member.first_name + ' ' + self.member.last_name
 
 
-
 class Post(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
