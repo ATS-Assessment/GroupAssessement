@@ -24,15 +24,15 @@
                                     {% if notifi.event.pk %}
                                   <form action="{% url 'yes-members' notifi.group.pk  notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button class="btn btn-success mr-5" type="submit">Yes</button>
+                                    <button class="btn btn-success mr-5" type="button">Yes</button>
                                   </form>
                                   <form action="{% url 'no-members' notifi.group.pk  notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button  class="btn btn-danger mr-5" type="submit">No</button>
+                                    <button  class="btn btn-danger mr-5" type="button">No</button>
                                   </form>
                                   <form action="{% url "maybe-members" notifi.group.pk notifi.event.pk %}" method="post">
                                     {% csrf_token %}
-                                    <button class="btn btn-primary mr-5" type="submit">Maybe</button>
+                                    <button class="btn btn-primary mr-5" type="button">Maybe</button>
                                   </form>
                                  </div>
                                  {% else %}

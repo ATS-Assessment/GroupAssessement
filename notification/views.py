@@ -1,8 +1,18 @@
+from poll.models import Poll
+from .models import Notification
+from groups.models import Group
+from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.urls import reverse
+from notification.models import Notification
+from groups.models import Group, Member
 import logging
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from event.models import Event
+<<<<<<< HEAD
 from groups.models import Group, Member
 from notification.models import Notification
 from django.shortcuts import render, redirect
@@ -14,6 +24,8 @@ from django.utils.translation import gettext_lazy as _
 from groups.models import Group
 from .models import Notification
 from poll.models import Poll
+=======
+>>>>>>> refs/remotes/origin/main
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -29,6 +41,7 @@ def show_notification(request, event_pk):
         "notification": notify,
         "member": member,
         "event": event,
+
     })
 
 
@@ -42,13 +55,17 @@ def show_notification(request, event_pk):
 #         "noti_count": noti_count,
 #         "e": 2
 #     }
+
+
 @login_required
 def notification_list(request):
     logger.debug("notification_list called by user %s" % request.user)
     # event = Event.objects.get(pk=event_pk)
     notifications_qs = Notification.objects.all()
+
     # filter(
     #     receiver=request.user).order_by("-time_created")
+
     # member = Member.objects.get(member__pk=request.user.pk)
     new_notifs = notifications_qs.filter(is_seen=False)
     old_notifs = notifications_qs.filter(is_seen=True)
@@ -142,6 +159,8 @@ def delete_all_read(request):
 #     unread_count = Notification.objects.user_unread_count(user_pk)
 #     data = {'unread_count': unread_count}
 #     return JsonResponse(data, safe=False)
+
+
 def count_notification(request):
     if not request.user.pk:
         return {}

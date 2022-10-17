@@ -4,8 +4,12 @@ from . import views
 
 urlpatterns = [
     path('create-group/', views.create_group, name="create-group"),
+<<<<<<< HEAD
     path('groups/', views.GroupList.as_view(), name="group-list"),
     path('confirm/', views.confirmation, name="confirm"),
+=======
+    path('groups/', views.group_list, name="group-list"),
+>>>>>>> refs/remotes/origin/main
     path('groups/<int:group_pk>/', views.group_detail, name="group-detail"),
     path('join/<int:group_pk>/<int:user_pk>/', views.join_group, name="join-group"),
     path('exit/<int:group_pk>/<int:user_pk>/', views.exit_group, name="exit-group"),

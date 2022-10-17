@@ -1,3 +1,6 @@
+from .models import Poll, Choice
+from groups.models import Group
+from django.forms import ModelForm, inlineformset_factory
 from django import forms
 from django.forms import ModelForm, inlineformset_factory, BaseFormSet
 from django.utils import timezone
@@ -17,10 +20,12 @@ class PollForm(forms.ModelForm):
         end_date = self.cleaned_data.get('end_date')
 
         if start_date < timezone.now().date():
-            raise forms.ValidationError('Invalid input. Start date should not be in past.')
+            raise forms.ValidationError(
+                'Invalid input. Start date should not be in past.')
 
         if end_date < start_date:
-            raise forms.ValidationError('Invalid Input. End date should be greater than start date.')
+            raise forms.ValidationError(
+                'Invalid Input. End date should be greater than start date.')
 
 
 # class PollForm1(forms.ModelForm):
@@ -44,8 +49,8 @@ class ChoiceForm(forms.ModelForm):
         }
 
 
-
-PollInlineFormSet = inlineformset_factory(Poll, Choice, form=ChoiceForm, extra=0, can_delete=False)
+PollInlineFormSet = inlineformset_factory(
+    Poll, Choice, form=ChoiceForm, extra=0, can_delete=False)
 
 
 # class ChoiceForm(forms.ModelForm):
@@ -56,4 +61,3 @@ PollInlineFormSet = inlineformset_factory(Poll, Choice, form=ChoiceForm, extra=0
 #     class Meta:
 #         model = Choice
 #         fields = ["choice_text"]
-

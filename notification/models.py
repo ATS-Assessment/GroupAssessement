@@ -31,6 +31,7 @@ class Notification(models.Model):
     is_seen = models.BooleanField(default=False)
     is_admin_notification = models.BooleanField(default=False)
 
+<<<<<<< HEAD
     # yes = models.ManyToManyField("groups.Member", related_name="yes_members")
     # no = models.ManyToManyField("groups.Member", related_name="no_members")
     # maybe = models.ManyToManyField(
@@ -43,6 +44,8 @@ class Notification(models.Model):
     # get evnt summary
     # Notification.objects.get(pk=notpk)
     # not
+=======
+>>>>>>> refs/remotes/origin/main
     def mark_as_seen(self) -> None:
         """Mark notification as viewed."""
         logger.info("Marking notification as viewed: %s" % self)
@@ -66,6 +69,10 @@ class EventInvite(models.Model):
 
     def __str__(self) -> str:
         return self.event.title
+
+    def __str__(self) -> str:
+        return self.event.title
+
 # class Event(models.Model):
 #     creator = models.ForeignKey("groups.Member", on_delete=models.SET_NULL, null=True)
 #     group = models.ForeignKey(
@@ -91,4 +98,7 @@ class EventInvite(models.Model):
 #         receiver = event.group
 #         notify = Notification.objects.create(group=receiver, created_by=sender)
 #         notify.save()
+<<<<<<< HEAD
 # post_save.connect(Event.admin_create_event, sender=Event)
+=======
+>>>>>>> refs/remotes/origin/main

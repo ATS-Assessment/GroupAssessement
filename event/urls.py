@@ -6,7 +6,8 @@ urlpatterns = [
          views.CalendarViewNew.as_view(), name="calendar-view"),
     path('edit-event/<int:event_pk>/',
          views.edit_event, name="edit-event"),
-    path('edit-event/<int:event_pk>/',
+    path('event-detail-gcal/<int:group_pk>/<int:event_pk>/',
+
          views.ViewEvent.as_view(), name="event-detail-gcal"),
     path('accept-invite/<int:group_pk>/<int:event_pk>/',
          views.acceptinvite, name="accept-invite"),

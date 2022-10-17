@@ -1,3 +1,155 @@
+
 {%  extends 'base.html' %}
 {%  block content %}
 {% endblock  %}
+
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+:root{
+    --main-font-family:'Roboto Condensed', sans-serif;
+    --main-bg-color:#262626;
+    --main-text-color: #50b5ff;
+    --main-border:5px solid  #50b5ff;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.event_title{
+    width: auto;
+    height: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.event{
+    display: grid;
+    grid-template-columns: repeat(4,  0.25fr);
+    grid-gap: 1rem;
+    margin: 1rem;
+}
+
+.event__list{
+    padding: 1rem;
+    border: var(--main-border);
+    border-radius: 0.5rem;
+}
+
+.picker{
+    width: 50%;
+    height: 20%;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.picker__confirm{
+    width: 25vw;
+    display: grid;
+    grid-template-rows:repeat(4, 1fr);
+    grid-gap: .5rem;
+}
+
+.picker__field{
+    height:2rem;
+    width: 100%;
+    padding: 0.5rem;
+    color:var(--main-text-color);
+    background-color: var(--main-bg-color);
+    border: 2px solid  #50b5ff;
+}
+
+.picker__field:focus{
+    outline: 3px solid  #50b5ff;
+    caret-color: var(--main-text-color);
+    color: var(--main-text-color);
+}
+
+.picker__button{
+    background-color: var(--main-bg-color);
+    border: var(--main-border);
+    color: var(--main-text-color);
+}
+
+.picker__button:hover{
+    cursor:pointer;
+}
+
+.display_message{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+    </style>
+</head>
+<body>
+
+     <h1 class="event_title">Event List</h1>
+    <div class="event">
+        {% for item in booking_event %}
+        <ul class="event__list">
+            <li>Event title:{{ item.0 }}</li>
+            <li>Start_date_time:{{ item.1 }}</li>
+            <li>End_date_time:{{ item.2 }}</li>
+        </ul>
+        {% endfor %}
+    </div>
+    Create an Event {{group.pk}}
+    <div class="picker">
+        <form id="picker__confirm" class="picker__confirm" autocomplete="off"  method="POST">
+           {% csrf_token %}
+            <div class="picker__component">
+                <p class="picker__label">Event Title </p>
+                {% render_field  form.title class+="picker__field" %}
+            </div>
+            <div class="picker__component">
+                <p class="picker__label">Event Description</p>
+                {% render_field  form.description class+="picker__field" %}
+            </div>
+            <div class="picker__component">
+                <p class="picker__label">Event Location</p>
+                {% render_field  form.location class+="picker__field" %}
+            </div>
+            <div class="picker__component">
+                <p class="picker__label">Start Time</p>
+                {% render_field  form.start_time class+="picker__field" %}
+            </div>
+            <div class="picker__component">
+                <p class="picker__label">End Time</p>
+                {% render_field  form.end_time class+="picker__field" %}
+           </div>
+            <input type="submit" value="Submit" class="picker__button">
+        </form>
+    </div>
+       <div class="display_message">
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+
+<script>
+   
+</script>
+</body>
+</html>
+{% endblock content %}
+    
+

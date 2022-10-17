@@ -1,3 +1,7 @@
+from poll.models import Poll, Choice, Voter
+from poll.forms import PollForm, ChoiceForm, PollInlineFormSet
+from groups.models import Member, Group
+from django.urls import reverse
 import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -5,12 +9,6 @@ from django.shortcuts import render, redirect
 from django.forms import inlineformset_factory
 
 # Create your views here.
-from django.urls import reverse
-from django.utils import timezone
-
-from groups.models import Member, Group
-from poll.forms import PollForm, ChoiceForm, PollInlineFormSet
-from poll.models import Poll, Choice, Voter
 
 
 def create_poll(request, pk):
@@ -42,7 +40,8 @@ def create_poll(request, pk):
 
         else:
             messages.error(request, 'You are not an admin of the group')
-            return redirect('group-detail', group.id)
+            return render(request, 'groups/group_detail.html')
+
     else:
         messages.error(request, "You're not member of the group")
         return redirect('group-detail', group.id)
@@ -65,12 +64,14 @@ def edit_poll(request, group_pk, poll_pk):
     pollform = PollInlineFormSet(instance=poll)
     pol_form = PollForm(instance=poll)
 
+    pollform = PollInlineFormSet(instance=poll)
+    pol_form = PollForm(instance=poll)
+
     if group.group_member.get(member=request.user).is_admin:
         if poll.start_date > datetime.date.today():
             if request.method == 'POST':
                 poll_form = PollForm(request.POST, instance=poll)
                 choice_form = PollInlineFormSet(request.POST, instance=poll)
-
 
                 if poll_form.is_valid() and choice_form.is_valid():
                     poll_form.save()
@@ -87,7 +88,6 @@ def edit_poll(request, group_pk, poll_pk):
                 'pol_form': pol_form,
             }
             return render(request, 'poll/edit-poll.html', context)
-
         else:
             messages.error(request, 'You can only edit before the start date.')
             return redirect('group-detail', group.id)
@@ -130,7 +130,8 @@ def vote(request, pk):
                 messages.error(request, 'You have suspended.')
                 return redirect('poll:poll-detail', group.id, poll.id)
         else:
-            messages.error(request, f"Poll start on {poll.start_date} and end on {poll.end_date}")
+            messages.error(
+                request, f"Poll start on {poll.start_date} and end on {poll.end_date}")
             return redirect("poll:poll-detail", group.id, poll.id)
     else:
         messages.error(request, "You are not the member of the group.")

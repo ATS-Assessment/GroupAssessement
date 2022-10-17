@@ -13,15 +13,15 @@ class Poll(models.Model):
     created_date = models.DateTimeField(auto_now_add=True, null=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    
+
     class Meta:
         ordering = ["-created_date"]
-
 
     def __str__(self):
         return self.title
 
-
+    def __str__(self):
+        return self.title
     # # polls_option = models.JSONField(default=_json())
     #
     # def has_started(self):

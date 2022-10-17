@@ -143,7 +143,7 @@
                         {#description: "{{ event.description }}",#}
                         start: "{{ event.start_time.isoformat }}",
                         end: "{{ event.end_time.isoformat}}",
-                        url: "{{ event.get_absolute_url}}"
+                        url: "{% url "event-detail-gcal" group.pk event.pk %}"
                     },
                 {% endfor %}
             ],

@@ -58,6 +58,9 @@ coverage.xml
 .pytest_cache/
 /group
 group
+api-key.json
+client_secret.json
+
 # Translations
 *.mo
 *.pot

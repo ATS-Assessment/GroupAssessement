@@ -1,0 +1,101 @@
+{% comment %} {% extends 'base.html' %}
+
+{% block content_id %}
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+                {{yes_members}}
+                {{no_members}}
+                {{maybe_members}}
+            </div>
+        </div>
+    </div>
+{% endblock content %} {% endcomment %}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="header-for-bg">
+        <div class="background-header position-relative">
+           <img src="{% static 'images/page-img/profile-bg6.jpg' %}" class="img-fluid w-100 rounded rounded" alt="profile-bg">
+           <div class="title-on-header">
+              <div class="data-block">
+                 <h2>Events</h2>
+              </div>
+           </div>
+        </div>
+    </div>
+     <!-- Page Content  -->
+    <div id="content-page" class="content-page">
+        <div class="container">
+           <div class="row">
+              <div class="col-lg-4">
+                  <div class="iq-card">
+                      <div class="iq-card-header d-flex justify-content-between">
+                          <div class="iq-header-title">
+                              <h4 class="card-title">Members that said <strong>YES {{yes_members}}</strong></h4>
+                          </div>
+                          <div class="iq-card-body">
+                              <ul class="media-story m-0 p-0">
+                                  <li class="d-flex mb-4 align-items-center">
+                                      <div class="d-flex flex-wrap" style="flex-direction: column;">
+                                          <div>
+                                              <h5>Members List</h5>
+                                              <!-- for loop for members that said yes -->
+                                              <p class="mt-2 mb-2">Member.name</p>
+                                              <!-- end for loop for yes members -->
+                                          </div>
+                                      </div>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="iq-card">
+                      <div class="iq-card-header d-flex justify-content-between">
+                          <div class="iq-header-title">
+                              <h4 class="card-title">Members that said <strong>MAYBE</strong></h4>
+                          </div>
+                          <div class="iq-card-body">
+                              <ul class="media-story m-0 p-0">
+                                  <li class="d-flex mb-4 align-items-center">
+                                      <div class="d-flex flex-wrap" style="flex-direction: column;">
+                                          <div>
+                                              <h5>Members List</h5>
+                                              <!-- for loop for members that said maybe -->
+                                              <p class="mt-2 mb-2">Member.name</p>
+                                              <!-- end for loop for maybe members -->
+                                          </div>
+                                      </div>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="iq-card">
+                      <div class="iq-card-header d-flex justify-content-between">
+                          <div class="iq-header-title">
+                              <h4 class="card-title">Members that said <strong>NO</strong></h4>
+                          </div>
+                          <div class="iq-card-body">
+                              <ul class="media-story m-0 p-0">
+                                  <li class="d-flex mb-4 align-items-center">
+                                      <div class="d-flex flex-wrap" style="flex-direction: column;">
+                                          <div>
+                                              <h5>Members List</h5>
+                                              <!-- for loop for members that said NO -->
+                                              <p class="mt-2 mb-2">Member.name</p>
+                                              <!-- end for loop for No members -->
+                                          </div>
+                                      </div>
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+           </div>
+        </div>
+    </div>
+{% endblock %}
+    

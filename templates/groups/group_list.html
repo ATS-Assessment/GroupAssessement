@@ -3,6 +3,7 @@
 {% load group_tags %}
 {% block content %}
     <!---header--->
+<<<<<<< HEAD
     <div class="header-for-bg">
     {% if messages %}
             {% for message in messages %}
@@ -17,11 +18,22 @@
                     <h2>Groups</h2>
                 </div>
             </div>
+=======
+     <div class="header-for-bg">
+        <div class="background-header position-relative">
+           <img src="{% static 'images/page-img/profile-bg7.jpg' %}" class="img-fluid w-100 rounded rounded" alt="header-bg">
+           <div class="title-on-header">
+              <div class="data-block">
+                 <h2>Groups</h2>
+              </div>
+           </div>
+>>>>>>> refs/remotes/origin/main
         </div>
-    </div>
+     </div>
     <!---end header--->
     <!---list of groups--->
     <div id="content-page" class="content-page">
+<<<<<<< HEAD
         <div class="container">
             <div class="row">
                 {% if group_list %}
@@ -102,3 +114,101 @@
         });
     </script>
 {% endblock %}
+=======
+            <div class="container">
+               <div class="row">
+                   {% for group in group_list %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="iq-card">
+                            <div class="top-bg-image">
+                               <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100" alt="group-bg">
+                            </div>
+                            <div class="iq-card-body text-center">
+                               <div class="group-icon">
+                                  <img src="{{ group.group_image.url }}" alt="profile-img" class="rounded-circle img-fluid avatar-120">
+                               </div>
+                               <div class="group-info pt-3 pb-3">
+                                  <h4><a href="{% url 'group-detail' group.pk %}">{{ group.name }}</a></h4>
+                                  <p>{{ group.description }}</p>
+                               </div>
+                               <div class="group-details d-inline-block pb-3">
+                                  <ul class="d-flex align-items-center justify-content-between list-inline m-0 p-0">
+                                     <li class="pl-3 pr-3">
+                                        <p class="mb-0">Post</p>
+                                        <h6>{{ group.post_set.count }}</h6>
+                                     </li>
+                                     <li class="pl-3 pr-3">
+                                        <p class="mb-0">Members</p>
+                                        <h6>{{ group.group_member.count }}</h6>
+                                     </li>
+                                     <li class="pl-3 pr-3">
+                                        <p class="mb-0">Privacy Status</p>
+                                        <h6>{{ group.privacy_status }}</h6>
+                                     </li>
+                                  </ul>
+                               </div>
+{% if group.privacy_status == "closed" and  member in group.group_member.all %}
+         <a href="{% url 'group-detail' group.pk %}" class="join btn btn-primary d-block w-100">View {{group.name}} Group</a>
+         {% elif group.privacy_status == "closed" and  member not in group.group_member.all %}
+         <a href="{% url "request-to-join" group.pk %}" class="req-join btn btn-primary d-block w-100" data-size="Requested">Request To Join</a>
+{% endif %}
+{% if group.privacy_status == "open" and  member in group.group_member.all %}
+ <a href="{% url 'group-detail' group.pk %}" class="join btn btn-primary d-block w-100">View {{group.name}} Group</a>
+{% elif member not in group.group_member.all and group.privacy_status == "open"  %}
+         <a href="{% url 'group-detail' group.pk %}" class="join btn btn-primary d-block w-100">Join {{group.name}} Group  </a>
+      {% endif %}
+                                
+                            </div>
+                         </div>
+                      </div>
+                   {% endfor %}
+                   </div>
+                </div>
+             </div>
+
+
+
+{#    <div style="display:flex;flex-direction:column;">#}
+{#    {% for group in group_list %}#}
+{#        <div style="display:flex;">#}
+{#            <a href="{% url "group-detail" group.pk %}">#}
+{#                    {{group.name}}#}
+{#                    {{group.description}}#}
+{#            </a>#}
+{#        </div>#}
+{#        <a href="">{{group.privacy_status}}</a>#}
+{#        {% endfor %}#}
+{#    </div>#}
+<script>
+   console.log("welcome");
+   console.log("welcome");
+    $('.req-join').on('click',function(e) {
+        e.preventDefault();
+        var size = $(this).attr('data-size');
+        let url = $(this).attr('href');
+        $('.req-join').text(size);
+        $('.req-join').css('background-color', 'transparent');
+        $(this).css('background-color', '#ff6600');
+        $.ajax({
+         type: "POST",
+         url: url,
+         data: form.serialize(),
+         dataType: "json",
+         success: function(response) {
+               selector = document.getElementsByName(response.next);
+               console.log(selector)
+               if(response.liked==true){
+                  $(selector).css("color","blue");
+                  res = trimCount - 1
+               } else if(response.liked==false){
+                  $(selector).css("color","black");
+                  res = trimCount + 1
+               }
+         }
+      })
+   })
+
+       
+</script>
+{% endblock %}
+>>>>>>> refs/remotes/origin/main

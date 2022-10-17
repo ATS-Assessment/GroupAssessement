@@ -7,6 +7,8 @@ from django.urls import reverse
 
 
 # Create your models here.
+
+
 class EventManager(models.Manager):
     """ Event manager """
 
@@ -14,7 +16,14 @@ class EventManager(models.Manager):
         return Event.objects.filter(
             group__pk=group_pk)
 
+    def get_all_events(self, member):
+
+        return Event.objects.filter(
+            member=member)
+
+
     def get_running_events(self, member):
+
         return Event.objects.filter(
             member=member,
             end_time__gte=datetime.now().date(),
@@ -50,7 +59,7 @@ class Event(EventAbstract):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("event-detail-gcal", args=(self.pk,))
+        return reverse("event-detail-gcal", args=(self.g, self.pk,))
     # def admin_create_event(sender, instance, *args, **kwargs):
     #     event = instance
     #     sender = event.member.member
@@ -61,6 +70,8 @@ class Event(EventAbstract):
 
 
 # post_save.connect(Event.admin_create_event, sender=Event)
+
+
 class EventMember(EventAbstract):
     """ Event member model """
 
