@@ -1,5 +1,7 @@
 
 from django import forms
+from django.utils import timezone
+
 from .models import Event
 
 
@@ -35,3 +37,14 @@ class EventForm(forms.ModelForm):
             ),
         }
         exclude = ["user"]
+
+    def clean(self):
+        super(EventForm, self).clean()
+        start_time = self.cleaned_data.get("start_time")
+        end_time = self.cleaned_data.get("end_time")
+
+        if start_time < timezone.now():
+            raise forms.ValidationError("Start time must greater than today.")
+
+        if start_time > end_time:
+            raise forms.ValidationError("End time must greater than start time")

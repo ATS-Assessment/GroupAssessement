@@ -7,13 +7,16 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
+from account.models import User
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.utils import timezone
+
+from notifications.signals import notify
+
 from .models import Group
 from .forms import CommentForm, GroupForm, PostForm, ReplyForm
 from notification.models import Notification
@@ -27,21 +30,6 @@ class GroupList(LoginRequiredMixin, ListView):
     template_name = "groups/group_list.html"
     context_object_name = "group_list"
 
-    def get_context_data(self, **kwargs):
-        context = super(GroupList, self).get_context_data()
-        context['member'] = Member.objects.filter(member=self.request.user)
-        return context
-
-
-def group_list(request):
-    groups = Group.objects.all()
-
-
-# class GroupDetail(LoginRequiredMixin, DetailView):
-#     model = Group
-#     template_name = "groups/group_detail.html"
-#     context_object_name = "group"
-
 
 @login_required(login_url='login')
 @is_member_of_group
@@ -52,50 +40,60 @@ def group_detail(request, group_pk):
 
     if request.method == "POST":
 
-
         member = group.group_member.get(member__pk=request.user.pk)
 
-        post_form = PostForm(request.POST, request.FILES)
-        if post_form.is_valid():
-            title = post_form.cleaned_data.get("title")
-            content = post_form.cleaned_data.get("content")
-            post_image = post_form.cleaned_data.get("post_image")
-            post_files = post_form.cleaned_data.get("post_files")
-            post = Post.objects.create(
-                title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=member)
-            post.save()
-            return redirect(reverse('group-detail', args=[group_pk]))
+        if not member.is_suspended:
+
+            post_form = PostForm(request.POST, request.FILES)
+            if post_form.is_valid():
+                title = post_form.cleaned_data.get("title")
+                content = post_form.cleaned_data.get("content")
+                post_image = post_form.cleaned_data.get("post_image")
+                post_files = post_form.cleaned_data.get("post_files")
+                Post.objects.create(
+                    title=title, content=content, post_image=post_image, post_files=post_files, group=group,
+                    member=member)
+                admins = group.group_member.filter(is_admin=True)
+                admin_list = []
+                for admin in admins:
+                    admin_list.append(admin.member)
+                notify.send(sender=member, recipient=admin_list, verb=f"{member} create a post",
+                            description="Post create")
+                return redirect(reverse('group-detail', args=[group_pk]))
+            else:
+                post_form = PostForm()
         else:
-            post_form = PostForm()
+            messages.error(request, "Suspended member cannot post.")
+            return redirect('group-detail', group.id)
     else:
         post_form = PostForm()
         member = group.group_member.get(member__pk=request.user.pk)
-    context = {
-        "current_user": Member.objects.get(member=request.user, group_id=group_pk),
-        "group": group,
-        "members": group.group_member.all(),
-        "count": group.group_member.all().count(),
-        "member": member,
-        "post_form": post_form,
-        "group_post": group_posts,
-        "today": timezone.now().date(),
-    }
 
-    # print(group_posts)
-    # print(group.group_member.all())
-    # (group_posts)
-    # print(group.group_member.all())
+    if not group.group_member.get(member=request.user).is_admin:
+        context = {
+            "current_member": Member.objects.get(member=request.user, group_id=group_pk),
+            "group": group,
+            "members": group.group_member.all(),
+            "count": group.group_member.all().count(),
+            "member": member,
+            "post_form": post_form,
+            "group_post": group_posts,
+            "today": timezone.now().date(),
+            "admin": Member.objects.filter(group_id=group_pk).filter(is_admin=True).count(),
+        }
+    else:
+        context = {
+            "current_member": Member.objects.get(member=request.user, group_id=group_pk),
+            "group": group,
+            "members": group.group_member.all(),
+            "count": group.group_member.all().count(),
+            "member": member,
+            "post_form": post_form,
+            "group_post": Post.objects.filter(group__pk=group_pk).order_by('-date_created'),
+            "today": timezone.now().date(),
+            "admin": Member.objects.filter(group_id=group_pk).filter(is_admin=True).count(),
+        }
 
-    for post in group_posts:
-        post_comments = Comment.objects.filter(
-            post__pk=post.pk, is_hidden=True).order_by('-date_created')
-
-        for comment in post_comments:
-            comment_replies = Replies.objects.filter(
-                comment__pk=comment.pk).order_by('-date_created')
-            context["post_comments"] = post_comments
-            context["comment_replies"] = comment_replies
-            context["post"] = post
     return render(request, "groups/group_detail.html", context)
 
 
@@ -113,7 +111,6 @@ def create_group(request):
                 group_image=group_image)
             new_member = Member.objects.create(
                 group=group, member=group.creator, is_admin=True)
-            print(new_member.member)
             group.save()
             new_member.save()
             messages.success(
@@ -134,23 +131,29 @@ def create_group(request):
 
 @require_POST
 @login_required(login_url="login")
-def make_admin(request, group_pk, admin_pk, user_pk):
+def make_admin(request, group_pk, user_pk):
     if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
         group = Group.objects.get(
-            pk=group_pk, creator_id=admin_pk)
-        if group.group_member.all().filter(is_admin=True).count() < 3:
-            member = group.group_member.get(member_id=user_pk)
-            # member = Member.objects.get(member_id=user_pk, group=group)
-            member.is_admin = True
-            member.save()
-            messages.success(
-                request, f"{member.member.first_name} has successfully been made an Admin!")
-            return redirect('group-detail', group.id)
+            pk=group_pk)
+        if not group.group_member.get(member_id=user_pk).is_suspended:
+            if group.group_member.all().filter(is_admin=True).count() < 3:
+                member = group.group_member.get(member_id=user_pk)
+                # member = Member.objects.get(member_id=user_pk, group=group)
+                if group.creator.id == member.member.id:
+                    messages.error(request, "You can't remove creator from admin")
+                member.is_admin = not member.is_admin
+                member.save()
+                messages.success(
+                    request, f"{member.member.first_name} has successfully been made an Admin!")
+                return redirect('group-detail', group.id)
+            else:
+                messages.error(
+                    request, "Group Admins cannot be more than 3!")
+                return redirect('group-detail', group.id)
         else:
             messages.error(
-                request, "Group Admins cannot be more than 3!")
+                request, "Suspended member cannot be admin")
             return redirect('group-detail', group.id)
-
     else:
         messages.error(request, "Only admin can make member an admin.")
         return redirect('group-detail', group_pk)
@@ -161,8 +164,11 @@ def make_admin(request, group_pk, admin_pk, user_pk):
 def remove_group_member(request, group_pk, admin_pk, user_pk):
     if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
         group = Group.objects.get(
-            pk=group_pk, creator_id=admin_pk)
+            pk=group_pk)
         member = group.group_member.get(member_id=user_pk)
+        if group.creator.id == member.member.id:
+            messages.error(request, "You can't remove creator.")
+            return redirect('group-detail', group.id)
         member.delete()
         messages.success(
             request, f"{member.member.first_name} has successfully been removed from the Group!")
@@ -175,31 +181,25 @@ def remove_group_member(request, group_pk, admin_pk, user_pk):
 @login_required(login_url='login')
 def request_to_join_group(request, group_pk):
     group = Group.objects.get(pk=group_pk)
-    group_request = GroupRequest.objects.create(
-        user=request.user, group=group)
-    # admins = group.group_member.all().filter(member__is_admin=True)
-    # for admin in admins:
-    Notification.objects.create(group=group,
-                                notification_type="group_request",
-                                content_preview="A Potential Member wants to join your Group",
-                                is_admin_notification=True)
-    return redirect(request.META["HTTP_REFERER"])
+    notify.send(sender=request.user, recipient=group.creator, action_object=group,
+                verb=f"{request.user} request to join group", description="Join request")
+    return redirect('group-list')
 
 
 def request_add(request, group_pk, user_pk):
     group = Group.objects.get(pk=group_pk)
     user = User.objects.get(pk=user_pk)
-    new_member = Member.objects.create(
+    Member.objects.create(
         group=group, member=user)
-    return redirect(reverse('group-detail', args=[group_pk]))
+    return redirect('group-detail', group.id)
 
 
-def join_group(request, group_pk):
+def join_group(request, group_pk, user_pk):
     group = Group.objects.get(pk=group_pk)
-    if not Member.objects.filter(member=request.user).exists():
-        Member.objects.create(group=group, member=request.user)
-        return redirect(reverse("group-detail", args=[group_pk]))
-    return redirect(request.META.get("HTTP_REFERER"))
+    if not Member.objects.filter(member_id=user_pk, group=group).exists():
+        Member.objects.create(group=group, member_id=user_pk)
+        return redirect('group-detail', group.id)
+    return redirect('group-list')
 
 
 def request_reject_():
@@ -215,22 +215,19 @@ def accept_to_group(request):
 
 @require_POST
 @login_required(login_url='login')
-def exit_group(request, group_name, user_pk):
-    group = Group.objects.get(name=group_name)
-    member = group.group_member.filter(user__pk=user_pk)
-    member.has_exited = True
-    member.save()
-    member.save()
+def exit_group(request, group_pk, user_pk):
+    group = get_object_or_404(Group, pk=group_pk)
+    member = group.group_member.get(member_id=user_pk)
+    member.delete()
     messages.success(
-        request, f"{member.user.first_name} has successfully exited from the Group!")
+        request, f"{member.member.first_name} has successfully exited from the Group!")
     return redirect("group-list")
 
 
-def suspend_member(request, group_pk, admin_pk, user_pk):
+def suspend_member(request, group_pk, user_pk):
     if Member.objects.get(member=request.user, group_id=group_pk).is_admin:
-        group = Group.objects.get(pk=group_pk, creator_id=admin_pk)
+        group = Group.objects.get(pk=group_pk)
         member = group.group_member.get(member_id=user_pk)
-
         member.is_suspended = not member.is_suspended
         member.save()
         return redirect('group-detail', group.id)
@@ -239,47 +236,10 @@ def suspend_member(request, group_pk, admin_pk, user_pk):
         return redirect("group-detail", group_pk)
 
 
-# @is_member_of_group
-# @ login_required(login_url='login')  # join with group_detail
-# def create_post(request, group_pk):
-#     group = Group.objects.get(pk=group_pk)
-#     group_member = group.group_member.all().filter(member=request.user)
-#     if group_member.is_suspended is False:
-#         if request.method == "POST":
-#             post_form = PostForm(request.POST, request.FILES)
-#             if post_form.is_valid():
-#                 title = post_form.cleaned_data.get("title")
-#                 content = post_form.cleaned_data.get("content")
-#                 post_image = post_form.cleaned_data.get("post_image")
-#                 post_files = post_form.cleaned_data.get("post_files")
-#                 post = Post.objects.create(
-#                     title=title, content=content, post_image=post_image, post_files=post_files, group=group, member=request.user)
-#                 post.save()
-#                 messages.success(request, "Post was created Successfully!")
-#                 return JsonResponse({"data": post})
-#             else:
-#                 context = {
-#                     "post_form": post_form
-#                 }
-#                 messages.error(
-#                     request, "Post Creation failed,Please try again!")
-#                 return render(request, "groups/group_detail.html", context)
-#         else:
-#             post_form = PostForm()
-#             context = {
-#                 "post_form": post_form
-#             }
-#             return render(request, "groups/group_detail.html", context)
-#     else:
-#         return JsonResponse({"message": "Permission Denied",
-#                              })
-
-
 @login_required(login_url="login")
 def search_groups(request):
     if request.method == "GET" and "keyword" in request.GET:
         group_name = request.GET.get('keyword')
-        print(group_name)
         results = Group.objects.filter(
             Q(name__icontains=group_name) | Q
             (description__icontains=group_name))
@@ -289,22 +249,30 @@ def search_groups(request):
         return render(request, 'search.html', context)
 
 
-# @is_member_of_group
-# @not_suspended_member
 def comment_on_post(request, group_pk, post_pk):
     post = Post.objects.get(group__pk=group_pk, pk=post_pk)
     group = Group.objects.get(pk=group_pk)
     if request.method == "POST":
         comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            content = comment_form.cleaned_data.get("content")
-            comment = Comment.objects.create(
-                member=group.group_member.get(member=request.user), content=content, post=post, group=group)
-            comment.save()
-            return redirect('group-detail', group.id)
+        member = group.group_member.get(member=request.user)
+        if not member.is_suspended:
+            if comment_form.is_valid():
+                content = comment_form.cleaned_data.get("content")
+                comment = Comment.objects.create(
+                    member=member, content=content, post=post, group=group)
+                admins = group.group_member.filter(is_admin=True)
+                admin_list = []
+                for admin in admins:
+                    admin_list.append(admin.member)
+                notify.send(member, recipient=admin_list, verb=f"{member.member.first_name} comment",
+                            description=f"{member.member.first_name} comment on a post")
+                return redirect('group-detail', group.id)
+            else:
+                comment_form = CommentForm(request.POST)
+                messages.error(request, "Comment Creation Failed")
+                return redirect('group-detail', group.id)
         else:
-            comment_form = CommentForm(request.POST)
-            messages.error(request, "Comment Creation Failed")
+            messages.error(request, "Suspended member cannot comment.")
             return redirect('group-detail', group.id)
     else:
         comment_form = CommentForm()
@@ -313,126 +281,168 @@ def comment_on_post(request, group_pk, post_pk):
         })
 
 
-# @is_member_of_group
-# @not_suspended_member
 @login_required(login_url="login")
 def reply_comment(request, group_pk, post_pk, comment_pk):
     group = Group.objects.get(pk=group_pk)
 
     member = group.group_member.get(member__pk=request.user.pk)
-    print(member)
     comment = Comment.objects.get(
         group__pk=group_pk, post__pk=post_pk, pk=comment_pk)
     if request.method == "POST":
         reply_form = ReplyForm(request.POST)
-        if reply_form.is_valid():
-            content = reply_form.cleaned_data.get("content")
-            if member:
-                new_reply = Replies.objects.create(member=member,
-                                                   content=content, comment=comment)
+        if not member.is_suspended:
+            if reply_form.is_valid():
+                content = reply_form.cleaned_data.get("content")
+                if member:
+                    new_reply = Replies.objects.create(member=member,
+                                                       content=content, comment=comment)
 
-                # s = serialize('json', [new_reply])
-                # o = s.strip("[]")
-                # print(new_reply)
-                # print(s)
-                # print(o)
-                print(new_reply.member.member.first_name)
-                print(new_reply.member.member.last_name)
-                resp = {
-                    "content": new_reply.content,
-                    "first_name": new_reply.member.member.first_name,
-                    "last_name": new_reply.member.member.last_name,
-
-                }
-                return JsonResponse(resp, content_type="application/json")
+                    admins = group.group_member.filter(is_admin=True)
+                    admin_list = []
+                    for admin in admins:
+                        admin_list.append(admin.member)
+                    notify.send(sender=member, recipient=admin_list, verb=f"{member.member.first_name} reply comment",
+                                description=f"{member.member.first_name} reply on a comment")
+                    return redirect('group-detail', group.id)
         else:
-            print(reply_form.errors)
-            return JsonResponse({"Error": reply_form.errors}, content_type="application/json")
+            messages.error(request, "Suspended member cannot reply comment.")
+            return redirect('group-detail', group.id)
+
     else:
-        return JsonResponse({
-            "message": "Not Allowed"
-        })
+        replies = Replies.objects.all().order_by("-date_created")
+        return render(request, "groups/group_detail.html", {"replies": replies})
 
 
-# @login_required(login_url="login")
-# @is_member_of_group
-# @not_suspended_member
 def like_post(request, group_pk, post_pk):
     if request.method == "POST":
-        content_id = request.POST.get("content_id", None)
         group = Group.objects.get(pk=group_pk)
         group_member = group.group_member.get(member=request.user)
-
-        if group_member.is_suspended is False:
-
-            post = Post.objects.get(pk=content_id)
-
-            if request.user not in post.like.all():
+        if not group_member.is_suspended:
+            post = Post.objects.get(pk=post_pk)
+            if group_member not in post.like.all():
                 post.like.add(group_member)
-                liked = True
-                notification = Notification.objects.create(
-                    notification_type="like", content_preview="A Member liked a Post", receiver=request.user)
-                return JsonResponse({
-                    "liked": liked,
-                    "content_id": content_id,
-                })
+                post.save()
+
+                admins = group.group_member.filter(is_admin=True)
+                admin_list = []
+                for admin in admins:
+                    admin_list.append(admin.member)
+                notify.send(sender=group_member, recipient=admin_list,
+                            verb=f"{group_member.member.first_name} like a post",
+                            description=f"{group_member.member.first_name} like a post")
+                notify.send(sender=group_member, recipient=post.member.member,
+                            verb=f"{group_member} like your post",
+                            description=f"{group_member} like your post")
+
+                return redirect('group-detail', group.id)
             else:
-                post.like.remove(request.user)
+                post.like.remove(group_member)
+                post.save()
                 liked = False
-                notification = Notification.object.create(
-                    notification_type="like", content_preview="A Member unliked a Post", receiver=request.user)
-                return JsonResponse({
-                    "liked": liked,
-                    "content_id": content_id,
-                })
+                Notification.objects.create(
+                    notification_type="like", content_preview="A Member unliked a Post", receiver=group_member)
+                return redirect('group-detail', group.id)
+        else:
+            messages.error(request, "Suspended member can not like post")
+            return redirect('group-detail', group.id)
 
 
 def like_comment(request, group_pk, post_pk, comment_pk):
-    group = Group.objects.get(pk=group_pk)
-    group_member = group.group_member.all().filter(member=request.user)
-    group_member = group.group_member.get(member=request.user)
-    print(group_member)
-    if group_member.is_suspended is False:
-        comment = Comment.objects.get(pk=comment_pk, post__pk=post_pk)
-        # reply = Replies.objects.filter(comment__pk=comment.pk)
-        liked = Like.objects.filter(
-            member=request.user, post__pk=post_pk, comment__pk=comment_pk)
-        print(liked)
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        # if not liked:
-        #     pass
-    else:
-        return JsonResponse({"message": "Permission Denied",
-                             })
+    if request.method == 'POST':
+        group = Group.objects.get(pk=group_pk)
+        group_member = group.group_member.get(member=request.user)
+        if not group_member.is_suspended:
+            comment = Comment.objects.get(pk=comment_pk, post_id=post_pk)
+            if group_member not in comment.like.all():
+                comment.like.add(group_member)
+                comment.save()
+                admins = group.group_member.filter(is_admin=True)
+                admin_list = []
+                for admin in admins:
+                    admin_list.append(admin.member)
+                notify.send(sender=group_member, recipient=admin_list,
+                            verb=f"{group_member.member.first_name} like a comment",
+                            description=f"{group_member.member.first_name} like a comment")
+                notify.send(sender=group_member, recipient=comment.member.member,
+                            verb=f"{group_member} like your comment",
+                            description=f"{group_member} like your comment")
+                return redirect('group-detail', group.id)
+            else:
+                comment.like.remove(group_member)
+                comment.save()
+            return redirect('group-detail', group.id)
+
+        else:
+            messages.error(request, "Suspended member cannot like comment")
+            return redirect('group-detail', group.id)
 
 
-def like_reply(request, group_pk, post_pk):
-    group = Group.objects.get(pk=group_pk)
-    group_member = group.group_member.all().filter(member=request.user)
-    if group_member.is_suspended is False:
-        post = Post.objects.filter(pk=post_pk)
-        comment = Comment.objects.filter(post__pk=post_pk)
-        reply = Replies.objects.filter(comment__pk=comment.pk)
-        liked = Like.objects.filter(member=request.user, post=post)
-        if not liked:
-            pass
-    else:
-        return JsonResponse({"message": "Permission Denied",
-                             })
+def like_reply(request, group_pk, post_pk, comment_pk, reply_comment_pk):
+    if request.method == 'POST':
+        group = Group.objects.get(pk=group_pk)
+        group_member = group.group_member.get(member=request.user)
+        if not group_member.is_suspended:
+            comment = Comment.objects.get(pk=comment_pk, post_id=post_pk)
+            reply = Replies.objects.get(pk=reply_comment_pk, comment=comment)
+            if group_member not in reply.like.all():
+                reply.like.add(group_member)
+                reply.save()
+
+                admins = group.group_member.filter(is_admin=True)
+                admin_list = []
+                for admin in admins:
+                    admin_list.append(admin.member)
+                notify.send(sender=group_member, recipient=admin_list,
+                            verb=f"{group_member.member.first_name} like a reply",
+                            description=f"{group_member.member.first_name} like a reply")
+                notify.send(sender=group_member, recipient=reply.member.member,
+                            verb=f"{group_member} like your reply",
+                            description=f"{group_member} like your reply")
+
+                return redirect('group-detail', group.id)
+            else:
+                reply.like.remove(group_member)
+                reply.save()
+                return redirect('group-detail', group.id)
+        else:
+            messages.error(request, 'Suspended member cannot like reply')
+            return redirect('group-detail', group.id)
 
 
 def hide_post(request, group_pk, post_pk):
     group = Group.objects.get(pk=group_pk)
-    print("HidePost")
-    group_member = group.group_member.all().filter(member=request.user)
-    if group_member.is_admin:
-        post = Post.objects.filter(pk=post_pk)
-        post.is_hidden = True
+    member = group.group_member.get(member=request.user)
+    if member.is_admin:
+        post = Post.objects.get(pk=post_pk)
+        post.is_hidden = not post.is_hidden
+        post.save()
 
-        return JsonResponse({
-            "hidden": post.is_hidden,
-            "post_pk": post.pk,
-        })
+        return redirect('group-detail', group.id)
+
+
+def hide_comment(request, group_pk, post_pk, comment_pk):
+    group = Group.objects.get(pk=group_pk)
+    member = group.group_member.get(member=request.user)
+    if member.is_admin:
+        post = Post.objects.get(pk=post_pk)
+        comment = post.post_comment.get(pk=comment_pk)
+        comment.is_hidden = not comment.is_hidden
+        comment.save()
+
+        return redirect('group-detail', group.id)
+
+
+def hide_reply_comment(request, group_pk, post_pk, comment_pk, reply_comment_pk):
+    group = Group.objects.get(pk=group_pk)
+    member = group.group_member.get(member=request.user)
+    if member.is_admin:
+        post = Post.objects.get(pk=post_pk)
+        comment = post.post_comment.get(pk=comment_pk)
+        reply_comment = comment.comment_replies.get(pk=reply_comment_pk)
+        reply_comment.is_hidden = not reply_comment.is_hidden
+        reply_comment.save()
+
+        return redirect('group-detail', group.id)
 
 
 @login_required(login_url='login')
@@ -454,3 +464,7 @@ def page_400(request, exception=None):
 
 def page_500(request, exception=None):
     return render(request, "groups/404.html")
+
+
+def confirmation(request):
+    return render(request, "groups/confirmation.html")

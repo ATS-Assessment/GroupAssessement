@@ -84,6 +84,7 @@
                                         <div class="d-flex align-items-center">
                                             <form class="post-text ml-3 mr-3 w-100" id="" method="POST" enctype="multipart/form-data" action="{% url 'calendar-view' group.pk %}">
                                                 {% csrf_token %}
+                                                {{ event_form.errors }}
                                                 <div class="form-group">
                                                     <label for="title">Event Title:</label>
                                                     {{form.title}}
@@ -138,8 +139,8 @@
                 {% for event in events %}
                     {
                         title: "{{ event.title }}",
-                        location: "{{ event.location}}",
-                        description: "{{ event.description }}",
+                        {#location: "{{ event.location}}",#}
+                        {#description: "{{ event.description }}",#}
                         start: "{{ event.start_time.isoformat }}",
                         end: "{{ event.end_time.isoformat}}",
                         url: "{{ event.get_absolute_url}}"

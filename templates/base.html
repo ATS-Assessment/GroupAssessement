@@ -1,4 +1,5 @@
 {% load static %}
+{% load notifications_tags %}
 <!doctype html>
 <html lang="en">
    <head>
@@ -21,6 +22,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+   <style>
+       li {
+           list-style-type: none;
+       }
+
+       #post-modal-data{
+           display: flex;
+            flex-direction: column;
+            gap: 20px;
+           background: inherit;
+       }
+       #post-modal-data > * {
+           background: var(--iq-dark-box);
+
+       }
+   </style>
       <title>
           {% block title %}
           {% endblock %}
@@ -263,31 +280,49 @@
                            </div>
                         </li>
                         <li class="nav-item">
-                           <a href="{% url "notification-list" %}" class="search-toggle iq-waves-effect">
+                           <a href="" class="search-toggle iq-waves-effect">
                               <div id="lottie-beil">
-                                 </div><div> <span>{{noti_count}}</span></div>
+                                 </div><div> <span></span></div>
                                  
-                              <span class="bg-danger dots"></span>
+                              <span class="bg-danger dots">{% live_notify_badge %}</span>
                            </a>
                            <div class="iq-sub-dropdown">
                               <div class="iq-card shadow-none m-0">
                                  <div class="iq-card-body p-0 ">
                                     <div class="bg-primary p-3">
-                                       <h5 class="mb-0 text-white">All Notifications<small class="badge  badge-light float-right pt-1">{{noti.count}}</small></h5>
+                                       <h5 class="mb-0 text-white">All Notifications<small class="badge  badge-light float-right pt-1">{% live_notify_badge %}</small></h5>
                                     </div>
+                                 <a href="{% url 'notifications:mark_all_as_read' %}?next={{ request.path }}">mark all as read</a>
                                     <a href="#" class="iq-sub-card" >
-                                       {% for nots in noti %}
+                                       {% for nots in user.notifications.unread %}
+                                           {% if nots.description == "Join request" %}
                                           <div class="media align-items-center">
-                                          <div class="">
-                                             <img class="avatar-40 rounded" src="{% static 'images/user/01.jpg' %}" alt="">
-                                          </div>
-                                          <div class="media-body ml-3">
-                                             <h6 class="mb-0 "><strong>{{nots.group.name}}</strong></h6>
-                                             <h6 class="mb-0 ">{{nots.notification_type}}</h6>
-                                             <small class="float-right font-size-12">{{nots.time_created}}</small>
-                                             <p class="mb-0">{{nots.receiver.first_name}}</p>
+                                              <div class="media-body ml-3">
+                                             <h6 class="mb-0 "><strong>{{nots.actor}}</strong></h6>
+                                             <h6 class="mb-0 ">{{nots.description}}</h6>
+                                             <small class="float-right font-size-12">{{nots.timestamp}}</small>
                                           </div>
                                        </div>
+                                           <a href="{% url 'join-group' nots.action_object.id nots.actor_object_id %}">Accept</a>
+                                               {% elif nots.description == "Event invite" %}
+                                               <div class="media align-items-center">
+                                              <div class="media-body ml-3">
+                                             <h6 class="mb-0 "><strong>{{nots.actor}}</strong></h6>
+                                             <h6 class="mb-0 ">{{nots.description}}</h6>
+                                             <small class="float-right font-size-12">{{nots.timestamp}}</small>
+                                          </div>
+                                       </div>
+                                           <a href="{% url 'accept-invite' nots.action_object.id nots.target.id %}">Yes</a>
+                                           <a href="{% url 'notifications:mark_as_read' nots.slug %}?next={{ request.path }}">No</a>
+                                               {% else %}
+                                               <div class="media align-items-center">
+                                              <div class="media-body ml-3">
+                                             <h6 class="mb-0 "><strong>{{nots.actor}}</strong></h6>
+                                             <h6 class="mb-0 ">{{nots.description}}</h6>
+                                             <small class="float-right font-size-12">{{nots.timestamp}}</small>
+                                          </div>
+                                       </div>
+                                           {% endif %}
                                        {% endfor %}
                                     </a>
                                  </div>

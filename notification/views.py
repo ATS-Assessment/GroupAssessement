@@ -14,9 +14,12 @@ from django.utils.translation import gettext_lazy as _
 from groups.models import Group
 from .models import Notification
 from poll.models import Poll
+
 logger = logging.getLogger(__name__)
 # Create your views here.
 print(logger, 'here')
+
+
 def show_notification(request, event_pk):
     member = Member.objects.get(member__pk=request.user.pk)
     event = Event.objects.get(pk=event_pk)
@@ -27,6 +30,8 @@ def show_notification(request, event_pk):
         "member": member,
         "event": event,
     })
+
+
 # @login_required(login_url='login')
 # def count_notification(request):
 #     if not request.user.pk:
@@ -61,6 +66,8 @@ def notification_list(request):
         # "event": event,
     }
     return render(request, 'notification.html', context)
+
+
 @login_required
 def notification_view(request, notif_pk):
     logger.debug(
@@ -83,6 +90,8 @@ def notification_view(request, notif_pk):
         messages.error(request, _(
             'You are not authorized to view that notification.'))
         return redirect('notification-list')
+
+
 @login_required
 def remove_notification(request, notif_pk):
     logger.debug(
@@ -106,12 +115,16 @@ def remove_notification(request, notif_pk):
         )
         messages.error(request, _('Failed to locate notification.'))
     return redirect('notification-list')
+
+
 @login_required
 def mark_all_read(request):
     logger.debug('mark all notifications read called by user %s', request.user)
     Notification.objects.filter(receiver=request.user).update(is_seen=True)
     messages.success(request, _('Marked all notifications as read.'))
     return redirect('notification-list')
+
+
 @login_required
 def delete_all_read(request):
     logger.debug(
@@ -120,6 +133,8 @@ def delete_all_read(request):
         receiver=request.user).filter(is_seen=True).delete()
     messages.success(request, _('Deleted all read notifications.'))
     return redirect('notification-list')
+
+
 # def user_notifications_count(request, user_pk: int):
 #     """returns to notifications count for the give user as JSON
 #     This view is public and does not require login
@@ -133,5 +148,7 @@ def count_notification(request):
     noti_count = Notification.objects.filter(
         receiver=request.user, is_seen=False).count()
     return dict(noti_count=noti_count)
+
+
 def event_on_calender_view(request):
     pass

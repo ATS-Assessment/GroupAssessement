@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import (handler400, handler404, handler403, handler500)
 
+import notifications.urls
+
 handler500 = "groups.views.page_500"
 handler403 = "groups.views.page_403"
 handler404 = "groups.views.page_404"
@@ -34,5 +36,6 @@ urlpatterns = [
 
     path('poll/', include('poll.urls')),
     path('event/', include('event.urls')),
+    path('^inbox/notificatons/', include(notifications.urls, namespace='notifications')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

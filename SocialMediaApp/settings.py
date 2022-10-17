@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'account',
     'groups',
     'notification',
+    'notifications',
     'poll',
     'event',
 ]

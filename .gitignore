@@ -10,6 +10,8 @@ __pycache__/
 
 db.sqlite3
 
+api-key.json
+
 # Distribution / packaging
 .Python
 build/

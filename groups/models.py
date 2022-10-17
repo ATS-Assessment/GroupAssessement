@@ -171,9 +171,9 @@ class Comment(models.Model):
         receiver = comment.group
         text_preview = comment.content[:50]
 
-        notify = Notification.objects.create(receiver=post.member.member,
+        Notification.objects.create(receiver=post.member,
                                              content_preview=text_preview, notification_type="like")
-        notify.save()
+
 
     def member_del_comment(sender, instance, *args, **kwargs):
         comment = instance
@@ -196,6 +196,8 @@ class Replies(models.Model):
         Comment, on_delete=models.SET_NULL, related_name="comment_replies", null=True)
     content = models.TextField(max_length=80)
     date_created = models.DateTimeField(auto_now_add=True)
+    like = models.ManyToManyField(
+        Member, related_name="reply_liked_by", through="Like")
     is_active = models.BooleanField(default=True)
     is_hidden = models.BooleanField(default=False)
 

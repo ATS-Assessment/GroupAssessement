@@ -26,15 +26,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import FormView
 from django.contrib import messages
-from notification.models import EventInvite, Notification
 from django.urls import reverse_lazy, reverse
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from notifications.signals import notify
+
 from .forms import EventForm
 from .utils import Calendar
 from groups.decorators import is_group_admin
 from groups.models import Group, Member
 from .models import EventMember, Event
+from .calenderapi import main
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 service_account_email = "socialv@django-group.iam.gserviceaccount.com"
@@ -94,7 +97,7 @@ def build_service(request):
 class EventEdit(generic.UpdateView):
     model = Event
     fields = ["title", "description", "location", "start_time", "end_time"]
-    template_name = "event.html"
+    template_name = "edit_event.html"
 
 
 ########################################################################
@@ -108,9 +111,10 @@ class AcccessToGoogleCalendar:
     # Creates a "token.pkl" Pickelfile when you first try to get in touch with your Google Calendar.....
     def get_token(self):
         creds = InstalledAppFlow.from_client_secrets_file(
-            "client_secret.json", SCOPES
+            "credentials.json", SCOPES
         )
         token = creds.run_local_server(port=0)
+
         pickle.dump(token, open("token.pkl", "wb"))
 
     # .....for any future call the token will be simply read from "token.pkl"
@@ -132,8 +136,8 @@ class AcccessToGoogleCalendar:
 class ViewEvent(AcccessToGoogleCalendar, generic.View):
     def get(self, request, *args, **kwargs):
         enter = self.verify()
-        member = Member.objects.get(member__pk=request.user.pk)
-        events = Event.objects.get_all_events(member=member)
+        member = Member.objects.filter(member=request.user)
+        events = Event.objects.all()
         events_result = (
             enter.events()
             .list(
@@ -167,64 +171,37 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
         group = get_object_or_404(
             Group, pk=self.kwargs.get("group_pk", None))
         member = group.group_member.get(member=request.user)
-        events = Event.objects.get_all_events(group_pk=group.pk)
-        running_events = Event.objects.get_running_events(member=member)
-        event_list = []
-        print(events)
-        print(group)
+        if member.is_admin:
+            events = Event.objects.get_all_events(group_pk=group.pk)
+        else:
+            events = Event.objects.filter(accept=request.user)
         context = {"form": forms, "events": events, "group": group, "member": member
                    #    "events_month": events_month
                    }
-        return render(request, self.template_name, context)
+        return render(request, "calendar.html", context)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        group = get_object_or_404(
-            Group, pk=self.kwargs.get("group_pk", None))
-        print(form.is_valid())
-        print(form.errors)
+        group = Group.objects.get(pk=self.kwargs.get("group_pk"))
         if form.is_valid():
-            event = form.save()
-            # print(event.pk)
-            event_title = form.cleaned_data.get("title")
-            start_date_data = form.cleaned_data.get("start_time")
-            end_date_data = form.cleaned_data.get("end_time")
-            description = form.cleaned_data.get("description")
-            location = form.cleaned_data.get("location")
-            group = get_object_or_404(
-                Group, pk=self.kwargs.get("group_pk", None))
+            event = form.save(commit=False)
             member = group.group_member.get(member=request.user)
             event.member = member
+            event.group = group
             event.save()
-            event = Event.objects.create(member=member, group=group, title=event_title, description=description, location=location,
-                                         start_time=start_date_data,
-                                         end_time=end_date_data)
-            invite = EventInvite.objects.create(event=event)
-            group = get_object_or_404(
-                Group, pk=self.kwargs.get("group_pk", None))
-            members = group.group_member.get(member=request.user)
-            notif = Notification.objects.create(
-                notification_type="Event Invite", event=event, content_preview="The Group Admin Just Created an Event and you can choose to accept or decline.", group=group)
-            if start_date_data > end_date_data:
-                messages.add_message(self.request, messages.INFO,
-                                     'Please enter the correct period.')
-                return HttpResponseRedirect(reverse("calendar-view"))
-            else:
-                context = {"form": form, "group": group
-                           }
-                return render(request, self.template_name, context)
-            #     service = build_service(self.request)
-            #     calendarId = "socialv@django-group.iam.gserviceaccount.com"
-            #     event = (
-            #         service.events().insert(
-            #             calendarId=calendarId,
-            #             body={
-            #                 "summary": eventTitle,
-            #                 "start": {"dateTime": start_date_data.isoformat()},
-            #                 "end": {"dateTime": end_date_data.isoformat()},
-            #             },
-            #         ).execute()
-            #     )
+            member_list = []
+            for memba in group.group_member.all().exclude(member_id=request.user.id):
+                member_list.append(memba.member)
+            notify.send(sender=request.user, recipient=member_list,
+                        action_object=group, target=event,
+                        verb=f"{request.user} create an event",
+                        description="Event invite")
+            print(group)
+            print(group.id)
+            return redirect('calendar-view', group.id)
+        messages.error(request, "Invalid form")
+        return redirect('calendar-view', group.id)
+
     def get_context_data(self, **kwargs):
         context = super(CalendarViewNew, self).get_context_data(**kwargs)
         calendarId = self.request.user.email
@@ -259,50 +236,56 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
         return redirect('event-list')
 
 
-class AllEventsListView(ListView):
-    """ All event list views """
-    template_name = "event_list.html"
-    model = Event
+def acceptinvite(request, group_pk, event_pk):
+    group = Group.objects.get(pk=group_pk)
+    event = Event.objects.get(pk=event_pk, group=group)
+    event.accept.add(request.user.id)
+    main(event)
+    return redirect('calendar-view', group.id)
+
+
+
+
     # def get_queryset(self):
     # member = Member.objects.get(member__pk=self.request.user.pk)
     # return Event.objects.get_all_events()
 
 
-def event_on_calender_view(request):
-    pass
+# def event_on_calender_view(request):
+#     pass
+#
+#
+# def yes_members_view(request, group_pk, event_pk):
+#     member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
+#     invite = EventInvite.objects.get(event__pk=event_pk)
+#     invite.yes.add(member)
+#     return redirect('event-list')
+#
+#
+# def no_members_view(request, group_pk, event_pk):
+#     member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
+#     invite = EventInvite.objects.get(event__pk=event_pk)
+#     invite.no.add(member)
+#     return redirect('event-list')
+#
+#
+# def maybe_members_view(request, group_pk, event_pk):
+#     member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
+#     invite = EventInvite.objects.get(event__pk=event_pk)
+#     invite.maybe.add(member)
+#     return redirect('event-list')
 
 
-def yes_members_view(request, group_pk, event_pk):
-    member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
-    invite = EventInvite.objects.get(event__pk=event_pk)
-    invite.yes.add(member)
-    return redirect('event-list')
-
-
-def no_members_view(request, group_pk, event_pk):
-    member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
-    invite = EventInvite.objects.get(event__pk=event_pk)
-    invite.no.add(member)
-    return redirect('event-list')
-
-
-def maybe_members_view(request, group_pk, event_pk):
-    member = Member.objects.get(member__pk=request.user.pk, group__pk=group_pk)
-    invite = EventInvite.objects.get(event__pk=event_pk)
-    invite.maybe.add(member)
-    return redirect('event-list')
-
-
-def invite_summary(request, event_pk):
-    invite = EventInvite.objects.get(pk=event_pk)
-    yes_members = invite.yes.all()
-    no_members = invite.no.all()
-    maybe_members = invite.maybe.all()
-    return render(request, "event_summary.html", {
-        "yes_members": yes_members,
-        "no_members": no_members,
-        "maybe_members": maybe_members,
-    })
+# def invite_summary(request, event_pk):
+#     invite = EventInvite.objects.get(pk=event_pk)
+#     yes_members = invite.yes.all()
+#     no_members = invite.no.all()
+#     maybe_members = invite.maybe.all()
+#     return render(request, "event_summary.html", {
+#         "yes_members": yes_members,
+#         "no_members": no_members,
+#         "maybe_members": maybe_members,
+#     })
 
 
 # def create_event(request, group_pk):
@@ -318,6 +301,7 @@ def invite_summary(request, event_pk):
 #                                  start_time=start_time,
 #                                  end_time=end_time)
 #             return redirect('event-list')
+
 def edit_event(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     event_form = EventForm(instance=event)
@@ -332,108 +316,108 @@ def edit_event(request, event_pk):
     return render(request, 'calendar.html', context)
 
 
-class HomeView(FormView):
-    form_class = EventForm
-    template_name = 'event.html'
-
-    def post(self, request, *args, **kwargs):
-        form = EventForm(request.POST)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        member = Member.objects.get(pk=self.request.user.pk)
-        event = form.save()
-        event.member = member
-        event.save()
-        invite = EventInvite.objects.create(event=event)
-        notif = Notification.objects.create(
-            notification_type="Event Invite", event=event,
-            content_preview="The Group Admin Just Created an Event and you can choose to accept or decline.",
-            group=Group.objects.get(pk=self.kwargs["group_pk"]))
-        eventTitle = form.cleaned_data.get("title")
-        start_date_data = form.cleaned_data.get("start_time")
-        end_date_data = form.cleaned_data.get("end_time")
-        # member =
-        if start_date_data > end_date_data:
-            messages.add_message(self.request, messages.INFO,
-                                 'Please enter the correct period.')
-            return HttpResponseRedirect(reverse("event-list"))
-        service = build_service(self.request)
-        calendarId = self.request.user.email
-        event = (
-            service.events().insert(
-                calendarId=f'{calendarId}',
-                body={
-                    "summary": eventTitle,
-                    "start": {"dateTime": start_date_data.isoformat()},
-                    "end": {"dateTime": end_date_data.isoformat()},
-                },
-            ).execute()
-        )
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
-        calendarId = self.request.user.email
-        form = EventForm()
-        s_event = []
-        service = build_service(self.request)
-        events = (
-            service.events().list(
-                calendarId="socialv@django-group.iam.gserviceaccount.com",
-            ).execute()
-        )
-        print(self.kwargs["group_pk"])
-        for event in events['items']:
-            event_title = event['summary']
-            # Deleted the last 6 characters (deleted UTC time)
-            start_date_time = event["start"]["dateTime"]
-            start_date_time = start_date_time[:-6]
-            # Deleted the last 6 characters (deleted UTC time)
-            end_date_time = event['end']["dateTime"]
-            end_date_time = end_date_time[:-6]
-            s_event.append([event_title, start_date_time, end_date_time])
-        context = {
-            "form": form,
-            "booking_event": s_event,
-            "group": self.kwargs.get("group_pk", None)
-        }
-        return context
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.INFO,
-                             'Form submission success!!')
-        return redirect(reverse('cal:home'))
+# class HomeView(FormView):
+#     form_class = EventForm
+#     template_name = 'event.html'
+#
+#     def post(self, request, *args, **kwargs):
+#         form = EventForm(request.POST)
+#         if form.is_valid():
+#             return self.form_valid(form)
+#         else:
+#             return self.form_invalid(form)
+#
+#     def form_valid(self, form):
+#         member = Member.objects.get(pk=self.request.user.pk)
+#         event = form.save()
+#         event.member = member
+#         event.save()
+#         invite = EventInvite.objects.create(event=event)
+#         notif = Notification.objects.create(
+#             notification_type="Event Invite", event=event,
+#             content_preview="The Group Admin Just Created an Event and you can choose to accept or decline.",
+#             group=Group.objects.get(pk=self.kwargs["group_pk"]))
+#         eventTitle = form.cleaned_data.get("title")
+#         start_date_data = form.cleaned_data.get("start_time")
+#         end_date_data = form.cleaned_data.get("end_time")
+#         # member =
+#         if start_date_data > end_date_data:
+#             messages.add_message(self.request, messages.INFO,
+#                                  'Please enter the correct period.')
+#             return HttpResponseRedirect(reverse("event-list"))
+#         service = build_service(self.request)
+#         calendarId = self.request.user.email
+#         event = (
+#             service.events().insert(
+#                 calendarId=f'{calendarId}',
+#                 body={
+#                     "summary": eventTitle,
+#                     "start": {"dateTime": start_date_data.isoformat()},
+#                     "end": {"dateTime": end_date_data.isoformat()},
+#                 },
+#             ).execute()
+#         )
+#         return super().form_valid(form)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(HomeView, self).get_context_data(**kwargs)
+#         calendarId = self.request.user.email
+#         form = EventForm()
+#         s_event = []
+#         service = build_service(self.request)
+#         events = (
+#             service.events().list(
+#                 calendarId="socialv@django-group.iam.gserviceaccount.com",
+#             ).execute()
+#         )
+#         print(self.kwargs["group_pk"])
+#         for event in events['items']:
+#             event_title = event['summary']
+#             # Deleted the last 6 characters (deleted UTC time)
+#             start_date_time = event["start"]["dateTime"]
+#             start_date_time = start_date_time[:-6]
+#             # Deleted the last 6 characters (deleted UTC time)
+#             end_date_time = event['end']["dateTime"]
+#             end_date_time = end_date_time[:-6]
+#             s_event.append([event_title, start_date_time, end_date_time])
+#         context = {
+#             "form": form,
+#             "booking_event": s_event,
+#             "group": self.kwargs.get("group_pk", None)
+#         }
+#         return context
+#
+#     def get_success_url(self):
+#         messages.add_message(self.request, messages.INFO,
+#                              'Form submission success!!')
+#         return redirect(reverse('cal:home'))
 
 
 # @login_required(login_url="login")
 # @is_group_admin
-def cre(request, group_pk):
-    print("bb")
-    if request.method == "POST":
-        form = EventForm(request.POST or None)
-        if form.is_valid():
-            member = Member.objects.get(member__pk=request.user.pk)
-            title = form.cleaned_data["title"]
-            description = form.cleaned_data["description"]
-            location = form.cleaned_data["location"]
-            start_time = form.cleaned_data["start_time"]
-            end_time = form.cleaned_data["end_time"]
-            event = Event.objects.get_or_create(
-                user=member,
-                title=title,
-                description=description,
-                location=location,
-                start_time=start_time,
-                end_time=end_time,
-            )
-            notif = Notification.objects.create(
-                notification_type="Event Invite", event=event,
-                content_preview="The Group Admin Just Created an Event and you can choose to accept or decline.",
-                group=Group.objects.get(pk=group_pk))
-            return HttpResponseRedirect(reverse("calendar"))
-    form = EventForm()
-    return render(request, "event.html", {"form": form})
+# def cre(request, group_pk):
+#     print("bb")
+#     if request.method == "POST":
+#         form = EventForm(request.POST or None)
+#         if form.is_valid():
+#             member = Member.objects.get(member__pk=request.user.pk)
+#             title = form.cleaned_data["title"]
+#             description = form.cleaned_data["description"]
+#             location = form.cleaned_data["location"]
+#             start_time = form.cleaned_data["start_time"]
+#             end_time = form.cleaned_data["end_time"]
+#             event = Event.objects.get_or_create(
+#                 user=member,
+#                 title=title,
+#                 description=description,
+#                 location=location,
+#                 start_time=start_time,
+#                 end_time=end_time,
+#             )
+#             notif = Notification.objects.create(
+#                 notification_type="Event Invite", event=event,
+#                 content_preview="The Group Admin Just Created an Event and you can choose to accept or decline.",
+#                 group=Group.objects.get(pk=group_pk))
+#             return HttpResponseRedirect(reverse("calendar"))
+#     form = EventForm()
+#     return render(request, "event.html", {"form": form})

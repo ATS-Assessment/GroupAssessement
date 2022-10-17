@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load group_tags %}
 {% block content %}
     <!---header--->
     <div class="header-for-bg">
+    {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         <div class="background-header position-relative">
-            <img src="{% static 'images/page-img/profile-bg7.jpg' %}" class="img-fluid w-100 rounded rounded" alt="header-bg">
+            <img src="{% static 'images/page-img/profile-bg7.jpg' %}" class="img-fluid w-100 rounded rounded"
+                 alt="header-bg">
             <div class="title-on-header">
                 <div class="data-block">
                     <h2>Groups</h2>
@@ -18,60 +25,75 @@
         <div class="container">
             <div class="row">
                 {% if group_list %}
-                {% for group in group_list %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="iq-card">
-                            <div class="top-bg-image">
-                                <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100" alt="group-bg">
-                            </div>
-                            <div class="iq-card-body text-center">
-                                <div class="group-icon">
-                                    <img src="{{ group.group_image.url }}" alt="profile-img" class="rounded-circle img-fluid avatar-120">
+                    {% for group in group_list %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="iq-card">
+                                <div class="top-bg-image">
+                                    <img src="{% static 'images/page-img/profile-bg1.jpg' %}" class="img-fluid w-100"
+                                         alt="group-bg">
                                 </div>
-                                <div class="group-info pt-3 pb-3">
-                                    <h4><a href="{% url 'group-detail' group.pk %}">{{ group.name }}</a></h4>
-                                    <p>{{ group.description|truncatewords:10 }}</p>
-                                </div>
-                                <div class="group-details d-inline-block pb-3">
-                                    <ul class="d-flex align-items-center justify-content-between list-inline m-0 p-0">
-                                        <li class="pl-3 pr-3">
-                                            <p class="mb-0">Post</p>
-                                            <h6>{{ group.post_set.count }}</h6>
-                                        </li>
-                                        <li class="pl-3 pr-3">
-                                            <p class="mb-0">Members</p>
-                                            <h6>{{ group.group_member.count }}</h6>
-                                        </li>
-                                        <li class="pl-3 pr-3">
-                                            <p class="mb-0">Privacy Status</p>
-                                            <h6>{{ group.privacy_status }}</h6>
-                                        </li>
-                                    </ul>
-                                </div>
-                                {% if group.privacy_status == "open" %}
-                                        {% if member in group.group_member.all %}
-                                            <a href="{% url "group-detail" group.id %}" class="join btn btn-primary d-block w-100">View</a>
-                                            {% else %}
-                                             <a href="{% url "join-group" group.id %}" class="join btn btn-primary d-block w-100">Join</a>
-                                        {% endif %}
+                                <div class="iq-card-body text-center">
+                                    <div class="group-icon">
+                                        <img src="{{ group.group_image.url }}" alt="profile-img"
+                                             class="rounded-circle img-fluid avatar-120">
+                                    </div>
+                                    <div class="group-info pt-3 pb-3">
+                                        <h4>{{ group.name }}</h4>
+                                        <p>{{ group.description|truncatewords:10 }}</p>
+                                    </div>
+                                    <div class="group-details d-inline-block pb-3">
+                                        <ul class="d-flex align-items-center justify-content-between list-inline m-0 p-0">
+                                            <li class="pl-3 pr-3">
+                                                <p class="mb-0">Post</p>
+                                                <h6>{{ group.post_set.count }}</h6>
+                                            </li>
+                                            <li class="pl-3 pr-3">
+                                                <p class="mb-0">Members</p>
+                                                <h6>{{ group.group_member.count }}</h6>
+                                            </li>
+                                            <li class="pl-3 pr-3">
+                                                <p class="mb-0">Privacy Status</p>
+                                                <h6>{{ group.privacy_status }}</h6>
+                                            </li>
+                                        </ul>
+                                    </div>
 
-                                    {% else %}
-                                        <a href="{% url "request-to-join" group.pk %}" class="req-join btn btn-primary d-block w-100" data-size="Requested">Request To Join</a>
-                                    {% endif %}
+
+                                                {% if group.group_member.all|current_user:request.user.id and group.privacy_status == "open" %}
+                                                    <a href="{% url "group-detail" group.id %}"
+                                                       class="join btn btn-primary d-block w-100">View</a>
+                                                    {% elif group.group_member.all|current_user:request.user.id and group.privacy_status == "closed" %}
+                                                    <a href="{% url "group-detail" group.id %}"
+                                                       class="join btn btn-primary d-block w-100">View</a>
+                                                {% elif not group.group_member.all|current_user:request.user.id and group.privacy_status == "closed" %}
+                                                    <a href="{% url "request-to-join" group.id %}"
+                                                       class="join btn btn-primary d-block w-100">{% if "request-to-join" in request.path %}Sent{% else %}Request to join{% endif %}</a>
+                                                    {% else %}
+                                                     <a href="{% url "join-group" group.id request.user.id %}"
+                                                       class="join btn btn-primary d-block w-100">Join</a>
+                                                {% endif %}
+
+
+
+
+
+
+
+
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-            <h1 class="mb-0">There are no groups available.</h1>
-            {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <h1 class="mb-0">There are no groups available.</h1>
+                {% endif %}
             </div>
         </div>
     </div>
     <script>
         console.log("welcome");
         console.log("welcome");
-        $('.req-join').on('click',function(e) {
+        $('.req-join').on('click', function (e) {
             e.preventDefault();
             var size = $(this).attr('data-size');
             $('.req-join').text(size);
